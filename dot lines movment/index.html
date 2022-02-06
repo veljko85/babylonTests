@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>Dot lines movment</title>
+
+    <!-- Babylon.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+    <script src="https://preview.babylonjs.com/ammo.js"></script>
+    <script src="https://preview.babylonjs.com/cannon.js"></script>
+    <script src="https://preview.babylonjs.com/Oimo.js"></script>
+    <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+    <script src="https://preview.babylonjs.com/babylon.js"></script>
+    <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+    <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+    <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+    <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+    <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+    <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+    <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+
+    <style>
+      html,
+      body {
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      #renderCanvas {
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+      var canvas = document.getElementById("renderCanvas");
+
+      var startRenderLoop = function (engine, canvas) {
+        engine.runRenderLoop(function () {
+          if (sceneToRender && sceneToRender.activeCamera) {
+            sceneToRender.render();
+          }
+        });
+      };
+
+      var engine = null;
+      var scene = null;
+      var sceneToRender = null;
+      var createDefaultEngine = function () {
+        return new BABYLON.Engine(canvas, true, {
+          preserveDrawingBuffer: true,
+          stencil: true,
+          disableWebGL2Support: false,
+        });
+      };
+      var createScene = function () {
+        var scene = new BABYLON.Scene(engine);
+
+        //Adding a light
+        var light = new BABYLON.HemisphericLight(
+          "light",
+          new BABYLON.Vector3(0, 1, -1),
+          scene
+        );
+        light.intensity = 1;
+
+        //Adding an Arc Rotate Camera
+        var camera = new BABYLON.ArcRotateCamera(
+          "Camera",
+          0,
+          0,
+          0,
+          new BABYLON.Vector3(0, 0, 0),
+          scene
+        );
+        camera.setPosition(new BABYLON.Vector3(0, 0, -20));
+        camera.attachControl(canvas, true);
+
+        function attachOwnPointerDragBehavior(mesh) {
+          var pointerDragBehavior = new BABYLON.PointerDragBehavior({});
+          // Use drag plane in world space
+          pointerDragBehavior.useObjectOrientationForDragging = false;
+          mesh.addBehavior(pointerDragBehavior);
+        }
+        // Create shapes
+        var head = BABYLON.MeshBuilder.CreateSphere(
+          "sphere",
+          { diameter: 2, segments: 32 },
+          scene
+        );
+        head.position.y = 1.5;
+        //left side
+        var leftSholder = BABYLON.MeshBuilder.CreateSphere(
+          "sphere",
+          { diameter: 0.5, segments: 32 },
+          scene
+        );
+        leftSholder.position.x = -1.5;
+
+        var leftSholderElbowBone = BABYLON.MeshBuilder.CreateCylinder(
+          "axle",
+          { diameter: 0.2, height: 1.5 },
+          scene
+        );
+
+        var leftElbow = BABYLON.MeshBuilder.CreateSphere(
+          "sphere",
+          { diameter: 0.5, segments: 32 },
+          scene
+        );
+        leftElbow.position = new BABYLON.Vector3(-4.5, 0, 0);
+
+        var leftElbowHandwristBone = BABYLON.MeshBuilder.CreateCylinder(
+          "axle",
+          { diameter: 0.2, height: 1.5 },
+          scene
+        );
+
+        var leftHandWrist = BABYLON.MeshBuilder.CreateSphere(
+          "sphere",
+          { diameter: 0.5, segments: 32 },
+          scene
+        );
+        leftHandWrist.position = new BABYLON.Vector3(-7.5, 0, 0);
+
+        //right side
+        var rightSholder = BABYLON.MeshBuilder.CreateSphere(
+          "sphere",
+          { diameter: 0.5, segments: 32 },
+          scene
+        );
+        rightSholder.position.x = 1.5;
+
+        var rightSholderElbowBone = BABYLON.MeshBuilder.CreateCylinder(
+          "axle",
+          { diameter: 0.2, height: 1.5 },
+          scene
+        );
+
+        var rightElbow = BABYLON.MeshBuilder.CreateSphere(
+          "sphere",
+          { diameter: 0.5, segments: 32 },
+          scene
+        );
+        rightElbow.position = new BABYLON.Vector3(4.5, 0, 0);
+
+        var rightElbowHandwristBone = BABYLON.MeshBuilder.CreateCylinder(
+          "axle",
+          { diameter: 0.2, height: 1.5 },
+          scene
+        );
+
+        var rightHandWrist = BABYLON.MeshBuilder.CreateSphere(
+          "sphere",
+          { diameter: 0.5, segments: 32 },
+          scene
+        );
+        rightHandWrist.position = new BABYLON.Vector3(7.5, 0, 0);
+
+        var dragableMeshes = [
+          leftElbow,
+          leftHandWrist,
+          rightElbow,
+          rightHandWrist,
+        ];
+
+        for (var i = 0; i < dragableMeshes.length; i++) {
+          attachOwnPointerDragBehavior(dragableMeshes[i]);
+        }
+
+        function connect(axle, joint1, joint2) {
+          // !! Correction of default Cylinder rotation,
+          // !! This may be incorrect for other meshes, depends how they were created.
+          axle.rotation.x = Math.PI / 2;
+          axle.bakeCurrentTransformIntoVertices();
+
+          joint1.onAfterWorldMatrixUpdateObservable.add(updateAxle);
+          joint2.onAfterWorldMatrixUpdateObservable.add(updateAxle);
+
+          function updateAxle() {
+            if (axle) {
+              axle.position = BABYLON.Vector3.Center(
+                joint1.position,
+                joint2.position
+              );
+              axle.lookAt(joint2.position);
+            }
+          }
+        }
+        connect(leftSholderElbowBone, leftSholder, leftElbow);
+        connect(leftElbowHandwristBone, leftElbow, leftHandWrist);
+        connect(rightSholderElbowBone, rightSholder, rightElbow);
+        connect(rightElbowHandwristBone, rightElbow, rightHandWrist);
+
+        console.log(
+          BABYLON.Vector3.Distance(leftSholder.position, leftElbow.position)
+        );
+
+        // BABYLON.SceneLoader.ImportMeshAsync(
+        //   "",
+        //   "https://raw.githubusercontent.com/veljko85/glbModels/gh-pages/bot/",
+        //   "botSeperatedMeshes.glb"
+        // ).then((result) => {
+        //   // BABYLON.SceneLoader.ImportMeshAsync("", "", "meshes/viperman.glb").then((result) => {
+        //   var bot = result.meshes[0];
+        //   // bot.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
+        //   bot.position = new BABYLON.Vector3(0, -20, 0);
+
+        //   for (let i = 0; i < result.meshes.length; i++) {
+        //     // result.meshes[i].rotationQuaternion = null;
+        //     result.meshes[i].position = new BABYLON.Vector3(0, 0, 0);
+        //     console.log(result.meshes[i].getWorldMatrix());
+        //   }
+
+        //   var leftHandJoint = scene.getMeshByName("Beta_Joints.001");
+        //   leftHandJoint.position = new BABYLON.Vector3(0, 0, 0);
+        //   // var vector = new BABYLON.Vector3(0, 0, 0);
+        //   // var m = leftHandJoint.getWorldMatrix();
+        //   // var v = BABYLON.Vector3.TransformCoordinates(vector, m);
+        //   // leftHandJoint.position = v;
+        //   var leftElbowJoint = scene.getMeshByName("Beta_Joints.008");
+        //   // leftElbowJoint.position = new BABYLON.Vector3(0, 0, 0);
+        //   var leftUnderElbow = scene.getMeshByName("Beta_Surface.014");
+        //   // leftUnderElbow.position = leftHandJoint.position;
+        //   // leftUnderElbow.rotationQuaternion = null;
+        //   // leftUnderElbow.position.y = 50;
+        //   // leftElbowJoint.position.y = 50;
+
+        //   // leftUnderElbow.rotation.x = 1;
+        //   // leftUnderElbow.bakeCurrentTransformIntoVertices();
+
+        //   // leftHandJoint.onAfterWorldMatrixUpdateObservable.add(updateAxle);
+        //   // leftElbowJoint.onAfterWorldMatrixUpdateObservable.add(updateAxle);
+
+        //   // function updateAxle() {
+        //   // if (leftUnderElbow) {
+        //   // leftUnderElbow.position = BABYLON.Vector3.Center(
+        //   //   leftElbowJoint.position,
+        //   //   leftHandJoint.position
+        //   // );
+        //   // leftUnderElbow.lookAt(leftElbowJoint.position);
+        //   // }
+        //   // }
+        //   console.log(leftElbowJoint.position);
+        //   console.log(leftHandJoint.position);
+        //   console.log(leftUnderElbow.position);
+        // });
+
+        var alpha = 0;
+        scene.registerBeforeRender(function () {
+          //   alpha++;
+          // rightElbow.position.y += 0.01;
+          //   leftSholder.position.x = Math.cos(alpha / 50);
+          console.log(
+            BABYLON.Vector3.Distance(leftSholder.position, leftElbow.position)
+          );
+        });
+
+        return scene;
+      };
+      window.initFunction = async function () {
+        var asyncEngineCreation = async function () {
+          try {
+            return createDefaultEngine();
+          } catch (e) {
+            console.log(
+              "the available createEngine function failed. Creating the default engine instead"
+            );
+            return createDefaultEngine();
+          }
+        };
+
+        window.engine = await asyncEngineCreation();
+        if (!engine) throw "engine should not be null.";
+        startRenderLoop(engine, canvas);
+        window.scene = createScene();
+      };
+      initFunction().then(() => {
+        sceneToRender = scene;
+      });
+
+      // Resize
+      window.addEventListener("resize", function () {
+        engine.resize();
+      });
+    </script>
+  </body>
+</html>
