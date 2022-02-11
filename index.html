@@ -109,9 +109,7 @@
         <!-- DESIGNlLEISTEN AUS ALUMINIUM  -->
         <div class="set-part-click-title not-clicked">
           <div class="set-num">3</div>
-          <div class="title-set-part-title">
-            Designleisten aus Aluminium (optional)
-          </div>
+          <div class="title-set-part-title">Designleisten aus Aluminium (optional)</div>
           <div class="title-is-active">+</div>
         </div>
         <!-- PARTS CONTAINER -->
@@ -192,9 +190,58 @@
           <div style="margin-left: 20px;">
             <h4>Klicken Sie auf die Linien unten, um Designleisten hinzuzufügen</h4>
             </div>
-          
         </div>
-      </div>
+
+        <!-- 4 -->
+        <!-- DESIGN - INLAYS  -->
+        <div class="set-part-click-title not-clicked">
+          <div class="set-num">4</div>
+          <div class="title-set-part-title">Design-Inlays (optional)</div>
+          <div class="title-is-active">+</div>
+        </div>
+        <!-- PARTS CONTAINER -->
+        <div class="set-part-container">
+          <!-- first part -->
+          <div class="set-part-design-inlays-1 active-text-color">
+            <div class="side-img-design-inlays-container">
+              <div class="side-img-design-inlays"></div>
+            </div>
+            <div class="part-set-part-title">Ohne</div>
+            <div class="part-is-active">&#10003</div>
+          </div>
+
+        </div>
+
+        <!-- 5 -->
+        <!-- FARBE PFOSTEN  -->
+        <div class="set-part-click-title not-clicked">
+          <div class="set-num">5</div>
+          <div class="title-set-part-title">Farbe Pfosten</div>
+          <div class="title-is-active">+</div>
+        </div>
+        <!-- PARTS CONTAINER -->
+        <div class="set-part-container">
+          <!-- first part -->
+          <div class="set-part-farbe-pfosten">
+            <div class="color-badge-set-part">
+              <div class="color-badge"></div>
+            </div>
+            <div class="part-set-part-title">WPC grau</div>
+            <div class="part-is-active"></div>
+          </div>
+          <!-- second part -->
+          <div class="set-part-farbe-pfosten active-text-color">
+            <div class="color-badge-set-part">
+              <div class="color-badge"></div>
+            </div>
+            <div class="part-set-part-title">WPC anthrazit</div>
+            <div class="part-is-active">&#10003</div>
+          </div>
+        </div>
+        
+      </div><!-- end setings div-->
+
+      <!-- END OF SETTINGS -->
 
       <canvas id="renderCanvas"></canvas>
     </div>
@@ -403,8 +450,8 @@
         //SIGHNS FOR ADDING NEW FENCE
         //FORWARD SIGH
         const addNewFenceMeshMat = new BABYLON.StandardMaterial("addNewFenceMesh");
-        // addNewFenceMeshMat.diffuseTexture = new BABYLON.Texture("https://assets.babylonjs.com/environments/tile1.jpg");
-        addNewFenceMeshMat.diffuseColor = new BABYLON.Vector4(1,0,0,1);
+        addNewFenceMeshMat.diffuseTexture = new BABYLON.Texture("img/arrow.png");
+        // addNewFenceMeshMat.diffuseColor = new BABYLON.Vector4(1,0,0,1);
         addNewFenceMeshMat.backFaceCulling = false;
         const addNewFenceMesh = BABYLON.MeshBuilder.CreatePlane("plane", {height:0.3, width: 0.3});
         addNewFenceMesh.position = new BABYLON.Vector3(rightPost.position.x -0.3, 1,posZ)
@@ -431,7 +478,7 @@
           "addNewFenceMeshRight"
         );
         addNewFenceMeshRight.position = new BABYLON.Vector3(rightPost.position.x,1.4, posZ - 0.3)
-        addNewFenceMeshRight.addRotation(0,Math.PI / 2,0)
+        addNewFenceMeshRight.addRotation(0,-Math.PI / 2,0)
         //CREATE RIGHT FENCE
 
 
@@ -578,6 +625,11 @@
         //3 DESIGNlLEISTEN AUS ALUMINIUM
         let designleistensMat = document.getElementsByClassName("set-part-designleisten-aus-aluminium-act-col");
         setPartsAndconf(designleistensMat, laisneMat, 2);
+        //5 SET FARBE PFOSTEN
+        let fencePostsParts = document.getElementsByClassName(
+          "set-part-farbe-pfosten"
+        );
+        setPartsAndconf(fencePostsParts, fencePostMat, 3);
 
         //DESIGNELEISTEN TO ACTIVE
         let designleistens = document.getElementsByClassName("set-part-designleisten-aus-aluminium");

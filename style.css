@@ -47,13 +47,16 @@ body {
   cursor: pointer;
 }
 .not-clicked {
-  box-shadow: 7px 7px 15px rgba(55, 84, 170, 0.15), -7px -7px 20px white, inset 0px 0px 4px rgba(255, 255, 255, 0.2),
-    inset 7px 7px 15px rgba(55, 84, 170, 0), inset -7px -7px 20px rgba(255, 255, 255, 0),
+  box-shadow: 7px 7px 15px rgba(55, 84, 170, 0.15), -7px -7px 20px white,
+    inset 0px 0px 4px rgba(255, 255, 255, 0.2),
+    inset 7px 7px 15px rgba(55, 84, 170, 0),
+    inset -7px -7px 20px rgba(255, 255, 255, 0),
     0px 0px 4px rgba(255, 255, 255, 0);
 }
 .clicked {
-  box-shadow: inset 7px 7px 15px rgba(55, 84, 170, 0.15), inset -7px -7px 20px white,
-    0px 0px 4px rgba(255, 255, 255, 0.2), 7px 7px 15px rgba(55, 84, 170, 0), -7px -7px 20px rgba(255, 255, 255, 0),
+  box-shadow: inset 7px 7px 15px rgba(55, 84, 170, 0.15),
+    inset -7px -7px 20px white, 0px 0px 4px rgba(255, 255, 255, 0.2),
+    7px 7px 15px rgba(55, 84, 170, 0), -7px -7px 20px rgba(255, 255, 255, 0),
     inset 0px 0px 4px rgba(255, 255, 255, 0);
   color: var(--main-style-color);
 }
@@ -80,15 +83,18 @@ body {
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
-  box-shadow: inset 7px 7px 15px rgba(55, 84, 170, 0.15), inset -7px -7px 20px white,
-    0px 0px 4px rgba(255, 255, 255, 0.2), 7px 7px 15px rgba(55, 84, 170, 0), -7px -7px 20px rgba(255, 255, 255, 0),
+  box-shadow: inset 7px 7px 15px rgba(55, 84, 170, 0.15),
+    inset -7px -7px 20px white, 0px 0px 4px rgba(255, 255, 255, 0.2),
+    7px 7px 15px rgba(55, 84, 170, 0), -7px -7px 20px rgba(255, 255, 255, 0),
     inset 0px 0px 4px rgba(255, 255, 255, 0);
 }
 /* set parts container */
 .set-part-main-farbe,
 .set-part-start-und-absch,
 .set-part-designleisten-aus-aluminium,
-.set-part-designleisten-aus-aluminium-act-col {
+.set-part-designleisten-aus-aluminium-act-col,
+.set-part-farbe-pfosten,
+.set-part-design-inlays-1 {
   width: 90%;
   height: 40px;
   margin: 5px 5%;
@@ -128,7 +134,8 @@ body {
 .column-reverse {
   flex-direction: column-reverse;
 }
-.checkmark-badge-set-part {
+.checkmark-badge-set-part,
+.side-img-design-inlays-container {
   flex: 20%;
 }
 .checkmark-badge {
@@ -150,4 +157,13 @@ body {
 }
 .sep-part {
   flex: 10%;
+}
+/* for 4 part (DESIGN - INLAYS)*/
+.side-img-design-inlays {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  background: url("img/inlay-no.svg");
+  background-size: cover;
+  background-position: center;
 }
