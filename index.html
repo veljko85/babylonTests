@@ -209,6 +209,20 @@
             <div class="part-set-part-title">Ohne</div>
             <div class="part-is-active">&#10003</div>
           </div>
+          <!-- second part -->
+          <div class="set-part-design-inlays-2">
+            <div class="left-side-design-inlays">
+              <div class="img-design-inlays"></div>
+              <div class="title-design-inlays">VIERO</div>
+            </div>
+            <div class="right-side-design-inlays">
+              <div class="img-design-inlays"></div>
+              <div class="title-design-inlays">VIERO</div>
+            </div>
+          </div>
+            
+            <!-- <div class="part-is-active">&#10003</div> -->
+
 
         </div>
 
@@ -469,10 +483,10 @@
         addNewFenceMeshLeft.position = new BABYLON.Vector3(rightPost.position.x,0.4, posZ + 0.3)
         addNewFenceMeshLeft.addRotation(0,Math.PI / 2,0)
         //CREATE FENCE LEFT
-        addNewFenceMeshLeft.actionManager = new BABYLON.ActionManager(scene);
-        addNewFenceMeshLeft.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function () {
-          createEasyFenceModel(posX, rightPost.position.z + 0.9, Math.PI / 2);
-        }));
+        // addNewFenceMeshLeft.actionManager = new BABYLON.ActionManager(scene);
+        // addNewFenceMeshLeft.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function () {
+        //   createEasyFenceModel(posX, rightPost.position.z + 0.9, Math.PI / 2);
+        // }));
         //RIGHT SIGHN
         var addNewFenceMeshRight = addNewFenceMesh.clone(
           "addNewFenceMeshRight"
