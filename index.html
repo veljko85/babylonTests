@@ -1,34 +1,43 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-    <title>Babylon.js sample code</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-    <link rel="stylesheet" type="text/css" href="style.css" />
-  </head>
-  <body>
-    <!-- Babylon.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
-    <script src="https://preview.babylonjs.com/ammo.js"></script>
-    <script src="https://preview.babylonjs.com/cannon.js"></script>
-    <script src="https://preview.babylonjs.com/Oimo.js"></script>
-    <script src="https://preview.babylonjs.com/earcut.min.js"></script>
-    <script src="https://preview.babylonjs.com/babylon.js"></script>
-    <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
-    <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
-    <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
-    <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
-    <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
-    <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
-    <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+  <title>Babylon.js sample code</title>
 
-    <!-- HTML -->
-    <div class="configuratorContainer">
-      <div id="settings">
+  <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body>
+  <!-- Babylon.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+  <script src="https://preview.babylonjs.com/ammo.js"></script>
+  <script src="https://preview.babylonjs.com/cannon.js"></script>
+  <script src="https://preview.babylonjs.com/Oimo.js"></script>
+  <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+  <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+  <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+  <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+  <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+  <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+  <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+
+  <!-- HTML -->
+  <div class="configuratorContainer">
+    
+    <!-- CONFIGURATOR -->
+    <div class="configurator-section">
+      
+      <!-- SETTINGS -->
+      <div class="settings">
+        
+        <!-- settings title -->
         <div id="setTitleSec" class="set-part-click-title">
           <div class="setTitle">Anpassen</div>
         </div>
@@ -36,7 +45,7 @@
         <!-- 1 -->
         <!-- MAIN FARBE  -->
         <div class="set-part-click-title not-clicked">
-          <div class="set-num">1</div>
+          <div class="set-num"></div>
           <div class="title-set-part-title">Farbe WPC-Steckprofil</div>
           <div class="title-is-active">+</div>
         </div>
@@ -79,7 +88,7 @@
         <!-- 2 -->
         <!-- START UND ABSCH  -->
         <div class="set-part-click-title not-clicked">
-          <div class="set-num">2</div>
+          <div class="set-num"></div>
           <div class="title-set-part-title">Start- und Abschlussleisten</div>
           <div class="title-is-active">+</div>
         </div>
@@ -90,7 +99,7 @@
             <div class="color-badge-set-part">
               <div class="color-badge"></div>
             </div>
-            <div class="part-set-part-title">WPC grau</div>
+            <div class="part-set-part-title">silber</div>
             <div class="part-is-active"></div>
           </div>
           <!-- second part -->
@@ -98,7 +107,7 @@
             <div class="color-badge-set-part">
               <div class="color-badge"></div>
             </div>
-            <div class="part-set-part-title">WPC anthrazit</div>
+            <div class="part-set-part-title">anthrazit</div>
             <div class="part-is-active">&#10003</div>
           </div>
           <!-- explenation img part -->
@@ -108,27 +117,27 @@
         <!-- 3 -->
         <!-- DESIGNlLEISTEN AUS ALUMINIUM  -->
         <div class="set-part-click-title not-clicked">
-          <div class="set-num">3</div>
+          <div class="set-num"></div>
           <div class="title-set-part-title">Designleisten aus Aluminium (optional)</div>
           <div class="title-is-active">+</div>
         </div>
         <!-- PARTS CONTAINER -->
         <div class="set-part-container column-reverse">
           <!-- change material first part -->
-          <div class="set-part-designleisten-aus-aluminium-act-col">
-            <div class="color-badge-set-part">
-              <div class="color-badge"></div>
-            </div>
-            <div class="part-set-part-title">WPC grau</div>
-            <div class="part-is-active"></div>
-          </div>          
-          <!-- change material second part -->
           <div class="set-part-designleisten-aus-aluminium-act-col active-text-color">
             <div class="color-badge-set-part">
               <div class="color-badge"></div>
             </div>
-            <div class="part-set-part-title">WPC anthrazit</div>
+            <div class="part-set-part-title">silber</div>
             <div class="part-is-active">&#10003</div>
+          </div>
+          <!-- change material second part -->
+          <div class="set-part-designleisten-aus-aluminium-act-col">
+            <div class="color-badge-set-part">
+              <div class="color-badge"></div>
+            </div>
+            <div class="part-set-part-title">anthrazit</div>
+            <div class="part-is-active"></div>
           </div>
           <!-- first part -->
           <div class="set-part-designleisten-aus-aluminium">
@@ -140,11 +149,11 @@
           </div>
           <!-- second part -->
           <div class="set-part-designleisten-aus-aluminium">
-              <div class="checkmark-badge-set-part">
-                <div class="checkmark-badge"></div>
-              </div>
-              <div class="laisne-rep"></div>
-              <div class="sep-part"></div>
+            <div class="checkmark-badge-set-part">
+              <div class="checkmark-badge"></div>
+            </div>
+            <div class="laisne-rep"></div>
+            <div class="sep-part"></div>
           </div>
           <!-- third part -->
           <div class="set-part-designleisten-aus-aluminium">
@@ -156,11 +165,11 @@
           </div>
           <!-- fourth part -->
           <div class="set-part-designleisten-aus-aluminium">
-              <div class="checkmark-badge-set-part">
-                <div class="checkmark-badge"></div>
-              </div>
-              <div class="laisne-rep"></div>
-              <div class="sep-part"></div>
+            <div class="checkmark-badge-set-part">
+              <div class="checkmark-badge"></div>
+            </div>
+            <div class="laisne-rep"></div>
+            <div class="sep-part"></div>
           </div>
           <!-- fifth part -->
           <div class="set-part-designleisten-aus-aluminium">
@@ -172,11 +181,11 @@
           </div>
           <!-- sixt part -->
           <div class="set-part-designleisten-aus-aluminium">
-              <div class="checkmark-badge-set-part">
-                <div class="checkmark-badge"></div>
-              </div>
-              <div class="laisne-rep"></div>
-              <div class="sep-part"></div>
+            <div class="checkmark-badge-set-part">
+              <div class="checkmark-badge"></div>
+            </div>
+            <div class="laisne-rep"></div>
+            <div class="sep-part"></div>
           </div>
           <!-- seventh part -->
           <div class="set-part-designleisten-aus-aluminium">
@@ -189,20 +198,20 @@
           <!-- text on top -->
           <div style="margin-left: 20px;">
             <h4>Klicken Sie auf die Linien unten, um Designleisten hinzuzufügen</h4>
-            </div>
+          </div>
         </div>
 
         <!-- 4 -->
         <!-- DESIGN - INLAYS  -->
         <div class="set-part-click-title not-clicked">
-          <div class="set-num">4</div>
+          <div class="set-num"></div>
           <div class="title-set-part-title">Design-Inlays (optional)</div>
           <div class="title-is-active">+</div>
         </div>
         <!-- PARTS CONTAINER -->
         <div class="set-part-container">
           <!-- first part -->
-          <div class="set-part-design-inlays-1">
+          <div class="set-part-design-inlays-1 set-activnes-design-inlays active-text-color">
             <div class="side-img-design-inlays-container">
               <div class="side-img-design-inlays"></div>
             </div>
@@ -212,24 +221,87 @@
           <!-- second part -->
           <div class="set-part-design-inlays-2">
             <div class="left-side-design-inlays">
-              <div class="img-design-inlays"></div>
+              <div class="img-design-inlays" style="background-image: url('img/inlay-q.svg');"></div>
               <div class="title-design-inlays">VIERO</div>
             </div>
             <div class="right-side-design-inlays">
-              <div class="img-design-inlays"></div>
-              <div class="title-design-inlays">VIERO</div>
+              <!-- first design-inlays color -->
+              <div class="set-part-design-inlays set-activnes-design-inlays first-set-design-inlays-color">
+                <div class="color-badge-set-part">
+                  <div class="color-badge color-badge-designe-inline"></div>
+                </div>
+                <div class="part-set-part-title">silber</div>
+                <div class="part-is-active"></div>
+              </div>
+              <!-- second design-inlays color -->
+              <div class="set-part-design-inlays set-activnes-design-inlays first-set-design-inlays-color">
+                <div class="color-badge-set-part">
+                  <div class="color-badge color-badge-designe-inline"></div>
+                </div>
+                <div class="part-set-part-title">anthrazit</div>
+                <div class="part-is-active"></div>
+              </div>
             </div>
+            <div class="title2-design-inlays">Alu-Gitter 10x10mm</div>
           </div>
-            
-            <!-- <div class="part-is-active">&#10003</div> -->
-
-
+          <!-- third part -->
+          <div class="set-part-design-inlays-2">
+            <div class="left-side-design-inlays">
+              <div class="img-design-inlays" style="background-image: url('img/inlay-astro.svg');"></div>
+              <div class="title-design-inlays">ASTRO</div>
+            </div>
+            <div class="right-side-design-inlays">
+              <!-- first design-inlays color -->
+              <div class="set-part-design-inlays set-activnes-design-inlays  second-set-design-inlays-color">
+                <div class="color-badge-set-part">
+                  <div class="color-badge color-badge-designe-inline"></div>
+                </div>
+                <div class="part-set-part-title">silber</div>
+                <div class="part-is-active"></div>
+              </div>
+              <!-- second design-inlays color -->
+              <div class="set-part-design-inlays set-activnes-design-inlays  second-set-design-inlays-color">
+                <div class="color-badge-set-part">
+                  <div class="color-badge color-badge-designe-inline"></div>
+                </div>
+                <div class="part-set-part-title">anthrazit</div>
+                <div class="part-is-active"></div>
+              </div>
+            </div>
+            <div class="title2-design-inlays">Alu-Sternenhimmel Ø5–25mm</div>
+          </div>
+          <!-- fourth part -->
+          <div class="set-part-design-inlays-2">
+            <div class="left-side-design-inlays">
+              <div class="img-design-inlays" style="background-image: url('img/inlay-mattglas.svg');"></div>
+              <div class="title-design-inlays">SNOW</div>
+            </div>
+            <div class="right-side-design-inlays">
+              <!-- first design-inlays color -->
+              <div class="set-part-design-inlays set-activnes-design-inlays  third-set-design-inlays-color">
+                <div class="color-badge-set-part">
+                  <div class="color-badge color-badge-designe-inline"></div>
+                </div>
+                <div class="part-set-part-title">silber</div>
+                <div class="part-is-active"></div>
+              </div>
+              <!-- second design-inlays color -->
+              <div class="set-part-design-inlays set-activnes-design-inlays  third-set-design-inlays-color">
+                <div class="color-badge-set-part">
+                  <div class="color-badge color-badge-designe-inline"></div>
+                </div>
+                <div class="part-set-part-title">anthrazit</div>
+                <div class="part-is-active"></div>
+              </div>
+            </div>
+            <div class="title2-design-inlays">Acrylglas matt mit Alu-Rahmen</div>
+          </div>
         </div>
 
         <!-- 5 -->
         <!-- FARBE PFOSTEN  -->
         <div class="set-part-click-title not-clicked">
-          <div class="set-num">5</div>
+          <div class="set-num"></div>
           <div class="title-set-part-title">Farbe Pfosten</div>
           <div class="title-is-active">+</div>
         </div>
@@ -240,7 +312,7 @@
             <div class="color-badge-set-part">
               <div class="color-badge"></div>
             </div>
-            <div class="part-set-part-title">WPC grau</div>
+            <div class="part-set-part-title">silber</div>
             <div class="part-is-active"></div>
           </div>
           <!-- second part -->
@@ -248,451 +320,282 @@
             <div class="color-badge-set-part">
               <div class="color-badge"></div>
             </div>
-            <div class="part-set-part-title">WPC anthrazit</div>
+            <div class="part-set-part-title">anthrazit</div>
             <div class="part-is-active">&#10003</div>
           </div>
         </div>
-        
+
+        <!-- 6 -->
+        <!-- LED  -->
+        <div class="set-part-click-title not-clicked">
+          <div class="set-num"></div>
+          <div class="title-set-part-title">LED-Pfostenbeleuchtung (optional)</div>
+          <div class="title-is-active">+</div>
+        </div>
+        <!-- PARTS CONTAINER -->
+        <div class="set-part-container">
+          <!-- text on top -->
+          <div style="margin-left: 20px;">
+            <h4>Verfügbar ab März 2022</h4>
+          </div>
+          <!-- first part -->
+          <div class="set-part-led active-text-color">
+            <div class="side-img-led-container">
+              <div class="side-img-led" style="background-image: url('img/bulbDenied.png');"></div>
+            </div>
+            <div class="part-set-part-title">Ohne</div>
+            <div class="part-is-active">&#10003</div>
+          </div>
+          <!-- second part -->
+          <div class="set-part-led">
+            <div class="side-img-led-container">
+              <div class="side-img-led" style="background-image: url('img/bulbRgb.png');"></div>
+            </div>
+            <div class="part-set-part-title">RGB-Farben (dimmbar)</div>
+            <div class="part-is-active"></div>
+          </div>
+          <!-- third part -->
+          <div class="set-part-led">
+            <div class="side-img-led-container">
+              <div class="side-img-led" style="background-image: url('img/bulbEmpty.png');"></div>
+            </div>
+            <div class="part-set-part-title">warm-weiß</div>
+            <div class="part-is-active"></div>
+          </div>
+
+          <!-- light setings -->
+          <div class="light-settings" id="light-settings" style="display: none;">
+            <!-- light setings 1 -->
+            <div class="light-settings-1" style="margin-top: 10px;">
+              <div style="margin: 0 20px;">
+                auswählen und löschen
+              </div>
+              <div class="delete-on-off">
+                <div class="set-delete-on-off  active-text-color" style="border-right: 1px solid gray;">
+                  <div class="side-img-led-container">
+                    <div class="side-img-led" style="background-image: url('img/deleteOn64.png');">
+                    </div>
+                  </div>
+                  <div class="part-set-part-title" style="flex: 33%;">On</div>
+                  <div class="part-is-active" style="flex: 33%;">&#10003</div>
+                </div>
+                <div class="set-delete-on-off">
+                  <div class="side-img-led-container">
+                    <div class="side-img-led" style="background-image: url('img/deleteOff64.png');">
+                    </div>
+                  </div>
+                  <div class="part-set-part-title" style="flex: 33%;">Off</div>
+                  <div class="part-is-active" style="flex: 33%;"></div>
+                </div>
+              </div>
+            </div>
+            <!-- light setings 2 -->
+            <div class="light-settings-2" style="margin-top: 10px;">
+              <div style="margin: 0 20px;">
+                Licht
+              </div>
+              <div class="day-night" style="width: 90%;">
+                <div class="set-day-night" style="border-right: 1px solid gray;">
+                  <div class="side-img-led-container">
+                    <div class="side-img-led" style="background-image: url('img/bulbDenied.png');">
+                    </div>
+                  </div>
+                  <div class="part-set-part-title" style="flex: 33%;">Off</div>
+                  <div class="part-is-active" style="flex: 33%;"></div>
+                </div>
+                <div class="set-day-night" style="border-right: 1px solid gray;">
+                  <div class="side-img-led-container">
+                    <div class="side-img-led" style="background-image: url('img/day.png');">
+                    </div>
+                  </div>
+                  <div class="part-set-part-title" style="flex: 33%;">Tag</div>
+                  <div class="part-is-active" style="flex: 33%;"></div>
+                </div>
+                <div class="set-day-night  active-text-color">
+                  <div class="side-img-led-container">
+                    <div class="side-img-led" style="background-image: url('img/night.png');">
+                    </div>
+                  </div>
+                  <div class="part-set-part-title" style="flex: 33%;">Nacht</div>
+                  <div class="part-is-active" style="flex: 33%;">&#10003</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- light color settings -->
+          <div class="light-color-settings" id="light-color-settings" style="margin-top: 10px; display: none;">
+            <div style="margin: 0 20px;">
+              Beispielfarben
+            </div>
+            <div class="light-color-1" style="display: flex; width: 90%; margin-left: 5%;">
+
+              <div class="color-light-container active-color-light-contaier">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+            </div>
+
+            <div class="light-color-2" style="display: flex; width: 90%; margin-left: 5%;">
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- 7 -->
+        <!-- DUBINSKI STUB Befestigungsmethode Pfosten  -->
+        <div class="set-part-click-title not-clicked">
+          <div class="set-num"></div>
+          <div class="title-set-part-title">Befestigungsmethode Pfosten</div>
+          <div class="title-is-active">+</div>
+        </div>
+        <!-- PARTS CONTAINER -->
+        <div class="set-part-container">
+          <!-- first part -->
+          <div class="set-part-befe-pfosten active-text-color">
+            <div class="side-img-befe-pfosten-container">
+              <div class="side-img-befe-pfosten" style="background-image: url('img/pfostentraeeger.svg');"></div>
+            </div>
+            <div class="part-set-part-title">Pfosten L=190cm<br>für Pfostenträger</div>
+            <div class="part-is-active">&#10003</div>
+          </div>
+          <!-- second part -->
+          <div class="set-part-befe-pfosten">
+            <div class="side-img-befe-pfosten-container">
+              <div class="side-img-befe-pfosten" style="background-image: url('img/alu-pfosten-2.svg');"></div>
+            </div>
+            <div class="part-set-part-title">Pfosten L=235cm<br>zum Einbetonieren</div>
+            <div class="part-is-active"></div>
+          </div>
+          <!-- third part -->
+          <div class="set-part-befe-pfosten">
+            <div class="side-img-befe-pfosten-container">
+              <div class="side-img-befe-pfosten" style="background-image: url('img/alu-pfosten-2.png');"></div>
+            </div>
+            <div class="part-set-part-title" style="font-size: 15px;">Pfosten L=295cm<br>zum Einbetonieren bei besonders
+              starkem Gefälle</div>
+            <div class="part-is-active"></div>
+          </div>
+        </div>
+
+        <!-- 8 -->
+        <!-- DRZAC SA STRANE STURMANKER -->
+        <div class="set-part-click-title not-clicked">
+          <div class="set-num"></div>
+          <div class="title-set-part-title">Sturmanker (optional)</div>
+          <div class="title-is-active">+</div>
+        </div>
+        <!-- PARTS CONTAINER -->
+        <div class="set-part-container">
+          <!-- first part -->
+          <div class="set-part-sturmanker">
+            <div class="side-img-sturmanker-container">
+              <div class="side-img-sturmanker" style="background-image: url('img/sturmanker1.svg');"></div>
+            </div>
+            <div class="part-set-part-title" style="font-size: 15px;">Sturmanker<br>
+              Kann nicht zusammen mit LED montiert werden</div>
+            <div class="part-is-active"></div>
+          </div>
+          <!-- second part -->
+          <div class="set-part-sturmanker">
+            <div class="sturmanker-container">
+              <div class="sturmanker-con" style="border-right: 1px solid gray;">
+                <div></div>
+                <div class="part-set-part-title" style="font-size: 15px;">Rückseite</div>
+                <div class="part-is-active"></div>
+              </div>
+              <div class="sturmanker-con  active-text-color" style="border-right: 1px solid gray; flex: 24%;">
+                <div></div>
+                <div class="part-set-part-title" style="font-size: 15px;">Ohne</div>
+                <div class="part-is-active">&#10003</div>
+              </div>
+              <div class="sturmanker-con">
+                <div></div>
+                <div class="part-set-part-title" style="font-size: 15px;">Vorderseite</div>
+                <div class="part-is-active"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9 -->
+        <!-- BETONSKI STUB SA STRANE  -->
+        <div class="set-part-click-title not-clicked">
+          <div class="set-num"></div>
+          <div class="title-set-part-title">Direkte Montage an Hauswand (optional)</div>
+          <div class="title-is-active">+</div>
+        </div>
+        <!-- PARTS CONTAINER -->
+        <div class="set-part-container">
+          <!-- first part -->
+          <div class="set-part-direkte-hauswand">
+            <div class="side-img-direkte-hauswand-container">
+              <div class="side-img-direkte-hauswand" style="background-image: url('img/wall-bar.svg');"></div>
+            </div>
+            <div class="part-set-part-title">Montageprofil<br>3x4x190cm</div>
+            <div class="part-is-active"></div>
+          </div>
+        </div>
+
       </div><!-- end setings div-->
 
-      <!-- END OF SETTINGS -->
+    </div><!-- end configurator section div-->
 
-      <canvas id="renderCanvas"></canvas>
-    </div>
+    <!-- END OF SETTINGS -->
 
-    <!-- SCRIPT -->
+    <!-- CANVAS -->
+    <canvas id="renderCanvas"></canvas>
+  </div>
 
-    <!-- BABYLON -->
-    <script>
-      var canvas = document.getElementById("renderCanvas");
+  <script src="index.js"></script>
+</body>
 
-      var startRenderLoop = function (engine, canvas) {
-        engine.runRenderLoop(function () {
-          if (sceneToRender && sceneToRender.activeCamera) {
-            sceneToRender.render();
-          }
-        });
-      };
-
-      var engine = null;
-      var scene = null;
-      var sceneToRender = null;
-      var createDefaultEngine = function () {
-        return new BABYLON.Engine(canvas, true, {
-          preserveDrawingBuffer: true,
-          stencil: true,
-          disableWebGL2Support: false,
-        });
-      };
-      //CREATE SCENE
-      var createScene = function () {
-        // SCENE
-        var scene = new BABYLON.Scene(engine);
-
-        //CAMERA
-        var camera = new BABYLON.ArcRotateCamera(
-          "Camera",
-          0,
-          0,
-          0,
-          new BABYLON.Vector3(0, 0, 0),
-          scene
-        );
-        camera.attachControl(canvas, true);
-        camera.setPosition(new BABYLON.Vector3(0, 1.5, 4));
-        camera.setTarget(new BABYLON.Vector3(0, 1, 0))
-
-        //LIGHTS
-        var light = new BABYLON.HemisphericLight(
-          "light",
-          new BABYLON.Vector3(0, 1, -1),
-          scene
-        );
-        light.intensity = 0.7;
-        var light2 = new BABYLON.HemisphericLight(
-          "light",
-          new BABYLON.Vector3(0, 1, 1),
-          scene
-        );
-        light2.intensity = 0.7;
-
-        // GROUND
-        var ground = BABYLON.MeshBuilder.CreateGround(
-          "ground",
-          { width: 6, height: 6 },
-          scene
-        );
-        var grassMaterial = new BABYLON.StandardMaterial(name, scene);
-        var grassTexture = new BABYLON.GrassProceduralTexture(
-          name + "text",
-          512,
-          scene
-        );
-        grassTexture.grassColor = new BABYLON.Color3(
-          224 / 255,
-          197 / 255,
-          127 / 255
-        );
-        grassMaterial.diffuseTexture = grassTexture;
-        grassMaterial.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-        ground.material = grassMaterial;
-
-        ////////////////////////////////////////////////
-        ////////////////////////////////////////////////
-        //FENCE
-
-        //FENCE COLORS
-        fencePartsColors = ["#DCDCDC", "#5F5F5F", "#654321", "#c2b280"];
-
-        //FENCE BORDS MATERIAL
-        var fenceMainPartMat = new BABYLON.StandardMaterial(
-          "fencePartMat",
-          scene
-        );
-        fenceMainPartMat.diffuseColor = BABYLON.Color3.FromHexString(
-          fencePartsColors[0]
-        );
-
-        //FENCE POSTS MATERIAL
-        var fencePostMat = new BABYLON.StandardMaterial("fencePartMat", scene);
-        fencePostMat.diffuseColor = BABYLON.Color3.FromHexString(
-          fencePartsColors[1]
-        );
-
-        //FENCE START AND END MATERIALS
-        var fenceStartEndMat = new BABYLON.StandardMaterial(
-          "fencePartMat",
-          scene
-        );
-        fenceStartEndMat.diffuseColor = BABYLON.Color3.FromHexString(
-          fencePartsColors[1]
-        );
-
-        //FENCE LAISNE MATERIALS
-        var laisneMat = new BABYLON.StandardMaterial("laisneMat", scene);
-        laisneMat.diffuseColor = BABYLON.Color3.FromHexString(
-          fencePartsColors[1]
-        );
-        
-        //FENCE VARIABLES
-        var fenceMainParts = [];
-        var startPart;
-        var laisnes = [];
-        var leftPosts = [];
-        var rightPosts = [];
-
-        //FUNCTION TO CREATE FENCE
-        let createEasyFenceModel = (posX, posZ, rotX) => {
-          var fencePartPosY = 0.18;
-          // var fenceCore = new BABYLON.CreateBox('box', {width: 0.1, height: 0.1, depth: 0.1}, scene)
-          // fenceCore.position = new BABYLON.Vector3(posX, 1, posZ)
-          // fenceCores.push(fenceCore)
-
-          //CREATE FENCES BORDS
-          for (let i = 0; i < 8; i++) {
-            var fenceMainPart = BABYLON.MeshBuilder.CreateBox("fence", {
-              height: 0.225,
-              width: 1.8,
-              depth: 0.02,
-            });
-            fenceMainPart.position = new BABYLON.Vector3(
-              posX,
-              fencePartPosY,
-              posZ
-            );
-            // fenceMainPart.addRotation(0,rotX,0)
-            fencePartPosY += 0.226;
-            fenceMainPart.material = fenceMainPartMat;
-            fenceMainParts.push(fenceMainPart);
-          }
-
-          //START AND END PARTS
-          startPart = BABYLON.MeshBuilder.CreateBox("startPart", {
-            height: 0.025,
-            width: 1.8,
-            depth: 0.02,
-          });
-          startPart.position = new BABYLON.Vector3(
-            posX,
-            fencePartPosY - 0.1,
-            posZ
-          );
-          // startPart.addRotation(0,rotX,0)
-          var endPart = BABYLON.MeshBuilder.CreateBox("endPart", {
-            height: 0.025,
-            width: 1.8,
-            depth: 0.02,
-          });
-          endPart.position = new BABYLON.Vector3(posX, 0.054, posZ);
-          // endPart.addRotation(0,rotX,0)
-          startPart.material = endPart.material = fenceStartEndMat;
-
-          //POSTS
-
-          //left post
-          var leftPost = BABYLON.MeshBuilder.CreateBox("leftPost", {
-            height: 2,
-            width: 0.06,
-            depth: 0.06,
-          });
-          leftPost.position = new BABYLON.Vector3(posX+0.9, 1, posZ);
-          leftPosts.push(leftPost)
-          //right post
-          var rightPost = BABYLON.MeshBuilder.CreateBox("leftPost", {
-            height: 2,
-            width: 0.06,
-            depth: 0.06,
-          });
-          rightPost.position = new BABYLON.Vector3(posX-0.9, 1, posZ);
-          // rightPost.addRotation(0,rotX,0)
-          leftPost.material = rightPost.material = fencePostMat;
-          rightPosts.push(rightPost)
-
-          //LAISNE
-          for (let i = 0; i < 7; i++) {
-            var laisne = new BABYLON.MeshBuilder.CreateBox("endPart", {
-              height: 0.01,
-              width: 1.8,
-              depth: 0.02,
-            });
-            laisne.material = laisneMat;
-            // laisne.addRotation(0,rotX,0)
-            laisne.isVisible = false;
-            laisnes.push(laisne);
-          }
-
-        //SIGHNS FOR ADDING NEW FENCE
-        //FORWARD SIGH
-        const addNewFenceMeshMat = new BABYLON.StandardMaterial("addNewFenceMesh");
-        addNewFenceMeshMat.diffuseTexture = new BABYLON.Texture("img/arrow.png");
-        // addNewFenceMeshMat.diffuseColor = new BABYLON.Vector4(1,0,0,1);
-        addNewFenceMeshMat.backFaceCulling = false;
-        const addNewFenceMesh = BABYLON.MeshBuilder.CreatePlane("plane", {height:0.3, width: 0.3});
-        addNewFenceMesh.position = new BABYLON.Vector3(rightPost.position.x -0.3, 1,posZ)
-        addNewFenceMesh.material = addNewFenceMeshMat;
-        addNewFenceMesh.isVisible = true;
-        //CREATE FENCE FORWARD
-        addNewFenceMesh.actionManager = new BABYLON.ActionManager(scene);
-        addNewFenceMesh.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function () {
-          createEasyFenceModel(rightPost.position.x - 0.9, posZ, 0);
-        }));
-        //LEFT SIGHN
-        var addNewFenceMeshLeft = addNewFenceMesh.clone(
-          "addNewFenceMeshLeft"
-        );
-        addNewFenceMeshLeft.position = new BABYLON.Vector3(rightPost.position.x,0.4, posZ + 0.3)
-        addNewFenceMeshLeft.addRotation(0,Math.PI / 2,0)
-        //CREATE FENCE LEFT
-        // addNewFenceMeshLeft.actionManager = new BABYLON.ActionManager(scene);
-        // addNewFenceMeshLeft.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function () {
-        //   createEasyFenceModel(posX, rightPost.position.z + 0.9, Math.PI / 2);
-        // }));
-        //RIGHT SIGHN
-        var addNewFenceMeshRight = addNewFenceMesh.clone(
-          "addNewFenceMeshRight"
-        );
-        addNewFenceMeshRight.position = new BABYLON.Vector3(rightPost.position.x,1.4, posZ - 0.3)
-        addNewFenceMeshRight.addRotation(0,-Math.PI / 2,0)
-        //CREATE RIGHT FENCE
-
-
-        // var fenceMesh = BABYLON.Mesh.MergeMeshes(
-        //   [
-        //   fenceMainParts[0],
-        //   fenceMainParts[1],
-        //   fenceMainParts[2],
-        //   fenceMainParts[3],
-        //   fenceMainParts[4],
-        //   fenceMainParts[5],
-        //   fenceMainParts[6],
-        //   fenceMainParts[7],
-        //   startPart,
-        //   endPart,
-        //   leftPost,
-        //   rightPost,
-        //   laisnes[0],
-        //   laisnes[1],
-        //   laisnes[2],
-        //   laisnes[3],
-        //   laisnes[4],
-        //   laisnes[5],
-        //   laisnes[6],
-        //   addNewFenceMesh,
-        //   addNewFenceMeshLeft,
-        //   addNewFenceMeshRight
-        //   ],
-        //   true,
-        //   true,
-        //   undefined,
-        //   true,
-        //   true,
-        //   true  
-        // );
-        // fenceMesh.position = new BABYLON.Vector3(0, 0, 0);
-
-        // console.log(fenceMesh)
-        //    end of fence mesh function
-        };
-
-        //ADD LAISNE ON FENCE
-        let createLaisne = (laisnePos) => {
-          laisnes[laisnePos].isVisible = true;
-          laisnes[laisnePos].position.y =
-            fenceMainParts[laisnePos].position.y + 0.225 / 2;
-          for (let i = laisnePos; i < 7; i++) {
-            fenceMainParts[i + 1].position.y += 0.01;
-          }
-          startPart.position.y += 0.01;
-        };
-        //REMOVE LAISNE FROM FENCE
-        let disposeLaisne = (laisnePos) => {
-          laisnes[laisnePos].isVisible = false;
-          for (let i = laisnePos; i < 7; i++) {
-            fenceMainParts[i + 1].position.y -= 0.01;
-          }
-          startPart.position.y -= 0.01;
-        };
-
-
-
-
-        //CREATE DEFAULT FENCE
-        createEasyFenceModel(0, 0, 0);
-        console.log(rightPosts[0].position.x)
-      // addNewFence(rightPosts[0].position.x)
-
-        //CREATE NEW FENCE
-        function createNewFence(fromFence){
-          createEasyFenceModel(fromFence.position.x - 0.9, 0);
-        }
-        // createNewFence(rightPosts[0])
-        
-        
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        // REST AND FUNCIONALITY
-        // var link = document.getElementById("link");
-        // link.href += "?add-to-cart=6075:2,6071,6083:2,6084:2";
-        // console.log(link.href);
-
-        let clickableMainSec = document.getElementsByClassName(
-          "set-part-click-title"
-        );
-        for (let i = 0; i < clickableMainSec.length; i++) {
-          clickableMainSec[i].onclick = () => {
-            if (
-              clickableMainSec[i].className != "set-part-click-title clicked"
-            ) {
-              clickableMainSec[i].className = clickableMainSec[
-                i
-              ].className.replace(" not-clicked", " clicked");
-              clickableMainSec[i].children[2].innerHTML = "-";
-              clickableMainSec[i].nextElementSibling.style.height = "auto";
-              // clickableMainSec[i].className += " active-text-color";
-              // console.log(clickableMainSec[i].nextElementSibling);
-            } else {
-              clickableMainSec[i].className = clickableMainSec[
-                i
-              ].className.replace(" clicked", " not-clicked");
-              clickableMainSec[i].children[2].innerHTML = "+";
-              clickableMainSec[i].nextElementSibling.style.height = 0;
-              // clickableMainSec[i].classList.remove("active-text-color");
-            }
-          };
-        }
-        //FUNCTION TO SET ACTIVE AND COLOR
-        function setPartsAndconf(parts, changable, partNum) {
-          for (let i = 0; i < parts.length; i++) {
-            //set colors in badge
-            parts[i].children[0].children[0].style.backgroundColor =
-              fencePartsColors[i];
-            parts[i].addEventListener('click', () => {
-              //change fence color
-              changable.diffuseColor = BABYLON.Color3.FromHexString(
-                fencePartsColors[i]
-              );
-              //change active singhts
-              var currentActCol =
-                document.getElementsByClassName("active-text-color");
-                //add remove active chackmark
-              currentActCol[partNum].children[2].innerHTML = "";
-              parts[i].children[2].innerHTML = "&#10003";
-                //change active color
-              currentActCol[partNum].className = currentActCol[
-                partNum
-              ].className.replace(" active-text-color", "");
-              parts[i].className += " active-text-color";
-            });
-          }
-        }
-        //1 SET MAIN FARBE FUNCIONALITY
-        let mainFarbeParts = document.getElementsByClassName(
-          "set-part-main-farbe"
-        );
-        setPartsAndconf(mainFarbeParts, fenceMainPartMat, 0);
-        //2 SET START UND AVBSCH
-        let startUndAbschParts = document.getElementsByClassName(
-          "set-part-start-und-absch"
-        );
-        setPartsAndconf(startUndAbschParts, fenceStartEndMat, 1);
-        //3 DESIGNlLEISTEN AUS ALUMINIUM
-        let designleistensMat = document.getElementsByClassName("set-part-designleisten-aus-aluminium-act-col");
-        setPartsAndconf(designleistensMat, laisneMat, 2);
-        //5 SET FARBE PFOSTEN
-        let fencePostsParts = document.getElementsByClassName(
-          "set-part-farbe-pfosten"
-        );
-        setPartsAndconf(fencePostsParts, fencePostMat, 3);
-
-        //DESIGNELEISTEN TO ACTIVE
-        let designleistens = document.getElementsByClassName("set-part-designleisten-aus-aluminium");
-        let checkboxActive = [false, false, false, false, false, false, false];
-        for (let i = 0; i < designleistens.length; i++) {
-          designleistens[i].addEventListener('click', () => {
-            if (!checkboxActive[i]){
-            designleistens[i].children[0].children[0].style.backgroundColor = "#3967ff"
-            designleistens[i].children[0].children[0].innerHTML = "&#10003"
-            checkboxActive[i] = true;
-            createLaisne(i);
-            console.log(i)
-            } else {
-              designleistens[i].children[0].children[0].style.backgroundColor = "transparent"
-              designleistens[i].children[0].children[0].innerHTML = ""
-              checkboxActive[i] = false;
-              disposeLaisne(i);
-            }
-          })
-          
-        }
-
-        return scene;
-      };
-      window.initFunction = async function () {
-        var asyncEngineCreation = async function () {
-          try {
-            return createDefaultEngine();
-          } catch (e) {
-            console.log(
-              "the available createEngine function failed. Creating the default engine instead"
-            );
-            return createDefaultEngine();
-          }
-        };
-
-        window.engine = await asyncEngineCreation();
-        if (!engine) throw "engine should not be null.";
-        startRenderLoop(engine, canvas);
-        window.scene = createScene();
-      };
-      initFunction().then(() => {
-        sceneToRender = scene;
-      });
-
-      // Resize
-      window.addEventListener("resize", function () {
-        engine.resize();
-      });
-    </script>
-  </body>
 </html>
