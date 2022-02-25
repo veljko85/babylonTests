@@ -91,6 +91,10 @@ var createScene = function () {
   ];
   lightsBabylon(lightsLite, lightsHavy, lights);
 
+  //SKY
+  var skyBoxes = [];
+  addSkyBox(skyBoxes);
+
   // GROUND
   createGround();
   ////////////////////////////////////////////////
@@ -609,7 +613,7 @@ var createScene = function () {
       leds.forEach((elm) => {
         elm.isVisible = false;
       });
-      setDayNight(0.6, 0);
+      setDayNight(0.6, 0, 0.7);
       ledColNum = 4;
       setLightColor(ledColNum);
       setLedColor(ledColNum);
@@ -715,7 +719,7 @@ var createScene = function () {
       if (i != 5) {
         setActivnesStyle(ledDayNight, 7, 0);
         for (let i = 0; i < leds.length; i++) {
-          setDayNight(0.6, 0);
+          setDayNight(0.6, 0, 0.7);
           setLightColor(4);
           setLedColor(ledColNum);
           glow.intensity = 0;
@@ -886,13 +890,14 @@ var createScene = function () {
   let lightSettings = document.getElementById("light-settings");
   let lightColorSet = document.getElementById("light-color-settings");
   //set day night
-  function setDayNight(havyInt, ledInt) {
+  function setDayNight(a, b, c) {
     lightsHavy.forEach((elm) => {
-      elm.intensity = havyInt;
+      elm.intensity = a;
     });
     lightsLed.forEach((elm) => {
-      elm.intensity = ledInt;
+      elm.intensity = b;
     });
+    skyBoxes[0].material.luminance = c;
     if (directeHauswandMesh.isVisible) lightsLed[0].intensity = 0;
   }
   //set lights color
@@ -927,7 +932,7 @@ var createScene = function () {
       leds.forEach((elm) => {
         elm.isVisible = false;
       });
-      setDayNight(0.6, 0);
+      setDayNight(0.6, 0, 0.7);
       ledColNum = 4;
       setLightColor(ledColNum);
       setLedColor(ledColNum);
@@ -969,7 +974,7 @@ var createScene = function () {
         ledColNum = 0;
         setLightColor(ledColNum);
         setLedColor(ledColNum);
-        setDayNight(0.2, 0.5);
+        setDayNight(0.2, 0.5, 1.15);
       } else {
         singsWar.forEach((elm) => {
           elm.isVisible = false;
@@ -989,7 +994,7 @@ var createScene = function () {
             leds[i].isVisible = true;
           }
         }
-        setDayNight(0.2, 0);
+        setDayNight(0.2, 0, 1.15);
         setLightColor(4);
         setLedColor(0);
         //set leds on lights on
@@ -1040,7 +1045,7 @@ var createScene = function () {
         singsDel.forEach((elm) => {
           elm.isVisible = true;
         });
-        setDayNight(0.2, 0.5);
+        setDayNight(0.2, 0.5, 1.15);
       } else {
         singsWar.forEach((elm) => {
           elm.isVisible = false;
@@ -1060,7 +1065,7 @@ var createScene = function () {
             leds[i].isVisible = true;
           }
         }
-        setDayNight(0.2, 0);
+        setDayNight(0.2, 0, 1.15);
         for (let i = 0; i < leds.length; i++) {
           if (leds[i].isVisible) {
             lightsLed[i].intensity = 0.5;
@@ -1093,8 +1098,8 @@ var createScene = function () {
     var ledDayNight = document.getElementsByClassName("set-day-night");
     setActivnes(ledDayNight, 7);
 
-    function setDayNightOff(a, b, c, d) {
-      setDayNight(a, b);
+    function setDayNightOff(a, b, c, d, e) {
+      setDayNight(a, b, e);
       setLightColor(c);
       setLedColor(ledColNum);
       glow.intensity = d;
@@ -1102,15 +1107,15 @@ var createScene = function () {
 
     for (let i = 0; i < ledDayNight.length; i++) {
       ledDayNight[0].addEventListener("click", () => {
-        setDayNightOff(0.6, 0, 4, 0);
+        setDayNightOff(0.6, 0, 4, 0, 0.7);
         lightColorSet.style.display = "none";
       });
       ledDayNight[1].addEventListener("click", () => {
-        setDayNightOff(0.6, 0, 4, 0.8);
+        setDayNightOff(0.6, 0, 4, 0.8, 0.7);
         if (colorLedOn) lightColorSet.style.display = "block";
       });
       ledDayNight[2].addEventListener("click", () => {
-        setDayNightOff(0.2, 0.5, ledColNum, 0.8);
+        setDayNightOff(0.2, 0.5, ledColNum, 0.8, 1.15);
         if (colorLedOn) lightColorSet.style.display = "block";
       });
     }
@@ -1213,13 +1218,13 @@ var createScene = function () {
         onSturmanker.style.display = "block";
         setSturmanker(a, b, 1.75, c);
         strurmOn = true;
-        setDayNight(0.6, 0);
+        setDayNight(0.6, 0, 0.7);
       } else {
         singsWar.forEach((elm) => {
           elm.isVisible = false;
         });
         for (let i = 0; i < leds.length; i++) {
-          setDayNight(0.6, 0);
+          setDayNight(0.6, 0, 0.7);
           setLightColor(4);
           // setLedColor(ledColNum);
           glow.intensity = 0;
