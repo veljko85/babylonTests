@@ -232,7 +232,7 @@ var createScene = function () {
 
   //MATERIAL FOR SELECTION
   var selectedMat = new BABYLON.StandardMaterial("selectedMat", scene);
-  selectedMat.diffuseColor = BABYLON.Color3.FromHexString("#ff0000");
+  selectedMat.diffuseColor = BABYLON.Color3.FromHexString("#C10000");
   selectedMat.specularColor = new BABYLON.Color3(0.01, 0.01, 0.01);
 
   //FENCE VARIABLES
