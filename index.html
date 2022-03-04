@@ -10,7 +10,13 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-  <link rel="stylesheet" type="text/css" href="style.css" />
+  <link rel="stylesheet" type="text/css" href="styles/style.css" />
+
+  <!-- nouislider cdn -->
+  <script src="scripts/dependencies/nouislider.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles/nouislider.min.css" />
+  <!-- wNumb.js -->
+  <script src="scripts/dependencies/wNumb.min.js"></script>
 
   <!-- Babylon.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
@@ -105,7 +111,7 @@
         <div class="side-accesories-title">
           <div class="accTitle">ausgewählter Zaun</div>
           <div class="settings-close-btn-container">
-            <div class="side-accesories-close-btn"></div>
+            <div class="side-accesories-close-btn">&#10006</div>
           </div>
         </div>
         <!-- DELETE HOUSWAND ACCESORIE -->
@@ -135,6 +141,137 @@
               <div class="delete-img-accesories"></div>
             </div>
           </div>
+        </div>
+        <!-- MAIN FENCE PART ACCESOAR -->
+        <div id="add-fence-acc" style="display: none;">
+          <div class=" set-part-container" style="height: 50px; cursor: default;">
+            <!-- first part -->
+            <div class="set-part-set-fence-size" id="open-fence-slider">
+              <div class="side-img-set-fence-size-container-acc">
+                <div class="side-img-set-fence-size-acc" style="background-image: url('img/saw.svg');"></div>
+              </div>
+              <div class="part-set-part-title">Kürzen</div>
+              <div class="title-is-active">+</div>
+            </div>
+          </div>
+          <!-- fence size slider -->
+          <div class="set-part-container" id="fence-slider" style="display: none; height: auto;">
+            <div style="height: 40px; width: 90%; margin-left: 5%; display: flex; align-items: center;">
+              Profillänge
+            </div>
+            <!-- slider section -->
+            <div class="fence-slider-section">
+              <!-- slider -->
+              <div class="slider-container" style="width: 90%; height: 80px; margin: 40px 5% 0 5%;">
+                <div id="slider-pips" style="top: 0px; right: 1px; margin: 10px 25px;"></div>
+              </div>
+              <!-- slider control -->
+              <div class="slider-control"
+                style="width: 90%; height: 80px; margin: 0 5%; display: flex; align-items: center; text-align: center;">
+                <div style="flex: 40%; ">
+                  <div class="slider-btns" id="slider-min">-</div>
+                </div>
+                <div style="flex: 20%;">
+                  <div class="slider-btns" id="confirm-slider-size">
+                    &#10004</div>
+                </div>
+                <div style=" flex: 40%;">
+                  <div class="slider-btns" id="slider-plus">+</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="set-part-container" style="height: 50px; cursor: default;">
+            <!-- first part -->
+            <div class="set-part-fence-acc-del">
+              <div class="side-img-fence-acc-del-container">
+                <div class="side-img-fence-acc-del" style="background-image:
+                    url('img/deleteRoundNo.png');"></div>
+              </div>
+              <div style="flex: 80%;">Der erste Zaun</div>
+            </div>
+          </div>
+
+          <!-- add new fence -->
+          <div class="set-part-container" style="height: auto;">
+            <!-- first part -->
+            <div class="set-part-design-inlays-1 set-activnes-add-fence active-text-color">
+              <div class="side-img-design-inlays-container">
+                <div class="side-img-design-inlays"></div>
+              </div>
+              <div class="part-set-part-title">EASY-FENCE WPC<br>180x180cm</div>
+              <div class="part-is-active">&#10003</div>
+            </div>
+            <!-- first part -->
+            <div class="set-part-design-inlays-1 set-activnes-add-fence" style="display: none;">
+              <div class="side-img-design-inlays-container">
+                <div class="side-img-design-inlays" style="background-image: url('img/inlay-mattglas.svg');;"></div>
+              </div>
+              <div class="part-set-part-title">EASY-FENCE WPC<br>180x180cm + Design-Inlay</div>
+              <div class="part-is-active"></div>
+            </div>
+            <!-- second part -->
+            <div class="set-part-design-inlays-2">
+              <div class="left-side-design-inlays">
+                <div class="img-design-inlays" style="background-image:
+                url('img/rhombus-180.svg');"></div>
+                <div class="title-design-inlays" style="font-size: 10px;">EASY-ROM<br>ALU-Rhombuszaun<br>180x180cm
+                </div>
+              </div>
+              <div class="right-side-design-inlays">
+                <!-- first design-inlays color -->
+                <div class="set-part-design-inlays set-activnes-add-fence first-set-add-fence-color
+                ">
+                  <div class="color-badge-set-part">
+                    <div class="color-badge color-badge-designe-inline"></div>
+                  </div>
+                  <div class="part-set-part-title">silber</div>
+                  <div class="part-is-active"></div>
+                </div>
+                <!-- second design-inlays color -->
+                <div class="set-part-design-inlays set-activnes-add-fence first-set-add-fence-color
+                ">
+                  <div class="color-badge-set-part">
+                    <div class="color-badge color-badge-designe-inline"></div>
+                  </div>
+                  <div class="part-set-part-title">anthrazit</div>
+                  <div class="part-is-active"></div>
+                </div>
+              </div>
+            </div>
+            <!-- third part -->
+            <div class="set-part-design-inlays-2">
+              <div class="left-side-design-inlays">
+                <div class="img-design-inlays" style="background-image:
+                  url('img/rhombus-60.svg');"></div>
+                <div class="title-design-inlays" style="font-size: 10px;">EASY-ROM<br>ALU-Rhombuszaun<br>60x180cm</div>
+              </div>
+              <div class=" right-side-design-inlays">
+                <!-- first design-inlays color -->
+                <div class="set-part-design-inlays set-activnes-add-fence second-set-add-fence-color
+                  second-set-design-inlays-color">
+                  <div class="color-badge-set-part">
+                    <div class="color-badge color-badge-designe-inline"></div>
+                  </div>
+                  <div class="part-set-part-title">silber</div>
+                  <div class="part-is-active"></div>
+                </div>
+                <!-- second design-inlays color -->
+                <div class="set-part-design-inlays set-activnes-add-fence second-set-add-fence-color
+                  second-set-design-inlays-color">
+                  <div class="color-badge-set-part">
+                    <div class="color-badge color-badge-designe-inline"></div>
+                  </div>
+                  <div class="part-set-part-title">anthrazit</div>
+                  <div class="part-is-active"></div>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+
         </div>
 
         <!-- end of accesories -->
@@ -659,7 +796,7 @@
           <div class="set-part-befe-pfosten">
             <div class="side-img-befe-pfosten-container">
               <div class="side-img-befe-pfosten" style="background-image:
-                  url('img/alu-pfosten-2.png');"></div>
+                  url('img/alu-pfosten-2.svg');"></div>
             </div>
             <div class="part-set-part-title" style="font-size: 15px;">Pfosten
               L=295cm<br>zum Einbetonieren bei besonders

@@ -19,12 +19,30 @@ var createMainPost = (
   sturVorderseiteSrafs,
   sturmankersRuckseite,
   sturRuckseiteSrafs,
-  rootMat, fenceBoards, rightPosts, directeHauswandMeshes, fenceBoardMat, selectedMat
+  rootMat,
+  fenceBoards,
+  rightPosts,
+  directeHauswandMeshes,
+  fenceBoardMat,
+  selectedMat,
+  smallBoardsArr,
+  smallBoardsMat,
+  smallBoardsMatDark,
+  fencesArr,
+  posX
 ) =>
   BABYLON.SceneLoader.ImportMeshAsync("", "mesh/", "mainPost.glb").then(
     (result) => {
       var mainPost = result.meshes[0];
       mainPost.rotationQuaternion = null;
+      //SET POSITION
+      scene.getNodeByName("post-root-left").position.x =
+        scene.getNodeByName("sturmanker-left-front").position.x =
+        scene.getNodeByName("sturmanker-left-rear").position.x =
+          posX;
+      for (let i = 0; i < result.meshes.length; i++) {
+        result.meshes[i].position.x = posX;
+      }
       //POST CAP
       let leftPostCap = scene.getMeshByName("post-cap-left");
       leftPostCap.material = capMat;
@@ -38,10 +56,15 @@ var createMainPost = (
       leftPost.actionManager = new BABYLON.ActionManager(scene);
       leftPost.actionManager.registerAction(
         new BABYLON.ExecuteCodeAction(
-          BABYLON.ActionManager.OnPickUpTrigger,
+          BABYLON.ActionManager.OnPickTrigger,
           function () {
             if (leftPost.material.id != "selectedMat") {
-              removeSideAccesories(sideAccesories, deleteAccesorie);
+              removeSideAccesories(
+                sideAccesories,
+                deleteAccesorie,
+                addFenceAcc
+              );
+              closeSliderContainer();
               addDefaultMaterial(
                 fenceBoards,
                 sturmankersVorderseite,
@@ -50,7 +73,11 @@ var createMainPost = (
                 directeHauswandMeshes,
                 fenceBoardMat,
                 fencePostMat,
-                concreteMat
+                concreteMat,
+                smallBoardsArr,
+                smallBoardsMat,
+                smallBoardsMatDark,
+                fencesArr
               );
               leftPost.material = selectedMat;
             } else {
@@ -135,17 +162,21 @@ var createMainPost = (
       leftLed.isVisible = false;
 
       //spot light for led
-      var light5 = new BABYLON.SpotLight(
-        "spotLight5",
-        new BABYLON.Vector3(-0.9, 1, -1.5),
-        new BABYLON.Vector3(0, 0, 1),
-        Math.PI / 2,
-        8,
-        scene
-      );
+      // var light5 = new BABYLON.SpotLight(
+      //   "spotLight5",
+      //   new BABYLON.Vector3(
+      //     leftPost.getAbsolutePosition().x,
+      //     1,
+      //     leftPost.getAbsolutePosition().z
+      //   ),
+      //   new BABYLON.Vector3(0, -1, 0),
+      //   Math.PI,
+      //   1,
+      //   scene
+      // );
 
-      lights.push(light5);
-      lightsLed.push(light5);
+      // lights.push(light5);
+      // lightsLed.push(light5);
 
       //STRUMANKER
       let leftStrVord = scene.getMeshByName("sturmanker-left-front_primitive0");

@@ -1,6 +1,8 @@
-function addDefaultMaterial(a, b, c, d, e, f, g, h) {
+function addDefaultMaterial(a, b, c, d, e, f, g, h, m, n, o, fencesArr) {
   a.forEach((elm) => {
-    elm.material = f;
+    elm.forEach((elmInside) => {
+      elmInside.material = f;
+    });
   });
   b.forEach((elm) => {
     elm.material = g;
@@ -14,4 +16,12 @@ function addDefaultMaterial(a, b, c, d, e, f, g, h) {
   e.forEach((elm) => {
     elm.material = h;
   });
+
+  for (let i = 0; i < m.length; i++) {
+    if (fencesArr[i].thisSmallBoardsMat == 0) {
+      m[i].material = n;
+    } else {
+      m[i].material = o;
+    }
+  }
 }
