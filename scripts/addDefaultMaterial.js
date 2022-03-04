@@ -1,4 +1,18 @@
-function addDefaultMaterial(a, b, c, d, e, f, g, h, m, n, o, fencesArr) {
+function addDefaultMaterial(
+  a,
+  b,
+  c,
+  d,
+  e,
+  f,
+  g,
+  h,
+  m,
+  n,
+  o,
+  fencesArr,
+  addFenceSings
+) {
   a.forEach((elm) => {
     elm.forEach((elmInside) => {
       elmInside.material = f;
@@ -24,4 +38,7 @@ function addDefaultMaterial(a, b, c, d, e, f, g, h, m, n, o, fencesArr) {
       m[i].material = o;
     }
   }
+  addFenceSings.forEach((elm) => {
+    elm.isVisible = false;
+  });
 }

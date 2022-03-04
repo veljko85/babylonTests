@@ -29,12 +29,17 @@ var createMainPost = (
   smallBoardsMat,
   smallBoardsMatDark,
   fencesArr,
+  addFenceSings,
+  allPosts,
   posX
 ) =>
   BABYLON.SceneLoader.ImportMeshAsync("", "mesh/", "mainPost.glb").then(
     (result) => {
       var mainPost = result.meshes[0];
       mainPost.rotationQuaternion = null;
+      mainPost.scaling = new BABYLON.Vector3(1.01, 1, 1.01);
+      mainPost.addRotation(0, Math.PI, 0);
+
       //SET POSITION
       scene.getNodeByName("post-root-left").position.x =
         scene.getNodeByName("sturmanker-left-front").position.x =
@@ -50,6 +55,7 @@ var createMainPost = (
       //POSTS
       let leftPost = scene.getMeshByName("post-left");
       leftPosts.push(leftPost);
+      allPosts.push(leftPost);
       leftPost.material = fencePostMat;
 
       //add selected to mesh
@@ -77,7 +83,8 @@ var createMainPost = (
                 smallBoardsArr,
                 smallBoardsMat,
                 smallBoardsMatDark,
-                fencesArr
+                fencesArr,
+                addFenceSings
               );
               leftPost.material = selectedMat;
             } else {

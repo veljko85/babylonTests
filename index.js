@@ -43,6 +43,7 @@ let sideAccCloseBtn = document.getElementsByClassName(
   "side-accesories-close-btn"
 );
 let addFenceAcc = document.getElementById("add-fence-acc");
+let addNewFenceToSide = document.getElementById("addNewFenceToSide");
 let openFenceSlider = document.getElementById("open-fence-slider");
 let fenceSliderSection = document.getElementById("fence-slider");
 let fenceSliderOpen = false;
@@ -330,6 +331,16 @@ var createScene = function () {
   // addNewFenceMeshMat.diffuseColor = new BABYLON.Vector4(1,0,0,1);
   addNewFenceMeshMat.backFaceCulling = false;
 
+  const addNewFenceMeshMatAct = new BABYLON.StandardMaterial(
+    "addNewFenceMeshMatAct"
+  );
+  addNewFenceMeshMatAct.diffuseTexture = new BABYLON.Texture(
+    "img/arrowActive.png"
+  );
+  addNewFenceMeshMatAct.specularColor = new BABYLON.Color3(0.01, 0.01, 0.01);
+  // addNewFenceMeshMat.diffuseColor = new BABYLON.Vector4(1,0,0,1);
+  addNewFenceMeshMatAct.backFaceCulling = false;
+
   //MATERIAL FOR SELECTION
   var selectedMat = new BABYLON.StandardMaterial("selectedMat", scene);
   selectedMat.diffuseColor = BABYLON.Color3.FromHexString("#C10000");
@@ -345,6 +356,7 @@ var createScene = function () {
   var inlays = [];
   var leftPosts = [];
   var rightPosts = [];
+  var allPosts = [];
   var roots = [];
   var postRootsRight = [];
   var singsDel = [];
@@ -476,6 +488,8 @@ var createScene = function () {
     smallBoardsMat,
     smallBoardsMatDark,
     fencesArr,
+    addFenceSings,
+    allPosts,
     0
   );
 
@@ -529,6 +543,7 @@ var createScene = function () {
             activeFence = j;
           }
         }
+
         newFenceForwardSigns[activeFence].isVisible = true;
         newFenceRightSigns[activeFence].isVisible = true;
         newFenceLeftSigns[activeFence].isVisible = true;
@@ -546,6 +561,14 @@ var createScene = function () {
         ) {
           setActivnesStyle(addFence, 0, 3);
         }
+
+        //deactivate arrows
+        activeArrow = false;
+        activeArrowSide = false;
+        addFenceSings.forEach((elm) => {
+          elm.material = addNewFenceMeshMat;
+        });
+        addNewFenceToSide.style.display = "none";
       }
 
       //add selected to mesh
@@ -573,7 +596,8 @@ var createScene = function () {
                   smallBoardsArr,
                   smallBoardsMat,
                   smallBoardsMatDark,
-                  fencesArr
+                  fencesArr,
+                  addFenceSings
                 );
                 result.meshes[1].material =
                   result.meshes[2].material =
@@ -602,18 +626,20 @@ var createScene = function () {
                   result.meshes[14].material =
                   result.meshes[15].material =
                     fenceBoardMat;
-                console.log(fencesArr[activeFence].smBoaCol);
-                if (fencesArr[activeFence].smBoaCol == 0)
-                  result.meshes[1].material = smallBoardsMat;
-                if (fencesArr[activeFence].smBoaCol == 1)
-                  result.meshes[1].material = smallBoardsMatDark;
+                // console.log(fencesArr[activeFence].smBoaCol);
+                // if (fencesArr[activeFence].smBoaCol == 0)
+                //   result.meshes[1].material = smallBoardsMat;
+                // if (fencesArr[activeFence].smBoaCol == 1)
+                //   result.meshes[1].material = smallBoardsMatDark;
                 // result.meshes[1].material = smallBoardsMat;
                 result.meshes[3].material = fencePostMat;
                 //turn off add new sings
-                newFenceForwardSigns[activeFence].isVisible = true;
-                newFenceRightSigns[activeFence].isVisible = true;
-                newFenceLeftSigns[activeFence].isVisible = true;
-                newFenceBackSigns[activeFence].isVisible = true;
+                newFenceForwardSigns[activeFence].isVisible = false;
+                newFenceRightSigns[activeFence].isVisible = false;
+                newFenceLeftSigns[activeFence].isVisible = false;
+                newFenceBackSigns[activeFence].isVisible = false;
+
+                //turn of active fence
                 setTimeout(() => {
                   activeFence = false;
                 }, 100);
@@ -624,10 +650,6 @@ var createScene = function () {
           )
         );
       }
-      //close add new fence accesoire when close button
-      accCloseButFun(sideAccCloseBtn, result.meshes);
-      //close add new fence accesoire when chose fence
-      accCloseButFun(addFence, result.meshes);
 
       //POST CAP
       let rightPostCap = result.meshes[8];
@@ -729,6 +751,7 @@ var createScene = function () {
       let rightPost = result.meshes[3];
       // rightPost.position.x += posX;
       rightPosts.push(rightPost);
+      allPosts.push(rightPost);
       rightPost.material = fencePostMat;
 
       //post roots
@@ -789,8 +812,9 @@ var createScene = function () {
       signPlaneDelRight.position = new BABYLON.Vector3(
         getAbsPosX(rightPost),
         2.2,
-        0
+        getAbsPosZ(rightPost)
       );
+      signPlaneDelRight.addRotation(0, rotY, 0);
       signPlaneDelRight.material = signmatDel;
       signPlaneDelRight.isVisible = false;
       singsDel.push(signPlaneDelRight);
@@ -819,7 +843,7 @@ var createScene = function () {
       signPlaneWarRight.position = new BABYLON.Vector3(
         getAbsPosX(rightPost),
         2.2,
-        0
+        getAbsPosZ(rightPost)
       );
       signPlaneWarRight.material = signmatWar;
       signPlaneWarRight.isVisible = false;
@@ -941,7 +965,7 @@ var createScene = function () {
       //set sraf material
       rightStrVordSraf.material = rightStrRuckSraf.material = rootMat;
       //CREATE SINGS FUNCTION
-      createNewFenceSign();
+      createNewFenceSign(result.meshes);
       fenceId = rightPosts.length - 1;
       if (fenceBoards[fenceId][0].isVisible) {
         fenceType = "easyFence";
@@ -960,7 +984,61 @@ var createScene = function () {
   //createRightFence(posX, posZ, rotY)
   createRightFence(0.9, 0, 0);
 
+  let addNewFenceNormal = document.getElementById("new-fence-normal");
+  addNewFenceNormal.onclick = () => {
+    if (activeArrowSide == 1) {
+      createRightFence(
+        rightPosts[activeArrow].getAbsolutePosition().x + 0.9,
+        rightPosts[activeArrow].getAbsolutePosition().z,
+        0
+      );
+    }
+    if (activeArrowSide == 2) {
+      createRightFence(
+        rightPosts[activeArrow].getAbsolutePosition().x,
+        rightPosts[activeArrow].getAbsolutePosition().z - 0.9,
+        Math.PI / 2
+      );
+    }
+    if (activeArrowSide == 3) {
+      createRightFence(
+        rightPosts[activeArrow].getAbsolutePosition().x,
+        rightPosts[activeArrow].getAbsolutePosition().z + 0.9,
+        -Math.PI / 2
+      );
+    }
+    if (activeArrowSide == 4) {
+      createRightFence(
+        rightPosts[activeArrow].getAbsolutePosition().x - 0.9,
+        rightPosts[activeArrow].getAbsolutePosition().z,
+        Math.PI
+      );
+    }
+    rightPosts[activeArrow].material = fencePostMat;
+    activeArrow = false;
+    activeArrowSide = false;
+    addFenceSings.forEach((elm) => {
+      elm.material = addNewFenceMeshMat;
+    });
+    sideAccesories.style.display = "none";
+    addNewFenceToSide.style.display = "none";
+    unselect();
+  };
+
+  function addNewFenceSideBar() {
+    sideAccesories.style.display = "none";
+    for (let j = 0; j < deleteAccesorie.length; j++) {
+      deleteAccesorie[j].style.display = "none";
+    }
+    addFenceAcc.style.display = "none";
+    // unselect();
+    sideAccesories.style.display = "block";
+    addNewFenceToSide.style.display = "block";
+  }
+
   //CREATE SINGS FUNCTION
+  var activeArrow = false;
+  var activeArrowSide = false;
   function createNewFenceSign() {
     //FRONT SIGN
     const addNewFenceMesh = BABYLON.MeshBuilder.CreatePlane("plane", {
@@ -984,14 +1062,32 @@ var createScene = function () {
         new BABYLON.ExecuteCodeAction(
           BABYLON.ActionManager.OnPickTrigger,
           function () {
-            createRightFence(
-              rightPosts[i].getAbsolutePosition().x + 0.9,
-              rightPosts[i].getAbsolutePosition().z,
-              0
+            activeArrow = i;
+            activeArrowSide = 1;
+            addNewFenceSideBar();
+            addFenceSings.forEach((elm) => {
+              elm.material = addNewFenceMeshMat;
+            });
+            newFenceForwardSigns[i].material = addNewFenceMeshMatAct;
+            addDefaultMaterial(
+              fenceBoards,
+              sturmankersVorderseite,
+              rightPosts,
+              leftPosts,
+              directeHauswandMeshes,
+              fenceBoardMat,
+              fencePostMat,
+              concreteMat,
+              smallBoardsArr,
+              smallBoardsMat,
+              smallBoardsMatDark,
+              fencesArr,
+              addFenceSings
             );
-            console.log(
-              rightPosts[rightPosts.length - 1].getAbsolutePosition()
-            );
+            addFenceSings.forEach((elm) => {
+              elm.isVisible = true;
+            });
+            rightPosts[i].material = selectedMat;
           }
         )
       );
@@ -1013,11 +1109,32 @@ var createScene = function () {
         new BABYLON.ExecuteCodeAction(
           BABYLON.ActionManager.OnPickTrigger,
           function () {
-            createRightFence(
-              rightPosts[i].getAbsolutePosition().x,
-              rightPosts[i].getAbsolutePosition().z - 0.9,
-              Math.PI / 2
+            activeArrow = i;
+            activeArrowSide = 2;
+            addNewFenceSideBar();
+            addFenceSings.forEach((elm) => {
+              elm.material = addNewFenceMeshMat;
+            });
+            newFenceRightSigns[i].material = addNewFenceMeshMatAct;
+            addDefaultMaterial(
+              fenceBoards,
+              sturmankersVorderseite,
+              rightPosts,
+              leftPosts,
+              directeHauswandMeshes,
+              fenceBoardMat,
+              fencePostMat,
+              concreteMat,
+              smallBoardsArr,
+              smallBoardsMat,
+              smallBoardsMatDark,
+              fencesArr,
+              addFenceSings
             );
+            addFenceSings.forEach((elm) => {
+              elm.isVisible = true;
+            });
+            rightPosts[i].material = selectedMat;
           }
         )
       );
@@ -1039,11 +1156,32 @@ var createScene = function () {
         new BABYLON.ExecuteCodeAction(
           BABYLON.ActionManager.OnPickTrigger,
           function () {
-            createRightFence(
-              rightPosts[i].getAbsolutePosition().x,
-              rightPosts[i].getAbsolutePosition().z + 0.9,
-              -Math.PI / 2
+            activeArrow = i;
+            activeArrowSide = 3;
+            addNewFenceSideBar();
+            addFenceSings.forEach((elm) => {
+              elm.material = addNewFenceMeshMat;
+            });
+            newFenceLeftSigns[i].material = addNewFenceMeshMatAct;
+            addDefaultMaterial(
+              fenceBoards,
+              sturmankersVorderseite,
+              rightPosts,
+              leftPosts,
+              directeHauswandMeshes,
+              fenceBoardMat,
+              fencePostMat,
+              concreteMat,
+              smallBoardsArr,
+              smallBoardsMat,
+              smallBoardsMatDark,
+              fencesArr,
+              addFenceSings
             );
+            addFenceSings.forEach((elm) => {
+              elm.isVisible = true;
+            });
+            rightPosts[i].material = selectedMat;
           }
         )
       );
@@ -1058,18 +1196,39 @@ var createScene = function () {
     );
     addNewFenceMeshBack.addRotation(0, Math.PI, 0);
     newFenceBackSigns.push(addNewFenceMeshBack);
-    //CREATE FENCE FORWARD
+    //CREATE FENCE BACK
     for (let i = 0; i < newFenceBackSigns.length; i++) {
       newFenceBackSigns[i].actionManager = new BABYLON.ActionManager(scene);
       newFenceBackSigns[i].actionManager.registerAction(
         new BABYLON.ExecuteCodeAction(
           BABYLON.ActionManager.OnPickTrigger,
           function () {
-            createRightFence(
-              rightPosts[i].getAbsolutePosition().x - 0.9,
-              rightPosts[i].getAbsolutePosition().z,
-              Math.PI
+            activeArrow = i;
+            activeArrowSide = 4;
+            addNewFenceSideBar();
+            addFenceSings.forEach((elm) => {
+              elm.material = addNewFenceMeshMat;
+            });
+            newFenceBackSigns[i].material = addNewFenceMeshMatAct;
+            addDefaultMaterial(
+              fenceBoards,
+              sturmankersVorderseite,
+              rightPosts,
+              leftPosts,
+              directeHauswandMeshes,
+              fenceBoardMat,
+              fencePostMat,
+              concreteMat,
+              smallBoardsArr,
+              smallBoardsMat,
+              smallBoardsMatDark,
+              fencesArr,
+              addFenceSings
             );
+            addFenceSings.forEach((elm) => {
+              elm.isVisible = true;
+            });
+            rightPosts[i].material = selectedMat;
           }
         )
       );
@@ -1752,8 +1911,20 @@ var createScene = function () {
         sturRuckseiteSrafs[i].isVisible = a;
         sturmankersVorderseite[i].isVisible = b;
         sturVorderseiteSrafs[i].isVisible = b;
-        foundationStarts[i].scaling.z = foundations[i].scaling.z = c;
-        foundationStarts[i].position.z = foundations[i].position.z = d;
+
+        // foundationStarts[i].position.z = foundations[i].position.z =
+        //   getAbsPosZ(allPosts[i]) + d;
+        console.log(getAbsPosZ(allPosts[i]));
+        if (getAbsPosZ(allPosts[i]) != 0) {
+          foundationStarts[i].position.z = foundations[i].position.z =
+            getAbsPosZ(allPosts[i]);
+          foundationStarts[i].scaling.x = foundations[i].scaling.x = c;
+          foundationStarts[i].position.x = foundations[i].position.x =
+            getAbsPosX(allPosts[i]) + d;
+        } else {
+          foundationStarts[i].position.z = foundations[i].position.z = d;
+          foundationStarts[i].scaling.z = foundations[i].scaling.z = c;
+        }
       }
     }
     if (directeHauswandMesh.isVisible) {
@@ -1868,7 +2039,8 @@ var createScene = function () {
                 smallBoardsArr,
                 smallBoardsMat,
                 smallBoardsMatDark,
-                fencesArr
+                fencesArr,
+                addFenceSings
               );
               a.forEach((elm) => {
                 elm.material = fencePostMat;
@@ -1890,6 +2062,22 @@ var createScene = function () {
           }
         )
       );
+      //action to stop intesecting
+      // a[i].actionManager.registerAction(
+      //   new BABYLON.SetValueAction(
+      //     {
+      //       trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger,
+      //       parameter: {
+      //         mesh: endParts[1],
+      //         usePreciseIntersection: true,
+      //       },
+      //     },
+      //     a[i],
+      //     "isVisible",
+      //     false
+      //   )
+      // );
+      /////
     }
   }
 
@@ -1972,7 +2160,8 @@ var createScene = function () {
             smallBoardsArr,
             smallBoardsMat,
             smallBoardsMatDark,
-            fencesArr
+            fencesArr,
+            addFenceSings
           );
           directeHauswandMesh.material = selectedMat;
           sideAccesories.style.display = "block";
@@ -2042,53 +2231,52 @@ var createScene = function () {
   });
 
   // ACCESORIES SECTION FUNCTIONS*****************************************************************************************
-  function accCloseButFun(clickable, resMesh) {
+  function unselect() {
+    // sideAccesories.style.width = 0;
+    sideAccesories.style.display = "none";
+    for (let j = 0; j < deleteAccesorie.length; j++) {
+      deleteAccesorie[j].style.display = "none";
+    }
+    addFenceAcc.style.display = "none";
+    closeSliderContainer();
+    addDefaultMaterial(
+      fenceBoards,
+      sturmankersVorderseite,
+      rightPosts,
+      leftPosts,
+      directeHauswandMeshes,
+      fenceBoardMat,
+      fencePostMat,
+      concreteMat,
+      smallBoardsArr,
+      smallBoardsMat,
+      smallBoardsMatDark,
+      fencesArr,
+      addFenceSings
+    );
+    addFenceSings;
+    setTimeout(() => {
+      activeFence = false;
+    }, 100);
+
+    //console.log(activeFence);
+  }
+  function accCloseButFun(clickable) {
     for (let i = 0; i < clickable.length; i++) {
       clickable[i].addEventListener("click", () => {
-        // sideAccesories.style.width = 0;
-        sideAccesories.style.display = "none";
-        for (let j = 0; j < deleteAccesorie.length; j++) {
-          deleteAccesorie[j].style.display = "none";
-        }
-        addFenceAcc.style.display = "none";
-        closeSliderContainer();
-
-        directeHauswandMesh.material = concreteMat;
-        sturmankersRuckseite.forEach((elm) => {
-          elm.material = fencePostMat;
-        });
-        sturmankersVorderseite.forEach((elm) => {
-          elm.material = fencePostMat;
-        });
-        resMesh[1].material =
-          resMesh[2].material =
-          resMesh[9].material =
-          resMesh[10].material =
-          resMesh[11].material =
-          resMesh[12].material =
-          resMesh[13].material =
-          resMesh[14].material =
-          resMesh[15].material =
-            fenceBoardMat;
-        // console.log(fencesArr[activeFence].smBoaCol, resMesh[1].material.id);
-        if (fencesArr[activeFence].smBoaCol == 0)
-          resMesh[1].material = smallBoardsMat;
-        if (fencesArr[activeFence].smBoaCol == 1)
-          resMesh[1].material = smallBoardsMatDark;
-
-        // resMesh[1].material = smallBoardsMat;
-        resMesh[3].material = fencePostMat;
-        setTimeout(() => {
-          activeFence = false;
-        }, 100);
-
-        //console.log(activeFence);
+        unselect();
       });
     }
   }
+
   //set activnes for add fence
   let addFence = document.getElementsByClassName("set-activnes-add-fence");
   setActivnes(addFence, 0);
+
+  //close add new fence accesoire when close button
+  accCloseButFun(sideAccCloseBtn);
+  //close add new fence accesoire when chose fence
+  accCloseButFun(addFence);
 
   //first small board fence colors setings
   let smallBoardsFirst = document.getElementsByClassName(
