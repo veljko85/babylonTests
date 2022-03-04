@@ -149,7 +149,7 @@ var createScene = function () {
   let lights = [];
   let lightsLite = [];
   let lightsHavy = [];
-  let lightsLed = [];
+  // let lightsLed = [];
   let lightColors = [
     "#ff0000",
     "#198754",
@@ -473,7 +473,6 @@ var createScene = function () {
     leds,
     ledMat,
     lights,
-    lightsLed,
     sturmankersVorderseite,
     sturVorderseiteSrafs,
     sturmankersRuckseite,
@@ -878,7 +877,7 @@ var createScene = function () {
               sturLedBtn.onclick = () => {
                 ledSturOnClick(sturLedBtn, i, true);
                 ledsOn += 1;
-                lightsLed[i].intensity = 0.5;
+                // lightsLed[i].intensity = 0.5;
                 sturmankerOnOff(false, 1, 0, i);
                 //set activnes of sturmanker parts
                 var sturNum = 0;
@@ -1601,11 +1600,11 @@ var createScene = function () {
     lightsHavy.forEach((elm) => {
       elm.intensity = a;
     });
-    lightsLed.forEach((elm) => {
-      elm.intensity = b;
-    });
+    // lightsLed.forEach((elm) => {
+    //   elm.intensity = b;
+    // });
     skyBoxes[0].material.luminance = c;
-    if (directeHauswandMesh.isVisible) lightsLed[0].intensity = 0;
+    // if (directeHauswandMesh.isVisible) lightsLed[0].intensity = 0;
   }
   //set lights color
   function setLightColor(lightNum) {
@@ -1618,11 +1617,11 @@ var createScene = function () {
 
   var ledColNum = 4;
   function setLedColor(lightNum) {
-    lightsLed.forEach((elm) => {
-      elm.diffuse = elm.specular = BABYLON.Color3.FromHexString(
-        lightColors[lightNum]
-      );
-    });
+    // lightsLed.forEach((elm) => {
+    //   elm.diffuse = elm.specular = BABYLON.Color3.FromHexString(
+    //     lightColors[lightNum]
+    //   );
+    // });
     ledMat.diffuseColor = ledMat.emissiveColor = BABYLON.Color3.FromHexString(
       lightColors[lightNum]
     );
@@ -1705,11 +1704,11 @@ var createScene = function () {
         setLightColor(4);
         setLedColor(0);
         //set leds on lights on
-        for (let i = 0; i < leds.length; i++) {
-          if (leds[i].isVisible) {
-            lightsLed[i].intensity = 0.5;
-          }
-        }
+        // for (let i = 0; i < leds.length; i++) {
+        //   if (leds[i].isVisible) {
+        //     lightsLed[i].intensity = 0.5;
+        //   }
+        // }
       }
       setActivnesStyle(ledDayNight, 8, 2);
       //set active color to first
@@ -1775,7 +1774,7 @@ var createScene = function () {
         setDayNight(0.2, 0, 1.15);
         for (let i = 0; i < leds.length; i++) {
           if (leds[i].isVisible) {
-            lightsLed[i].intensity = 0.5;
+            // lightsLed[i].intensity = 0.5;
           }
         }
       }
@@ -1915,12 +1914,18 @@ var createScene = function () {
         // foundationStarts[i].position.z = foundations[i].position.z =
         //   getAbsPosZ(allPosts[i]) + d;
         console.log(getAbsPosZ(allPosts[i]));
-        if (getAbsPosZ(allPosts[i]) != 0) {
+        if (getAbsPosZ(allPosts[i]) < 0) {
           foundationStarts[i].position.z = foundations[i].position.z =
             getAbsPosZ(allPosts[i]);
           foundationStarts[i].scaling.x = foundations[i].scaling.x = c;
           foundationStarts[i].position.x = foundations[i].position.x =
             getAbsPosX(allPosts[i]) + d;
+        } else if (getAbsPosZ(allPosts[i]) > 0) {
+          foundationStarts[i].position.z = foundations[i].position.z =
+            getAbsPosZ(allPosts[i]);
+          foundationStarts[i].scaling.x = foundations[i].scaling.x = c;
+          foundationStarts[i].position.x = foundations[i].position.x =
+            getAbsPosX(allPosts[i]) - d;
         } else {
           foundationStarts[i].position.z = foundations[i].position.z = d;
           foundationStarts[i].scaling.z = foundations[i].scaling.z = c;
@@ -2205,7 +2210,7 @@ var createScene = function () {
       sturmankersVorderseite[0].isVisible = false;
       sturVorderseiteSrafs[0].isVisible = false;
       leds[0].isVisible = false;
-      lightsLed[0].intensity = 0;
+      // lightsLed[0].intensity = 0;
     } else {
       setHauswand(
         false,

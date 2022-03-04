@@ -14,7 +14,6 @@ var createMainPost = (
   leds,
   ledMat,
   lights,
-  lightsLed,
   sturmankersVorderseite,
   sturVorderseiteSrafs,
   sturmankersRuckseite,
