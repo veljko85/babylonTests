@@ -32,7 +32,7 @@ function addDefaultMaterial(
   });
 
   for (let i = 0; i < m.length; i++) {
-    if (fencesArr[i].thisSmallBoardsMat == 0) {
+    if (fencesArr[i].smBoaCol == "silber") {
       m[i].material = n;
     } else {
       m[i].material = o;

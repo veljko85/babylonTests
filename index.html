@@ -193,10 +193,10 @@
             </div>
           </div>
 
-          <!-- add new fence -->
+          <!-- change fence -->
           <div class="set-part-container" style="height: auto;">
             <!-- first part -->
-            <div class="set-part-design-inlays-1 set-activnes-add-fence active-text-color">
+            <div class="set-part-design-inlays-1 set-activnes-change-fence active-text-color">
               <div class="side-img-design-inlays-container">
                 <div class="side-img-design-inlays"></div>
               </div>
@@ -204,7 +204,8 @@
               <div class="part-is-active">&#10003</div>
             </div>
             <!-- first part -->
-            <div class="set-part-design-inlays-1 set-activnes-add-fence" style="display: none;">
+            <div class="set-part-design-inlays-1 set-activnes-change-fence"
+              style="height: auto; display: none;  font-size: 15px;">
               <div class="side-img-design-inlays-container">
                 <div class="side-img-design-inlays" style="background-image: url('img/inlay-mattglas.svg');;"></div>
               </div>
@@ -221,7 +222,7 @@
               </div>
               <div class="right-side-design-inlays">
                 <!-- first design-inlays color -->
-                <div class="set-part-design-inlays set-activnes-add-fence first-set-add-fence-color
+                <div class="set-part-design-inlays set-activnes-change-fence first-set-add-fence-color
                 ">
                   <div class="color-badge-set-part">
                     <div class="color-badge color-badge-designe-inline" style="background-color: #e6e6e6;"></div>
@@ -230,7 +231,7 @@
                   <div class="part-is-active"></div>
                 </div>
                 <!-- second design-inlays color -->
-                <div class="set-part-design-inlays set-activnes-add-fence first-set-add-fence-color
+                <div class="set-part-design-inlays set-activnes-change-fence first-set-add-fence-color
                 ">
                   <div class="color-badge-set-part">
                     <div class="color-badge color-badge-designe-inline" style="background-color: #474747;"></div>
@@ -249,7 +250,7 @@
               </div>
               <div class=" right-side-design-inlays">
                 <!-- first design-inlays color -->
-                <div class="set-part-design-inlays set-activnes-add-fence second-set-add-fence-color">
+                <div class="set-part-design-inlays set-activnes-change-fence second-set-add-fence-color">
                   <div class="color-badge-set-part">
                     <div class="color-badge color-badge-designe-inline" style="background-color: #e6e6e6;"></div>
                   </div>
@@ -257,7 +258,7 @@
                   <div class="part-is-active"></div>
                 </div>
                 <!-- second design-inlays color -->
-                <div class="set-part-design-inlays set-activnes-add-fence second-set-add-fence-color">
+                <div class="set-part-design-inlays set-activnes-change-fence second-set-add-fence-color">
                   <div class="color-badge-set-part">
                     <div class="color-badge color-badge-designe-inline" style="background-color: #474747;"></div>
                   </div>
@@ -274,76 +275,90 @@
 
         <!-- SIDE WHEN ADD NEW FENCE ARROW IS CLICKED -->
         <!-- add new fence -->
-        <div class="set-part-container" id="addNewFenceToSide" style="height: auto; display: none;">
+        <div id="addNewFenceToSide" style="height: auto; display: none;">
           <!-- first part -->
-          <div class="set-part-design-inlays-1" id="new-fence-normal">
-            <div class="side-img-design-inlays-container">
-              <div class="side-img-design-inlays"></div>
+          <div class="set-part-container" style="height: auto;">
+            <div class="set-part-design-inlays-1" id="new-fence-normal">
+              <div class="side-img-design-inlays-container">
+                <div class="side-img-design-inlays"></div>
+              </div>
+              <div class="part-set-part-title">EASY-FENCE WPC<br>180x180cm</div>
+              <div class="part-is-active"></div>
             </div>
-            <div class="part-set-part-title">EASY-FENCE WPC<br>180x180cm</div>
-            <div class="part-is-active"></div>
           </div>
           <!-- first part -->
-          <div class="set-part-design-inlays-1 " style="display: none;">
-            <div class="side-img-design-inlays-container">
-              <div class="side-img-design-inlays" style="background-image: url('img/inlay-mattglas.svg');;"></div>
+          <div class="set-part-container" id="newFenceInlays" style="height: auto; display: none;  font-size: 15px;">
+            <div class="set-part-design-inlays-1">
+              <div class="side-img-design-inlays-container">
+                <div class="side-img-design-inlays" style="background-image: url('img/inlay-mattglas.svg');"></div>
+              </div>
+              <div class="part-set-part-title">EASY-FENCE WPC<br>180x180cm + Design-Inlay</div>
+              <div class="part-is-active"></div>
             </div>
-            <div class="part-set-part-title">EASY-FENCE WPC<br>180x180cm + Design-Inlay</div>
-            <div class="part-is-active"></div>
           </div>
           <!-- second part -->
-          <div class="set-part-design-inlays-2">
-            <div class="left-side-design-inlays">
-              <div class="img-design-inlays" style="background-image:
+          <div class="set-part-container" style="height: auto;">
+            <div class="set-part-design-inlays-2" style="border: none;">
+              <div class="left-side-design-inlays">
+                <div class="img-design-inlays" style="background-image:
               url('img/rhombus-180.svg');"></div>
-              <div class="title-design-inlays" style="font-size: 10px;">EASY-ROM<br>ALU-Rhombuszaun<br>180x180cm
+                <div class="title-design-inlays" style="font-size: 10px;">EASY-ROM<br>ALU-Rhombuszaun<br>180x180cm
+                </div>
+              </div>
+              <div class="right-side-design-inlays">
+                <!-- first design-inlays color -->
+                <div class="set-part-design-inlays" id="newFenceRomBigSilber">
+                  <div class="color-badge-set-part">
+                    <div class="color-badge color-badge-designe-inline" style="background-color: #e6e6e6;"></div>
+                  </div>
+                  <div class="part-set-part-title">silber</div>
+                  <div class="part-is-active"></div>
+                </div>
+                <!-- second design-inlays color -->
+                <div class="set-part-design-inlays" id="newFenceRomBigAnthrazit">
+                  <div class="color-badge-set-part">
+                    <div class="color-badge color-badge-designe-inline" style="background-color: #474747;"></div>
+                  </div>
+                  <div class="part-set-part-title">anthrazit</div>
+                  <div class="part-is-active"></div>
+                </div>
               </div>
             </div>
-            <div class="right-side-design-inlays">
-              <!-- first design-inlays color -->
-              <div class="set-part-design-inlays
-              ">
-                <div class="color-badge-set-part">
-                  <div class="color-badge color-badge-designe-inline" style="background-color: #e6e6e6;"></div>
-                </div>
-                <div class="part-set-part-title">silber</div>
-                <div class="part-is-active"></div>
+            <!-- third part -->
+            <div class="set-part-design-inlays-2" style="border: none;">
+              <div class=" left-side-design-inlays">
+                <div class="img-design-inlays" style="background-image:
+                url('img/rhombus-60.svg');"></div>
+                <div class="title-design-inlays" style="font-size: 10px;">EASY-ROM<br>ALU-Rhombuszaun<br>60x180cm</div>
               </div>
-              <!-- second design-inlays color -->
-              <div class="set-part-design-inlays
-              ">
-                <div class="color-badge-set-part">
-                  <div class="color-badge color-badge-designe-inline" style="background-color: #474747;"></div>
+              <div class=" right-side-design-inlays">
+                <!-- first design-inlays color -->
+                <div class="set-part-design-inlays " id="newFenceRomSmallSilber">
+                  <div class="color-badge-set-part">
+                    <div class="color-badge color-badge-designe-inline" style="background-color: #e6e6e6;"></div>
+                  </div>
+                  <div class="part-set-part-title">silber</div>
+                  <div class="part-is-active"></div>
                 </div>
-                <div class="part-set-part-title">anthrazit</div>
-                <div class="part-is-active"></div>
+                <!-- second design-inlays color -->
+                <div class="set-part-design-inlays" id="newFenceRomSmallAnthrazit">
+                  <div class="color-badge-set-part">
+                    <div class="color-badge color-badge-designe-inline" style="background-color: #474747;"></div>
+                  </div>
+                  <div class="part-set-part-title">anthrazit</div>
+                  <div class="part-is-active"></div>
+                </div>
               </div>
             </div>
           </div>
-          <!-- third part -->
-          <div class="set-part-design-inlays-2">
-            <div class="left-side-design-inlays">
-              <div class="img-design-inlays" style="background-image:
-                url('img/rhombus-60.svg');"></div>
-              <div class="title-design-inlays" style="font-size: 10px;">EASY-ROM<br>ALU-Rhombuszaun<br>60x180cm</div>
-            </div>
-            <div class=" right-side-design-inlays">
-              <!-- first design-inlays color -->
-              <div class="set-part-design-inlays ">
-                <div class="color-badge-set-part">
-                  <div class="color-badge color-badge-designe-inline" style="background-color: #e6e6e6;"></div>
-                </div>
-                <div class="part-set-part-title">silber</div>
-                <div class="part-is-active"></div>
+          <!-- first part -->
+          <div class="set-part-container" id="newStub" style="height: auto; display: none;">
+            <div class="set-part-design-inlays-1">
+              <div class="side-img-design-inlays-container">
+                <div class="side-img-design-inlays" style="background-image: url('img/wall-bar.svg');"></div>
               </div>
-              <!-- second design-inlays color -->
-              <div class="set-part-design-inlays">
-                <div class="color-badge-set-part">
-                  <div class="color-badge color-badge-designe-inline" style="background-color: #474747;"></div>
-                </div>
-                <div class="part-set-part-title">anthrazit</div>
-                <div class="part-is-active"></div>
-              </div>
+              <div class="part-set-part-title">Montageprofil<br>3x4x190cm</div>
+              <div class="part-is-active"></div>
             </div>
           </div>
 
@@ -960,7 +975,12 @@
   <script src="scripts/addSkyBox.js"></script>
   <script src="scripts/createGround.js"></script>
   <script src="scripts/createMainPost.js"></script>
+  <script src="scripts/createNewFence.js"></script>
+  <script src="scripts/foundationVisibleFunction.js"></script>
+  <script src="scripts/intesectionFunction.js"></script>
+  <script src="scripts/intersectArrowSignsFence.js"></script>
   <script src="scripts/addDefaultMaterial.js"></script>
+  <script src="scripts/createDirecteHauswand.js"></script>
   <script src="scripts/removeSideAccesories.js"></script>
   <script src="scripts/endOfBabylon.js"></script>
 </body>

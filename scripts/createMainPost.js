@@ -1,6 +1,13 @@
 var createMainPost = (
   capMat,
   leftPosts,
+  createMainPostSigns,
+  fakeFences,
+  newFenceForwardSigns,
+  newFenceRightSigns,
+  newFenceLeftSigns,
+  newFenceBackSigns,
+  activeFence,
   roots,
   fencePostMat,
   concreteMat,
@@ -30,6 +37,15 @@ var createMainPost = (
   fencesArr,
   addFenceSings,
   allPosts,
+  fakeFronts,
+  fakeBacks,
+  foundationStartsVord,
+  foundationsVord,
+  foundationStartsRuck,
+  foundationsRuck,
+  setDayNight,
+  setLightColor,
+  glow,
   posX
 ) =>
   BABYLON.SceneLoader.ImportMeshAsync("", "mesh/", "mainPost.glb").then(
@@ -56,7 +72,7 @@ var createMainPost = (
       leftPosts.push(leftPost);
       allPosts.push(leftPost);
       leftPost.material = fencePostMat;
-
+      createMainPostSigns();
       //add selected to mesh
       leftPost.actionManager = new BABYLON.ActionManager(scene);
       leftPost.actionManager.registerAction(
@@ -86,8 +102,31 @@ var createMainPost = (
                 addFenceSings
               );
               leftPost.material = selectedMat;
+              addFenceSings[0].isVisible = true;
+              addFenceSings[1].isVisible = true;
+              intersectArrowSignsFence(
+                fakeFences,
+                newFenceForwardSigns,
+                newFenceRightSigns,
+                newFenceLeftSigns,
+                newFenceBackSigns,
+                activeFence,
+                addFenceSings
+              );
+              //set day when select sturmanker
+              setDayNight(0.6, 0, 0.7);
+              setLightColor(4);
+              glow.intensity = 0;
+              singsWar.forEach((elm) => {
+                elm.isVisible = false;
+              });
+              singsDel.forEach((elm) => {
+                elm.isVisible = false;
+              });
             } else {
               leftPost.material = fencePostMat;
+              addFenceSings[0].isVisible = false;
+              addFenceSings[1].isVisible = false;
             }
           }
         )
@@ -185,6 +224,7 @@ var createMainPost = (
       // lightsLed.push(light5);
 
       //STRUMANKER
+      //VORD ***************
       let leftStrVord = scene.getMeshByName("sturmanker-left-front_primitive0");
       leftStrVord.isVisible = false;
 
@@ -193,6 +233,35 @@ var createMainPost = (
       );
       leftStrVordSraf.isVisible = false;
 
+      sturmankersVorderseite.push(leftStrVord);
+      sturVorderseiteSrafs.push(leftStrVordSraf);
+
+      //create foundation start for front stunmankwer
+      let foundationVordStart = new BABYLON.MeshBuilder.CreateGround(
+        "foundationVordStart",
+        { width: 0.4, height: 0.7 },
+        scene
+      );
+
+      foundationVordStart.position = new BABYLON.Vector3(0, -0.01, 0.13);
+      foundationVordStart.material = concreteMat;
+      foundationVordStart.parent = leftRoot0;
+      foundationStartsVord.push(foundationVordStart);
+      foundationVordStart.isVisible = false;
+
+      //create foundation for front stunmankwer
+      let foundationVord = new BABYLON.MeshBuilder.CreateBox(
+        "foundationVord",
+        { width: 0.4, height: 0.5, depth: 0.7 },
+        scene
+      );
+      foundationVord.material = foundationMat;
+      foundationVord.position = new BABYLON.Vector3(0, -0.262, 0.13);
+      foundationVord.parent = leftRoot0;
+      foundationsVord.push(foundationVord);
+      foundationVord.isVisible = false;
+
+      // RUCK **********
       let leftStrRuck = scene.getMeshByName("sturmanker-left-rear_primitive0");
       leftStrRuck.isVisible = false;
 
@@ -201,15 +270,57 @@ var createMainPost = (
       );
       leftStrRuckSraf.isVisible = false;
 
-      sturmankersVorderseite.push(leftStrVord);
-      sturVorderseiteSrafs.push(leftStrVordSraf);
       sturmankersRuckseite.push(leftStrRuck);
       sturRuckseiteSrafs.push(leftStrRuckSraf);
+
+      //create foundation start for back stunmankwer
+      let foundationRuckStart = new BABYLON.MeshBuilder.CreateGround(
+        "foundationRuckStart",
+        { width: 0.4, height: 0.7 },
+        scene
+      );
+      foundationRuckStart.position = new BABYLON.Vector3(0, -0.01, -0.13);
+      foundationRuckStart.material = concreteMat;
+      foundationRuckStart.parent = leftRoot0;
+      foundationStartsRuck.push(foundationRuckStart);
+      foundationRuckStart.isVisible = false;
+
+      //create foundation for back stunmankwer
+      let foundationRuck = new BABYLON.MeshBuilder.CreateBox(
+        "foundationRuck",
+        { width: 0.4, height: 0.5, depth: 0.7 },
+        scene
+      );
+      foundationRuck.material = foundationMat;
+      foundationRuck.position = new BABYLON.Vector3(0, -0.262, -0.13);
+      foundationRuck.parent = leftRoot0;
+      foundationsRuck.push(foundationRuck);
+      foundationRuck.isVisible = false;
 
       //set material
       leftStrVord.material = leftStrRuck.material = fencePostMat;
       //set sraf material
       leftStrVordSraf.material = leftStrRuckSraf.material = rootMat;
+
+      //cerate fake strumanker
+      let fakeFront = new BABYLON.MeshBuilder.CreateBox(
+        "foundationRight",
+        { width: 0.01, height: 0.3, depth: 0.3 },
+        scene
+      );
+      fakeFront.parent = leftStrVord;
+      fakeFronts.push(fakeFront);
+      fakeFront.isVisible = false;
+
+      let fakeBack = new BABYLON.MeshBuilder.CreateBox(
+        "foundationRight",
+        { width: 0.01, height: 0.3, depth: 0.3 },
+        scene
+      );
+      fakeBack.parent = leftStrRuck;
+      fakeBacks.push(fakeBack);
+      fakeBack.isVisible = false;
     }
+
     //END OF MAIN POST
   );
