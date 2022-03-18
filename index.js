@@ -1727,7 +1727,7 @@ var createScene = function () {
     cameraTarget.position.z = ground.position.z;
 
     keyFrames.push({
-      frame: 60,
+      frame: 120,
       value: cameraTarget.position.clone(),
     });
 
@@ -1737,7 +1737,7 @@ var createScene = function () {
     animationCameraTarget.setEasingFunction(easingFun2);
     cameraTarget.animations.push(animationCameraTarget);
     //call animation
-    scene.beginAnimation(cameraTarget, 0, 60, false);
+    scene.beginAnimation(cameraTarget, 0, 120, false);
 
     //set camera radius
     var cameraRadius;
@@ -1765,7 +1765,7 @@ var createScene = function () {
       value: camera.radius,
     });
     radiusKeyFrames.push({
-      frame: 60,
+      frame: 120,
       value: cameraRadius,
     });
     radiusAnimation.setKeys(radiusKeyFrames);
@@ -1774,7 +1774,7 @@ var createScene = function () {
     radiusAnimation.setEasingFunction(easingFun);
     camera.animations.push(radiusAnimation);
     //call radius animation
-    scene.beginAnimation(camera, 0, 60, false);
+    scene.beginAnimation(camera, 0, 120, false);
 
     // scene.beginDirectAnimation(camera, [radiusAnimation], 0, 60, false);
 
