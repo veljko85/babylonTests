@@ -65,17 +65,6 @@ openFenceSlider.onclick = () => {
 };
 // fence size slider
 
-// var slider = document.getElementById("fenceSlider");
-// // var output = document.getElementById("fenceSliderOutput");
-// // output.innerHTML = slider.value;
-
-// slider.oninput = function () {
-//   // output.innerHTML = this.value;
-//   console.log(slider.value);
-// };
-// slider.onchange = () => {
-//   console.log(slider.value);
-// };
 var pipsSlider = document.getElementById("slider-pips");
 var sliderMin = document.getElementById("slider-min");
 var sliderPlus = document.getElementById("slider-plus");
@@ -165,13 +154,135 @@ var createDefaultEngine = function () {
     disableWebGL2Support: false,
   });
 };
+
+//for loading
+BABYLON.DefaultLoadingScreen.prototype.displayLoadingUI = function () {
+  if (document.getElementById("customLoadingScreenDiv")) {
+    // Do not add a loading screen if there is already one
+    document.getElementById("customLoadingScreenDiv").style.display = "initial";
+    return;
+  }
+  // this._loadingDiv = document.createElement("div");
+  // this._loadingDiv.id = "customLoadingScreenDiv";
+  // this._loadingDiv.innerHTML = `<div id="lottieWraper" style: width: 200px; height: 200px; background-color: red;></div>`;
+  // let animItem = bodymovin.loadAnimation({
+  //   wrapper: this._loadingDiv,
+  //   animType: "svg",
+  //   loop: true,
+  //   // rendererSettings: {
+  //   //   progressiveLoad: false,
+  //   //   preserveAspectRatio: "xMidYMid meet",
+  //   //   viewBoxSize: "10 10 10 10",
+  //   // },
+  //   path: "https://raw.githubusercontent.com/thesvbd/Lottie-examples/master/assets/animations/loading.json",
+  // });
+  // animItem.resize();
+  // animItem.addEventListener("DOMLoaded", function () {
+  //   animItem.playSegments(
+  //     [
+  //       [0, 100],
+  //       [32, 100],
+  //     ],
+  //     true
+  //   );
+  // });
+  // var customLoadingScreenCss = document.createElement("style");
+  // customLoadingScreenCss.type = "text/css";
+  // if (document.body.clientWidth > document.body.clientHeight) {
+  //   customLoadingScreenCss.innerHTML = `
+  //               #customLoadingScreenDiv{
+  //                 width: 100%;
+  //               height: 100%;
+  //               background-color: white;
+  //                   z-index: 20;
+  //                   position: fixed;
+  //               }
+  //                `;
+  // } else {
+  //   customLoadingScreenCss.innerHTML = `
+  //               #customLoadingScreenDiv{
+  //                 width: 100%;
+  //               height: 100%;
+  //               background-color: white;
+  //                   z-index: 20;
+  //                   position: fixed;
+  //               }
+  //                `;
+  // }
+  // document.getElementsByTagName("head")[0].appendChild(customLoadingScreenCss);
+  // this._resizeLoadingUI();
+  // window.addEventListener("resize", this._resizeLoadingUI);
+  // document.body.appendChild(this._loadingDiv);
+};
+
+let animItem = bodymovin.loadAnimation({
+  wrapper: document.getElementById("lottieWraper"),
+  animType: "svg",
+  loop: true,
+  // rendererSettings: {
+  //   progressiveLoad: false,
+  //   preserveAspectRatio: "xMidYMid meet",
+  //   viewBoxSize: "10 10 10 10",
+  // },
+  path: "https://raw.githubusercontent.com/thesvbd/Lottie-examples/master/assets/animations/loading.json",
+});
+animItem.resize();
+animItem.addEventListener("DOMLoaded", function () {
+  animItem.playSegments(
+    [
+      [0, 100],
+      [32, 100],
+    ],
+    true
+  );
+});
+
+BABYLON.DefaultLoadingScreen.prototype.hideLoadingUI = function () {
+  document.getElementById("customLoadingScreenDiv").style.display = "none";
+  // console.log("scene is now loaded");
+};
+//end of loading
+
 //CREATE SCENE
 var createScene = function () {
+  // for loading
+  engine.displayLoadingUI();
+
   // SCENE
   var scene = new BABYLON.Scene(engine);
 
   //CAMERA
-  cameraBabylon();
+  var cameraTarget = new BABYLON.MeshBuilder.CreateBox(
+    "cameraTarget",
+    { width: 0.2, height: 0.2, depth: 0.2 },
+    scene
+  );
+  cameraTarget.position = new BABYLON.Vector3(0.9, 1, 0);
+  var camera = new BABYLON.ArcRotateCamera(
+    "Camera",
+    0,
+    0,
+    0,
+    new BABYLON.Vector3(0, 0, 0),
+    scene
+  );
+  cameraTarget.isVisible = false;
+  // var camera = new BABYLON.FreeCamera(
+  //   "camera1",
+  //   new BABYLON.Vector3(0, 5, -10),
+  //   scene
+  // );
+  camera.attachControl(canvas, true);
+  camera.setPosition(new BABYLON.Vector3(0.9, 1.5, -4.1));
+  // camera.setTarget(new BABYLON.Vector3(0.9, 1, 0));
+  camera.wheelPrecision = 300;
+  camera.target = cameraTarget;
+
+  camera.lowerRadiusLimit = 2;
+  // camera.upperRadiusLimit = 50;
+
+  // camera.lowerBetaLimit = 0;
+  camera.upperBetaLimit = 1.9;
 
   //LIGHTS
   let lights = [];
@@ -201,8 +312,112 @@ var createScene = function () {
   addSkyBox(skyBoxes);
 
   // GROUND
-  createGround();
+  // createGround();
+  var ground = BABYLON.MeshBuilder.CreateGround(
+    "ground",
+    { width: 1, height: 1 },
+    scene
+  );
+  ground.scaling.x = 2.3;
+  ground.scaling.z = 0.5;
+  ground.position = new BABYLON.Vector3(0.9, 0, 0);
+  var grassMaterial = new BABYLON.StandardMaterial("grassMaterial", scene);
+  grassMaterial.diffuseTexture = new BABYLON.Texture("img/grass.jpg", scene);
+  grassMaterial.specularColor = new BABYLON.Color3(0.01, 0.01, 0.01);
+  grassMaterial.diffuseTexture.uScale = 4.6; // width / height
+  grassMaterial.diffuseTexture.vScale = 1;
+  ground.material = grassMaterial;
   ////////////////////////////////////////////////
+  function groundChange(x, z) {
+    ground.scaling.x = x;
+    ground.scaling.z = z;
+
+    // ground.position = new BABYLON.Vector3(0.9, 0, -0.9);
+  }
+
+  //SET TEXTURE FOR SHOWING SIZE
+  //gound text X
+  var groundTextX = BABYLON.MeshBuilder.CreateGround(
+    "groundTextX",
+    { width: 1, height: 0.5, subdivisions: 25 },
+    scene
+  );
+  var groundTextX2 = BABYLON.MeshBuilder.CreateGround(
+    "groundTextX",
+    { width: 1, height: 0.5, subdivisions: 25 },
+    scene
+  );
+  groundTextX2.rotation.y = Math.PI;
+  //Create dynamic texture
+  // var textureResolution = 512;
+  var textureGroundX = new BABYLON.DynamicTexture(
+    "dynamic texture",
+    { width: 512, height: 256 },
+    scene
+  );
+  var textureContextX = textureGroundX.getContext();
+
+  var materialGroundX = new BABYLON.StandardMaterial("Mat", scene);
+  materialGroundX.diffuseTexture = textureGroundX;
+  materialGroundX.diffuseTexture.hasAlpha = true;
+  groundTextX.material = materialGroundX;
+  groundTextX2.material = materialGroundX;
+  textX = 191;
+  //Add text to dynamic texture
+  var font = "120px Arial";
+  textureGroundX.drawText(
+    textX + "cm",
+    null,
+    null,
+    font,
+    "black",
+    "transparent",
+    true,
+    true
+  );
+
+  //gound text Z
+  var groundTextZ = BABYLON.MeshBuilder.CreateGround(
+    "groundTextZ",
+    { width: 1, height: 0.5, subdivisions: 25 },
+    scene
+  );
+  groundTextZ.rotation.y = Math.PI / 2;
+  var groundTextZ2 = BABYLON.MeshBuilder.CreateGround(
+    "groundTextZ",
+    { width: 1, height: 0.5, subdivisions: 25 },
+    scene
+  );
+  groundTextZ2.rotation.y = -Math.PI / 2;
+  //Create dynamic texture
+
+  var textureGroundZ = new BABYLON.DynamicTexture(
+    "dynamic texture",
+    { width: 512, height: 256 },
+    scene
+  );
+  var textureContextZ = textureGroundZ.getContext();
+
+  var materialGroundZ = new BABYLON.StandardMaterial("Mat", scene);
+  materialGroundZ.diffuseTexture = textureGroundZ;
+  materialGroundZ.diffuseTexture.hasAlpha = true;
+  groundTextZ.material = materialGroundZ;
+  groundTextZ2.material = materialGroundZ;
+  textZ = 7;
+  //Add text to dynamic texture
+  // var font = "120px Arial";
+  textureGroundZ.drawText(
+    textZ + "cm",
+    null,
+    null,
+    font,
+    "black",
+    "transparent",
+    true,
+    true
+  );
+
+  /////////////////////////////////////////////////////////////////////////////////////////
 
   //FENCE COLORS
   fenceBoardsColors = ["#8c8c8c", "#474747", "#836953", "#ece6d6"];
@@ -381,11 +596,11 @@ var createScene = function () {
   //CHANCHING SIZE ON SLIDER
   //function to change position and scale of fence
   function changePosAndScaleFence(valueToCount, activeFence) {
-    if (valueToCount > 15) {
-      fenceScale = valueToCount / 180;
-    } else {
-      fenceScale = 0.08;
-    }
+    // if (valueToCount > 15) {
+    fenceScale = valueToCount / 180;
+    // } else {
+    //   fenceScale = 0.08;
+    // }
     fenceSize = 1.8 * fenceScale;
 
     firstX = getAbsPosX(rightPosts[activeFence]);
@@ -405,10 +620,12 @@ var createScene = function () {
       endParts[activeFence].scaling.x =
       inlays[activeFence][0].scaling.x =
         fenceScale;
+    inlays[activeFence][2].scaling.x = fenceScale;
     startParts[activeFence].position.x =
       endParts[activeFence].position.x =
       inlays[activeFence][0].position.x =
         -0.9 + fenceSize / 2;
+    inlays[activeFence][2].position.x = -0.9 + fenceSize / 2;
 
     smallBoardsArr[activeFence].scaling.x = fenceScale;
     smallBoardsArr[activeFence].position.x = -0.9 + fenceSize / 2;
@@ -466,6 +683,7 @@ var createScene = function () {
   confirmSliderSize.onclick = () => {
     changePosAndScaleFence(valueOfSlider, activeFence);
     positionChildrenOnParentSizeChange();
+    setGround();
   };
 
   function scaleToOtherFencesToDo(i) {
@@ -501,7 +719,6 @@ var createScene = function () {
   function positionChildrenOnParentSizeChange() {
     for (let i = 0; i < fencesArr[activeFence].children.length; i++) {
       a = fencesArr[activeFence].children[i];
-      console.log(a);
       scaleToOtherFencesToDo(a);
       recursiveToChildrenPositionChange(a);
     }
@@ -509,7 +726,6 @@ var createScene = function () {
   function recursiveToChildrenPositionChange(a) {
     if (fencesArr[a].children.length > 0) {
       fencesArr[a].children.forEach((elm) => {
-        console.log(elm);
         scaleToOtherFencesToDo(elm);
         recursiveToChildrenPositionChange(elm);
       });
@@ -580,12 +796,13 @@ var createScene = function () {
   // fencesArr.push(new NewFence(1, "easyFence", 180, false));
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //LOAD FENCE MESH
+  var fenceIdCount = -1;
   var activeFence = false;
   var createRightFence = (posX, posZ, rotY, type, smCol, inlaysOnOff) =>
     BABYLON.SceneLoader.ImportMeshAsync(
       "",
       "mesh/",
-      "easyFenceRightPartComb.glb"
+      "easyFenceRightPartComb2.glb"
     ).then((result) => {
       var fence = result.meshes[0];
       fence.rotationQuaternion = null;
@@ -604,7 +821,19 @@ var createScene = function () {
         }
         sideAccesories.style.display = "block";
         addFenceAcc.style.display = "block";
-        if (inlaysOn == 1 || inlaysOn == 2) {
+
+        //set delete fence image and text
+        deleteFenceOn(activeFence);
+        //delete fence
+        deleteFencePart.onclick = () => {
+          if (activeFence > 0) {
+            delFenFun(activeFence);
+            deleteFence(activeFence);
+          }
+        };
+
+        //set inlays activnces style and fence obj inleys
+        if (inlaysOn == 1) {
           changeFence[1].style.display = "flex";
           if (fencesArr[activeFence].inlays == 1) {
             setActivnesStyle(changeFence, 0, 1);
@@ -613,7 +842,6 @@ var createScene = function () {
           changeFence[1].style.display = "none";
         }
 
-        console.log(fencesArr[activeFence].inlays);
         //set value of slider and slider to this fence
         if (fencesArr[activeFence].type == "easyRomBig")
           pipsSlider.noUiSlider.updateOptions(bigRomSliderOpt);
@@ -638,7 +866,7 @@ var createScene = function () {
           addFenceSings
         );
         for (let i = 0; i < directeHauswandMeshesRight.length; i++) {
-          if (directeHauswandMeshesRight[i].isVisible) {
+          if (directeHauswandMeshesRight[activeFence].isVisible) {
             newFenceForwardSigns[activeFence].isVisible = false;
             newFenceRightSigns[activeFence].isVisible = false;
             newFenceLeftSigns[activeFence].isVisible = false;
@@ -769,8 +997,6 @@ var createScene = function () {
                 setTimeout(() => {
                   activeFence = false;
                 }, 100);
-
-                //console.log(activeFence);
               }
             }
           )
@@ -794,6 +1020,7 @@ var createScene = function () {
         result.meshes[15]
       );
       newBoarsdArr.forEach((elm) => {
+        elm.position.x -= 0.01;
         elm.material = fenceBoardMat;
       });
 
@@ -801,18 +1028,19 @@ var createScene = function () {
 
       //BOARDS SMALL
       let smallBoards = result.meshes[1];
+      smallBoards.position.x -= 0.01;
       smallBoards.isVisible = false;
       smallBoards.material = smallBoardsMat;
       smallBoardsArr.push(smallBoards);
 
       //fake fence for intersection
       let fakeFence = new BABYLON.MeshBuilder.CreateBox(
-        "foundationRight",
+        "fakeFence",
         { width: 1.7, height: 1.8, depth: 0.05 },
         scene
       );
       fakeFence.position = new BABYLON.Vector3(
-        getAbsPosX(smallBoards),
+        getAbsPosX(smallBoards) - 0.01,
         0.9,
         getAbsPosZ(smallBoards)
       );
@@ -823,64 +1051,72 @@ var createScene = function () {
 
       //START AND END PARTS
       let startPart = result.meshes[7];
+      startPart.position.x -= 0.01;
       startParts.push(startPart);
       let endPart = result.meshes[6];
+      endPart.position.x -= 0.01;
       endParts.push(endPart);
       startPart.material = endPart.material = fenceStartEndMat;
 
       //INLAYS
       // fenceBoards[6].isVisible = false;
       let inlaysViero = result.meshes[24];
-
+      inlaysViero.position.x -= 0.02;
       inlaysViero.isVisible = false;
+
       let inlaysAstro = result.meshes[23];
-
+      inlaysAstro.position.x -= 0.02;
       inlaysAstro.isVisible = false;
-      let inlaysSnow = result.meshes[22];
 
+      let inlaysSnow = result.meshes[22];
+      inlaysSnow.position.x -= 0.02;
       inlaysSnow.isVisible = false;
       inlaysSnow.material = inlaysMat;
+
       var newInlaysArr = new Array(inlaysViero, inlaysAstro, inlaysSnow);
       inlays.push(newInlaysArr);
 
       if (inlaysOnOff == 1) {
         newBoarsdArr[6].isVisible = false;
         inlaysViero.isVisible = true;
-      } else if (inlaysOnOff == 2) {
-        newBoarsdArr[6].isVisible = false;
-        inlaysViero.isVisible = true;
-        inlaysMat.diffuseColor = BABYLON.Color3.FromHexString(
-          fencePartsColors[0]
-        );
+        inlaysSnow.isVisible = true;
       }
 
       //LAISNE
       let laisneOrg = result.meshes[16];
+      laisneOrg.position.x -= 0.01;
       laisneOrg.isVisible = false;
       laisneOrg.material = laisneMat;
       var newLaisnesArr = new Array();
-      for (let i = 0; i < 7; i++) {
-        var laisne = laisneOrg.clone("laisne");
-        laisne.material = laisneMat;
-        laisne.isVisible = false;
-        //////////////////
-        if (checkboxActive[i]) {
-          laisne.isVisible = true;
-          laisne.position.y = newBoarsdArr[i].position.y + 0.22 / 2 + 0.005;
+      setTimeout(() => {
+        for (let i = 0; i < 7; i++) {
+          var laisne = laisneOrg.clone("laisne");
+          laisne.material = laisneMat;
+          laisne.isVisible = false;
+          //check if laisnes are active to show them
+          if (checkboxActive[i]) {
+            if (smallBoards.isVisible == false) {
+              laisne.isVisible = true;
+            }
+            laisne.position.y = newBoarsdArr[i].position.y + 0.22 / 2 + 0.005;
 
-          startPart.position.y += 0.01;
+            startPart.position.y += 0.01;
 
-          if (i < 6) {
-            inlaysViero.position.y += 0.01;
+            if (i < 6) {
+              inlaysViero.position.y += 0.01;
+              inlaysSnow.position.y += 0.01;
+            }
+
+            for (let j = i; j < 7; j++) {
+              newBoarsdArr[j + 1].position.y += 0.01;
+            }
           }
 
-          for (let j = i; j < 7; j++) {
-            newBoarsdArr[j + 1].position.y += 0.01;
-          }
+          /////////////////
+          newLaisnesArr.push(laisne);
         }
-        /////////////////
-        newLaisnesArr.push(laisne);
-      }
+      }, 0);
+
       laisnes.push(newLaisnesArr);
 
       //POSTS
@@ -1171,7 +1407,7 @@ var createScene = function () {
 
       //cerate fake strumanker
       let fakeFront = new BABYLON.MeshBuilder.CreateBox(
-        "foundationRight",
+        "fakeFront",
         { width: 0.01, height: 0.3, depth: 0.3 },
         scene
       );
@@ -1179,7 +1415,7 @@ var createScene = function () {
       fakeFronts.push(fakeFront);
       fakeFront.isVisible = false;
       let fakeBack = new BABYLON.MeshBuilder.CreateBox(
-        "foundationRight",
+        "fakeBack",
         { width: 0.01, height: 0.3, depth: 0.3 },
         scene
       );
@@ -1216,7 +1452,8 @@ var createScene = function () {
         singsWar,
         singsDel,
         leds,
-        ledParts
+        ledParts,
+        setActivnesStyle
       );
       directeHauswandMeshesRight[directeHauswandMeshesRight.length - 1].parent =
         rightPostCap;
@@ -1391,7 +1628,8 @@ var createScene = function () {
       }
 
       //CREATE OBJ FOR FENCE
-      fenceId = rightPosts.length - 1;
+      fenceIdCount += 1;
+      fenceId = fenceIdCount;
 
       fenceType = type;
 
@@ -1414,20 +1652,158 @@ var createScene = function () {
           childrenThis
         )
       );
-      console.log(fencesArr);
+
       wholeFences.push(fence);
       if (fenceId > 0 && typeof activeFence != "boolean") {
         fencesArr[activeFence].children.push(fenceId);
+        fencesArr[fenceId].parent = fencesArr[activeFence].id;
       }
+      console.log(fencesArr);
+
+      //set Ground
+      setGround();
+      // }, 0);
       // //
+      //for loading
+      engine.hideLoadingUI();
       //END OF MESH
       /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     });
 
-  //createRightFence(posX, posZ, rotY, type, smCol, inlaysOnOff)
+  var groundSizeX = 0;
+  var groundSizeZ = 0;
+  function setGround() {
+    arrX = [];
+    arrZ = [];
+
+    for (let i = 0; i < allPosts.length; i++) {
+      if (allPosts[i].isVisible) {
+        arrX.push(Math.round(allPosts[i].getAbsolutePosition().x * 100) / 100);
+
+        arrZ.push(Math.round(allPosts[i].getAbsolutePosition().z * 100) / 100);
+        console.log(sturmankersVorderseite[i].isVisible);
+      }
+    }
+
+    arrX.sort(function (a, b) {
+      return a - b;
+    });
+    arrZ.sort(function (a, b) {
+      return a - b;
+    });
+    console.log(arrX, arrZ);
+    arrXFirst = Math.abs(arrX[0]);
+    arrXSecond = arrX[arrX.length - 1];
+    arrZFirst = Math.abs(arrZ[0]);
+    arrZSecond = arrZ[arrZ.length - 1];
+
+    groundSizeX = arrXFirst + arrXSecond + 1.1;
+    groundSizeZ = arrZFirst + arrZSecond + 1.1;
+
+    groundChange(groundSizeX, groundSizeZ);
+
+    ground.position = new BABYLON.Vector3(
+      (arrX[0] + arrX[arrX.length - 1]) / 2,
+      0,
+      (arrZ[0] + arrZ[arrZ.length - 1]) / 2
+    );
+    //aniamtion to change camera target position
+    var animationCameraTarget = new BABYLON.Animation(
+      "myAnimationcamera",
+      "position",
+      60,
+      BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+
+    const keyFrames = [];
+
+    keyFrames.push({
+      frame: 0,
+      value: cameraTarget.position.clone(),
+    });
+    //change camera target position
+    cameraTarget.position.x = ground.position.x;
+    cameraTarget.position.z = ground.position.z;
+
+    keyFrames.push({
+      frame: 60,
+      value: cameraTarget.position.clone(),
+    });
+
+    animationCameraTarget.setKeys(keyFrames);
+    const easingFun2 = new BABYLON.CubicEase();
+    easingFun2.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEOUT);
+    animationCameraTarget.setEasingFunction(easingFun2);
+    cameraTarget.animations.push(animationCameraTarget);
+    //call animation
+    scene.beginAnimation(cameraTarget, 0, 60, false);
+
+    //set camera radius
+    var cameraRadius;
+    if (ground.scaling.x > ground.scaling.z) {
+      if (ground.scaling.x < 2.7) {
+        cameraRadius = 4;
+      } else {
+        cameraRadius = ground.scaling.x * 1.5;
+      }
+    } else {
+      cameraRadius = ground.scaling.z * 1.5;
+    }
+
+    //radius  animation
+    let radiusAnimation = new BABYLON.Animation(
+      "radiusAnimation",
+      "radius",
+      60,
+      BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+      BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+    );
+    let radiusKeyFrames = [];
+    radiusKeyFrames.push({
+      frame: 0,
+      value: camera.radius,
+    });
+    radiusKeyFrames.push({
+      frame: 60,
+      value: cameraRadius,
+    });
+    radiusAnimation.setKeys(radiusKeyFrames);
+    const easingFun = new BABYLON.CubicEase();
+    easingFun.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEOUT);
+    radiusAnimation.setEasingFunction(easingFun);
+    camera.animations.push(radiusAnimation);
+    //call radius animation
+    scene.beginAnimation(camera, 0, 60, false);
+
+    // scene.beginDirectAnimation(camera, [radiusAnimation], 0, 60, false);
+
+    displayGroundSizeX = Math.round((arrXFirst + arrXSecond) * 100) + 7;
+    displayGroundSizeZ = Math.round((arrZFirst + arrZSecond) * 100) + 7;
+
+    //set ground text position and value
+    //x
+    groundTextX.position.x = groundTextX2.position.x = ground.position.x;
+    groundTextX.position.z = ground.position.z + -ground.scaling.z / 2 - 0.2;
+    groundTextX2.position.z = ground.position.z + ground.scaling.z / 2 + 0.2;
+    textX = displayGroundSizeX + "cm";
+    textureContextX.clearRect(0, 0, 512, 256);
+    textureContextX.textAlign = "center";
+    textureContextX.fillText(textX, 256, 140);
+    textureGroundX.update();
+    //z
+    groundTextZ.position.x = ground.position.x + -ground.scaling.x / 2 - 0.2;
+    groundTextZ2.position.x = ground.position.x + ground.scaling.x / 2 + 0.2;
+    groundTextZ.position.z = groundTextZ2.position.z = ground.position.z;
+    textZ = displayGroundSizeZ + "cm";
+    textureContextZ.clearRect(0, 0, 512, 256);
+    textureContextZ.textAlign = "center";
+    textureContextZ.fillText(textZ, 256, 140);
+    textureGroundZ.update();
+  }
 
   //CREATE DEFAULT FENCE
-  createRightFence(0.9, 0, 0, "easyFence", "silber", 0);
+  createRightFence(0.94, 0, 0, "easyFence", "silber", 0);
 
   let addNewFenceNormal = document.getElementById("new-fence-normal");
   addNewFenceNormal.onclick = () => {
@@ -1619,7 +1995,7 @@ var createScene = function () {
     // unselect();
     sideAccesories.style.display = "block";
     addNewFenceToSide.style.display = "block";
-    if (inlaysOn == 1 || inlaysOn == 2) {
+    if (inlaysOn == 1) {
       newFenceInlays.style.display = "block";
     } else {
       newFenceInlays.style.display = "none";
@@ -2060,9 +2436,6 @@ var createScene = function () {
 
     addFenceSings.push(addNewFenceMeshRightMain, addNewFenceMeshLeftMain);
   }
-  setTimeout(() => {
-    console.log(addFenceSings);
-  }, 1000);
 
   //TO DELETE FUNCTION for sturmanker led
   function onDelete(i) {
@@ -2140,9 +2513,10 @@ var createScene = function () {
           elmB[laisnePos].position.y + 0.22 / 2 + 0.005;
       });
     });
-    if (i < 6) {
+    if (laisnePos < 6) {
       inlays.forEach((elm) => {
         elm[0].position.y += 0.01;
+        elm[2].position.y += 0.01;
       });
     }
     for (let i = laisnePos; i < 7; i++) {
@@ -2175,9 +2549,10 @@ var createScene = function () {
     laisnes.forEach((elmL) => {
       elmL[laisnePos].isVisible = false;
     });
-    if (i < 6) {
+    if (laisnePos < 6) {
       inlays.forEach((elm) => {
         elm[0].position.y -= 0.01;
+        elm[2].position.y -= 0.01;
       });
     }
     for (let i = laisnePos; i < 7; i++) {
@@ -2381,14 +2756,19 @@ var createScene = function () {
     if (!activeFence) {
       inlays.forEach((elmI) => {
         elmI[0].isVisible = b;
+        elmI[2].isVisible = b;
       });
       fenceBoards.forEach((elmF) => {
         elmF[6].isVisible = a;
       });
+      for (let i = 0; i < inlays.length; i++) {
+        inlays[i][0].material.albedoColor = inlays[i][2].material.diffuseColor;
+      }
       for (let i = 0; i < fenceBoards.length; i++) {
         if (smallBoardsArr[i].isVisible) {
           fenceBoards[i][6].isVisible = false;
           inlays[i][0].isVisible = false;
+          inlays[i][2].isVisible = false;
         } else {
           fencesArr[i].inlays = 1;
         }
@@ -2408,12 +2788,12 @@ var createScene = function () {
   if (designInlays.length > 0) {
     for (let i = 0; i < designInlays.length; i++) {
       designInlays[i].addEventListener("click", () => {
-        inlaysOn = i;
         if (i == 0) {
           inlaysFunction(true, false);
+          inlaysOn = 0;
         } else if (i == 1 || i == 2) {
           inlaysFunction(false, true);
-          console.log;
+          inlaysOn = 1;
           // } else if (i == 3 || i == 4) {
           //   inlaysFunction(false, false, true, false);
           // } else if (i == 5 || i == 6) {
@@ -2629,7 +3009,6 @@ var createScene = function () {
           strurmOn = true;
         }
       }
-      console.log(strurmOn);
       if (!strurmOn) {
         leds.forEach((elm) => {
           elm.isVisible = true;
@@ -3402,12 +3781,16 @@ var createScene = function () {
     setTimeout(() => {
       activeFence = false;
     }, 100);
-
-    //console.log(activeFence);
   }
   function accCloseButFun(clickable) {
-    for (let i = 0; i < clickable.length; i++) {
-      clickable[i].addEventListener("click", () => {
+    if (typeof clickable.length == "number") {
+      for (let i = 0; i < clickable.length; i++) {
+        clickable[i].addEventListener("click", () => {
+          unselect();
+        });
+      }
+    } else {
+      clickable.addEventListener("click", () => {
         unselect();
       });
     }
@@ -3448,18 +3831,25 @@ var createScene = function () {
     fencesArr[activeFence].inlays = g;
     if (fencesArr[activeFence].inlays == 0) {
       inlays[activeFence][0].isVisible = false;
+      inlays[activeFence][2].isVisible = false;
     }
     // }
     if (fencesArr[activeFence].inlays == 1) {
       inlays[activeFence][0].isVisible = true;
+      inlays[activeFence][2].isVisible = true;
       fenceBoards[activeFence][6].isVisible = false;
     }
 
     //set inlays to ohne
     aaa = 0;
     inlays.forEach((elm) => {
-      if (elm[0].isVisible) aaa += 1;
-      if (aaa < 1) setActivnesStyle(designInlays, 4, 0);
+      if (elm[0].isVisible) {
+        aaa += 1;
+      }
+      if (aaa < 1) {
+        setActivnesStyle(designInlays, 4, 0);
+        inlaysOn = 0;
+      }
     });
     //set laisnes
     for (let i = 0; i < laisnes[activeFence].length; i++) {
@@ -3467,6 +3857,8 @@ var createScene = function () {
         laisnes[activeFence][i].isVisible = f;
       }
     }
+    //set ground size
+    setGround();
   }
 
   changeFence[0].addEventListener("click", () => {
@@ -3495,6 +3887,104 @@ var createScene = function () {
   });
   //close side
   accCloseButFun(changeFence);
+
+  //DELETE FENCE
+  let deleteFencePart = document.getElementById("set-part-fence-acc-del");
+
+  function deleteFenceOn(a) {
+    if (a > 0) {
+      deleteFencePart.children[0].children[0].style.backgroundImage =
+        "url('img/deleteRound.png')";
+      deleteFencePart.children[1].innerHTML = "Löschen";
+    } else {
+      deleteFencePart.children[0].children[0].style.backgroundImage =
+        "url('img/deleteRoundNo.png')";
+      deleteFencePart.children[1].innerHTML = "Der erste Zaun";
+    }
+  }
+  function deleteFence(a) {
+    wholeFences[a].dispose();
+    foundationsRight[a].dispose();
+    fakeFences[a].name = "disposedFakeFence";
+    newFenceForwardSigns[a].dispose();
+    newFenceRightSigns[a].dispose();
+    newFenceLeftSigns[a].dispose();
+    newFenceBackSigns[a].dispose();
+    allPosts[a + 1].isVisible = false;
+    fencesArr[a].children.forEach((elm) => {
+      fencesArr[elm].parent = fencesArr[a].parent;
+
+      fencesArr[fencesArr[a].parent].children.push(elm);
+    });
+    fencesArr[fencesArr[a].parent].children.splice(
+      fencesArr[fencesArr[a].parent].children.indexOf(a),
+      1
+    );
+    fencesArr[a].parent = undefined;
+    setGround();
+  }
+  function recursiveToChildrenDelete(b) {
+    if (fencesArr[b].children.length > 0) {
+      fencesArr[b].children.forEach((elm) => {
+        scaleToOtherFencesToDo(elm);
+        recursiveToChildrenDelete(elm);
+      });
+    }
+  }
+
+  function recursiveToChildrenDelete2(c) {
+    while (fencesArr[c].children.length > 0) {
+      deleteFence(fencesArr[c].children[0]);
+    }
+  }
+
+  function delFenFun(a) {
+    if (fencesArr[a].children.length > 0) {
+      firstX = getAbsPosX(rightPosts[a]);
+      secondX = getAbsPosX(rightPosts[fencesArr[a].parent]);
+      firstZ = getAbsPosZ(rightPosts[a]);
+      secondZ = getAbsPosZ(rightPosts[fencesArr[a].parent]);
+
+      for (let i = 0; i < fencesArr[a].children.length; i++) {
+        if (
+          wholeFences[a].rotation.y !=
+            wholeFences[fencesArr[a].parent].rotation.y ||
+          wholeFences[a].rotation.y !=
+            wholeFences[fencesArr[a].children[i]].rotation.y
+        ) {
+          recursiveToChildrenDelete2(a);
+        } else {
+          b = fencesArr[a].children[i];
+          scaleToOtherFencesToDo(b);
+          recursiveToChildrenDelete(b);
+        }
+      }
+    }
+  }
+
+  // confirmSliderSize.onclick = () => {
+  //   changePosAndScaleFence(valueOfSlider, activeFence);
+  //   positionChildrenOnParentSizeChange();
+  // };
+
+  // function positionChildrenOnParentSizeChange() {
+  //   for (let i = 0; i < fencesArr[activeFence].children.length; i++) {
+  //     a = fencesArr[activeFence].children[i];
+  //     scaleToOtherFencesToDo(a);
+  //     recursiveToChildrenPositionChange(a);
+  //   }
+  // }
+  // function recursiveToChildrenPositionChange(a) {
+  //   if (fencesArr[a].children.length > 0) {
+  //     fencesArr[a].children.forEach((elm) => {
+  //       scaleToOtherFencesToDo(elm);
+  //       recursiveToChildrenPositionChange(elm);
+  //     });
+  //   }
+  // }
+
+  accCloseButFun(deleteFencePart);
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //END OF SCENE
   return scene;
 };

@@ -21,7 +21,8 @@ function createDirecteHauswand(
   singsWar,
   singsDel,
   leds,
-  ledParts
+  ledParts,
+  setActivnesStyle
 ) {
   var directeHauswandMeshRight = BABYLON.MeshBuilder.CreateBox(
     "directeHauswandMeshRight",

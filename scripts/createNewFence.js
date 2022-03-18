@@ -19,7 +19,7 @@ function createNewFence(
 ) {
   if (activeArrowSide == 1) {
     createRightFence(
-      rightPosts[activeArrow].getAbsolutePosition().x + 0.9,
+      rightPosts[activeArrow].getAbsolutePosition().x + 0.94,
       rightPosts[activeArrow].getAbsolutePosition().z,
       0,
       fenceType,
@@ -30,7 +30,7 @@ function createNewFence(
   if (activeArrowSide == 2) {
     createRightFence(
       rightPosts[activeArrow].getAbsolutePosition().x,
-      rightPosts[activeArrow].getAbsolutePosition().z - 0.9,
+      rightPosts[activeArrow].getAbsolutePosition().z - 0.94,
       Math.PI / 2,
       fenceType,
       smallBoardsCol,
@@ -40,7 +40,7 @@ function createNewFence(
   if (activeArrowSide == 3) {
     createRightFence(
       rightPosts[activeArrow].getAbsolutePosition().x,
-      rightPosts[activeArrow].getAbsolutePosition().z + 0.9,
+      rightPosts[activeArrow].getAbsolutePosition().z + 0.94,
       -Math.PI / 2,
       fenceType,
       smallBoardsCol,
@@ -49,7 +49,7 @@ function createNewFence(
   }
   if (activeArrowSide == 4) {
     createRightFence(
-      rightPosts[activeArrow].getAbsolutePosition().x - 0.9,
+      rightPosts[activeArrow].getAbsolutePosition().x - 0.94,
       rightPosts[activeArrow].getAbsolutePosition().z,
       Math.PI,
       fenceType,
@@ -60,7 +60,7 @@ function createNewFence(
   if (activeArrowSide == 5) {
     createRightFence(
       leftPosts[0].getAbsolutePosition().x,
-      leftPosts[0].getAbsolutePosition().z - 0.9,
+      leftPosts[0].getAbsolutePosition().z - 0.94,
       Math.PI / 2,
       fenceType,
       smallBoardsCol,
@@ -70,7 +70,7 @@ function createNewFence(
   if (activeArrowSide == 6) {
     createRightFence(
       leftPosts[0].getAbsolutePosition().x,
-      leftPosts[0].getAbsolutePosition().z + 0.9,
+      leftPosts[0].getAbsolutePosition().z + 0.94,
       -Math.PI / 2,
       fenceType,
       smallBoardsCol,

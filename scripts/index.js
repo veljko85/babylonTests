@@ -85,7 +85,7 @@ noUiSlider.create(pipsSlider, {
   connect: [true, false],
   tooltips: [wNumb({ decimals: 0, postfix: " cm" })],
   range: {
-    min: 10,
+    min: 0,
     max: 180,
   },
   start: [180],
@@ -111,8 +111,36 @@ pipsSlider.noUiSlider.on("update", function () {
   sliderPlus.onclick = () => {
     pipsSlider.noUiSlider.set(valueOfSlider + 1);
   };
-  console.log(valueOfSlider);
+  if (valueOfSlider < 10) {
+    pipsSlider.noUiSlider.set(10);
+  }
 });
+
+let easyFenceSliderOpt = {
+  range: {
+    min: 0,
+    max: 180,
+  },
+
+  pips: { mode: "values", values: [0, 90, 180], density: 100 },
+};
+
+let smallRomSliderOpt = {
+  range: {
+    min: 0,
+    max: 60,
+  },
+  pips: { mode: "values", values: [0, 30, 60], density: 100 },
+};
+
+let bigRomSliderOpt = {
+  range: {
+    min: 61,
+    max: 180,
+  },
+  pips: { mode: "values", values: [61, 120, 180], density: 100 },
+};
+
 //ADD FENCE
 //add fence activnes
 
@@ -175,66 +203,6 @@ var createScene = function () {
   // GROUND
   createGround();
   ////////////////////////////////////////////////
-  ////////////////////////////////////////////////
-  //FENCE
-
-  //   //SIGHNS FOR ADDING NEW FENCE
-  //   //FORWARD SIGH
-  //   const addNewFenceMeshMat = new BABYLON.StandardMaterial("addNewFenceMesh");
-  //   addNewFenceMeshMat.diffuseTexture = new BABYLON.Texture("img/arrow.png");
-  //   // addNewFenceMeshMat.diffuseColor = new BABYLON.Vector4(1,0,0,1);
-  //   addNewFenceMeshMat.backFaceCulling = false;
-  //   const addNewFenceMesh = BABYLON.MeshBuilder.CreatePlane("plane", {
-  //     height: 0.3,
-  //     width: 0.3,
-  //   });
-  //   addNewFenceMesh.position = new BABYLON.Vector3(
-  //     rightPost.position.x - 0.3,
-  //     1,
-  //     posZ
-  //   );
-  //   addNewFenceMesh.material = addNewFenceMeshMat;
-  //   addNewFenceMesh.isVisible = true;
-  //   //CREATE FENCE FORWARD
-  //   addNewFenceMesh.actionManager = new BABYLON.ActionManager(scene);
-  //   addNewFenceMesh.actionManager.registerAction(
-  //     new BABYLON.ExecuteCodeAction(
-  //       BABYLON.ActionManager.OnPickTrigger,
-  //       function () {
-  //         createEasyFenceModel(rightPost.position.x - 0.9, posZ, 0);
-  //       }
-  //     )
-  //   );
-  //   //LEFT SIGHN
-  //   var addNewFenceMeshLeft = addNewFenceMesh.clone("addNewFenceMeshLeft");
-  //   addNewFenceMeshLeft.position = new BABYLON.Vector3(
-  //     rightPost.position.x,
-  //     0.4,
-  //     posZ + 0.3
-  //   );
-  //   addNewFenceMeshLeft.addRotation(0, Math.PI / 2, 0);
-  //   //CREATE FENCE LEFT
-  //   // addNewFenceMeshLeft.actionManager = new BABYLON.ActionManager(scene);
-  //   // addNewFenceMeshLeft.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function () {
-  //   //   createEasyFenceModel(posX, rightPost.position.z + 0.9, Math.PI / 2);
-  //   // }));
-  //   //RIGHT SIGHN
-  //   var addNewFenceMeshRight = addNewFenceMesh.clone("addNewFenceMeshRight");
-  //   addNewFenceMeshRight.position = new BABYLON.Vector3(
-  //     rightPost.position.x,
-  //     1.4,
-  //     posZ - 0.3
-  //   );
-  //   addNewFenceMeshRight.addRotation(0, -Math.PI / 2, 0);
-  //   //CREATE RIGHT FENCE
-
-  //    end of fence mesh function
-  // };
-
-  //turn off mesh if mesh is pickable
-  // for (let i = 0; i < result.meshes.length; i++) {
-  //   result.meshes[i].isPickable = false;
-  // }
 
   //FENCE COLORS
   fenceBoardsColors = ["#8c8c8c", "#474747", "#836953", "#ece6d6"];
@@ -256,7 +224,7 @@ var createScene = function () {
 
   var smallBoardsMatDark = new BABYLON.StandardMaterial("fencePartMat", scene);
   smallBoardsMatDark.diffuseColor = BABYLON.Color3.FromHexString(
-    fencePartsColors[0]
+    fencePartsColors[1]
   );
   smallBoardsMatDark.specularColor = new BABYLON.Color3(0.5, 0.5, 0.5);
 
@@ -358,7 +326,7 @@ var createScene = function () {
   var rightPosts = [];
   var allPosts = [];
   var roots = [];
-  var postRootsRight = [];
+  var rightRoots = [];
   var singsDel = [];
   var singsDelRight = [];
   var singsWar = [];
@@ -372,15 +340,16 @@ var createScene = function () {
   var foundationsRight = [];
   var sturmankersRuckseite = [];
   var sturRuckseiteSrafs = [];
+  var sturmankersRuckseiteRight = [];
   var sturmankersVorderseite = [];
   var sturVorderseiteSrafs = [];
-  var sturVordsRight = [];
-  var sturRucksRight = [];
+  var sturmankersVorderseiteRight = [];
   var foundationStartsVord = [];
   var foundationsVord = [];
   var foundationStartsRuck = [];
   var foundationsRuck = [];
   var directeHauswandMeshes = [];
+  var directeHauswandMeshesRight = [];
   var newFenceForwardSigns = [];
   var newFenceRightSigns = [];
   var newFenceLeftSigns = [];
@@ -390,6 +359,7 @@ var createScene = function () {
   var fakeFronts = [];
   var fakeBacks = [];
   var fakeFences = [];
+  var wholeFences = [];
 
   //FUNCTONS TO GET AND SET ABSOLUTE POSTIOIONS
   var getAbsPosX = (mesh) => {
@@ -410,63 +380,153 @@ var createScene = function () {
 
   //CHANCHING SIZE ON SLIDER
   //function to change position and scale of fence
-  function changePosAndScaleFence(valueToCount) {
+  function changePosAndScaleFence(valueToCount, activeFence) {
     if (valueToCount > 15) {
       fenceScale = valueToCount / 180;
     } else {
       fenceScale = 0.08;
     }
     fenceSize = 1.8 * fenceScale;
-    fencePos = fenceSize / 2;
-    postPos = getAbsPosX(leftPosts[0]) + fenceSize;
-    // boardsPosX = -(fenceSize2 * fenceSize) / 2;
 
-    for (let i = 0; i < fenceBoards.length; i++) {
-      fenceBoards[i].scaling.x = fenceScale;
-      setAbsPosX(fenceBoards[i], fencePos);
-    }
+    firstX = getAbsPosX(rightPosts[activeFence]);
+    firstZ = getAbsPosZ(rightPosts[activeFence]);
 
-    smallBoardsArr[0].scaling.x = fenceScale;
-    setAbsPosX(smallBoardsArr[0], fencePos);
-
-    laisnes.forEach((elm) => {
+    fenceBoards[activeFence].forEach((elm) => {
       elm.scaling.x = fenceScale;
-      setAbsPosX(elm, fencePos);
+      elm.position.x = -0.9 + fenceSize / 2;
     });
 
-    startParts[0].scaling.x =
-      endParts[0].scaling.x =
-      inlays[0].scaling.x =
+    laisnes[activeFence].forEach((elm) => {
+      elm.scaling.x = fenceScale;
+      elm.position.x = -0.9 + fenceSize / 2;
+    });
+
+    startParts[activeFence].scaling.x =
+      endParts[activeFence].scaling.x =
+      inlays[activeFence][0].scaling.x =
         fenceScale;
+    inlays[activeFence][2].scaling.x = fenceScale;
+    startParts[activeFence].position.x =
+      endParts[activeFence].position.x =
+      inlays[activeFence][0].position.x =
+        -0.9 + fenceSize / 2;
+    inlays[activeFence][2].position.x = -0.9 + fenceSize / 2;
 
-    setAbsPosX(startParts[0], fencePos);
-    setAbsPosX(endParts[0], fencePos);
-    setAbsPosX(inlays[0], fencePos);
+    smallBoardsArr[activeFence].scaling.x = fenceScale;
+    smallBoardsArr[activeFence].position.x = -0.9 + fenceSize / 2;
+    rightPosts[activeFence].position.x = -0.9 + fenceSize;
+    rightPostCaps[activeFence].position.x = rightPosts[activeFence].position.x;
 
-    foundationStartsRight[0].position.x = foundationsRight[0].position.x =
-      postPos;
+    foundationsRight[activeFence].setAbsolutePosition(
+      new BABYLON.Vector3(
+        getAbsPosX(rightPosts[activeFence]),
+        foundationsRight[activeFence].position.y,
+        getAbsPosZ(rightPosts[activeFence])
+      )
+    );
 
-    setAbsPosX(rightPosts[0], postPos);
-    setAbsPosX(postRootsRight[0], postPos);
-    setAbsPosX(singsDelRight[0], postPos);
-    setAbsPosX(ledsRight[0], postPos);
-    setAbsPosX(sturVordsRight[0], postPos);
-    setAbsPosX(rightPostCaps[0], postPos);
+    newFenceForwardSigns[activeFence].setAbsolutePosition(
+      new BABYLON.Vector3(
+        getAbsPosX(rightPosts[activeFence]) + 0.3,
+        newFenceForwardSigns[activeFence].position.y,
+        getAbsPosZ(rightPosts[activeFence])
+      )
+    );
 
-    newFenceForwardSigns[0].position.x = postPos + 0.3;
-    newFenceRightSigns[0].position.x = newFenceLeftSigns[0].position.x =
-      postPos;
-    newFenceBackSigns[0].position.x = postPos - 0.3;
+    newFenceRightSigns[activeFence].setAbsolutePosition(
+      new BABYLON.Vector3(
+        getAbsPosX(rightPosts[activeFence]),
+        newFenceRightSigns[activeFence].position.y,
+        getAbsPosZ(rightPosts[activeFence]) - 0.3
+      )
+    );
+
+    newFenceLeftSigns[activeFence].setAbsolutePosition(
+      new BABYLON.Vector3(
+        getAbsPosX(rightPosts[activeFence]),
+        newFenceLeftSigns[activeFence].position.y,
+        getAbsPosZ(rightPosts[activeFence]) + 0.3
+      )
+    );
+
+    newFenceBackSigns[activeFence].setAbsolutePosition(
+      new BABYLON.Vector3(
+        getAbsPosX(rightPosts[activeFence]) - 0.3,
+        newFenceBackSigns[activeFence].position.y,
+        getAbsPosZ(rightPosts[activeFence])
+      )
+    );
+
+    secondX = getAbsPosX(rightPosts[activeFence]);
+    secondZ = getAbsPosZ(rightPosts[activeFence]);
+
+    //set this fence obj size
+    fencesArr[activeFence].size = valueToCount;
   }
+
   //confirm change on slider
   confirmSliderSize.onclick = () => {
-    changePosAndScaleFence(valueOfSlider);
+    changePosAndScaleFence(valueOfSlider, activeFence);
+    positionChildrenOnParentSizeChange();
   };
+
+  function scaleToOtherFencesToDo(i) {
+    foundationsRight[i].position.x =
+      foundationsRight[i].position.x - (firstX - secondX);
+    foundationsRight[i].position.z =
+      foundationsRight[i].position.z - (firstZ - secondZ);
+
+    wholeFences[i].position.x = wholeFences[i].position.x - (firstX - secondX);
+    wholeFences[i].position.z = wholeFences[i].position.z - (firstZ - secondZ);
+
+    newFenceForwardSigns[i].position.x =
+      newFenceForwardSigns[i].position.x - (firstX - secondX);
+    newFenceForwardSigns[i].position.z =
+      newFenceForwardSigns[i].position.z - (firstZ - secondZ);
+
+    newFenceRightSigns[i].position.x =
+      newFenceRightSigns[i].position.x - (firstX - secondX);
+    newFenceRightSigns[i].position.z =
+      newFenceRightSigns[i].position.z - (firstZ - secondZ);
+
+    newFenceLeftSigns[i].position.x =
+      newFenceLeftSigns[i].position.x - (firstX - secondX);
+    newFenceLeftSigns[i].position.z =
+      newFenceLeftSigns[i].position.z - (firstZ - secondZ);
+
+    newFenceBackSigns[i].position.x =
+      newFenceBackSigns[i].position.x - (firstX - secondX);
+    newFenceBackSigns[i].position.z =
+      newFenceBackSigns[i].position.z - (firstZ - secondZ);
+  }
+
+  function positionChildrenOnParentSizeChange() {
+    for (let i = 0; i < fencesArr[activeFence].children.length; i++) {
+      a = fencesArr[activeFence].children[i];
+      scaleToOtherFencesToDo(a);
+      recursiveToChildrenPositionChange(a);
+    }
+  }
+  function recursiveToChildrenPositionChange(a) {
+    if (fencesArr[a].children.length > 0) {
+      fencesArr[a].children.forEach((elm) => {
+        scaleToOtherFencesToDo(elm);
+        recursiveToChildrenPositionChange(elm);
+      });
+    }
+  }
 
   //MAIN POST MESH
   createMainPost(
     capMat,
     leftPosts,
+    createMainPostSigns,
+    fakeFences,
+    newFenceForwardSigns,
+    newFenceRightSigns,
+    newFenceLeftSigns,
+    newFenceBackSigns,
+    activeFence,
     roots,
     fencePostMat,
     concreteMat,
@@ -502,22 +562,27 @@ var createScene = function () {
     foundationsVord,
     foundationStartsRuck,
     foundationsRuck,
+    setDayNight,
+    setLightColor,
+    glow,
     0
   );
 
-  function NewFence(id, type, size, inlays, smBoaCol) {
+  function NewFence(id, type, smBoaCol, size, inlays, children) {
     this.id = id;
     this.type = type;
+    this.smBoaCol = smBoaCol;
     this.size = size;
     this.inlays = inlays;
-    this.smBoaCol = smBoaCol;
+    this.children = children;
   }
 
   // fencesArr.push(new NewFence(1, "easyFence", 180, false));
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //LOAD FENCE MESH
+  var fenceIdCount = -1;
   var activeFence = false;
-  var createRightFence = (posX, posZ, rotY) =>
+  var createRightFence = (posX, posZ, rotY, type, smCol, inlaysOnOff) =>
     BABYLON.SceneLoader.ImportMeshAsync(
       "",
       "mesh/",
@@ -525,53 +590,105 @@ var createScene = function () {
     ).then((result) => {
       var fence = result.meshes[0];
       fence.rotationQuaternion = null;
-      // rightPostCaps[0].getAbsolutePosition()
+
       fence.position.x = posX;
       fence.position.z = posZ;
       fence.rotation.y = rotY;
 
-      //SET POSITION
-      var postRootNode = scene.getNodeByName("post-root-right");
-      // console.log(postRootNode.position.x);
-      // postRootNode.position.x += posX;
-      //console.log(postRootNode.position.x);
-      postRootsRight.push(postRootNode);
-      var sturVordNode = scene.getNodeByName("sturmanker-right-front");
-      // sturVordNode.position.x += posX;
-      sturVordsRight.push(sturVordNode);
-      var sturRuckNode = scene.getNodeByName("sturmanker-right-rear");
-      // sturRuckNode.position.x += posX;
-      sturRucksRight.push(sturRuckNode);
-
       //function to active fence
       function toActiveFence() {
-        sideAccesories.style.display = "block";
-        addFenceAcc.style.display = "block";
-
         //set this active fence
         for (let j = 0; j < rightPosts.length; j++) {
           if (rightPosts[j].material.id == "selectedMat") {
             activeFence = j;
           }
         }
+        sideAccesories.style.display = "block";
+        addFenceAcc.style.display = "block";
 
+        //set delete fence image and text
+        deleteFenceOn(activeFence);
+        //delete fence
+        deleteFencePart.onclick = () => {
+          if (activeFence > 0) {
+            deleteFence(activeFence);
+
+            recursiveToChildrenDelete(activeFence);
+            fakeFences.forEach((element) => {
+              console.log(element.name);
+            });
+          }
+        };
+
+        //set inlays activnces style and fence obj inleys
+        if (inlaysOn == 1) {
+          changeFence[1].style.display = "flex";
+          if (fencesArr[activeFence].inlays == 1) {
+            setActivnesStyle(changeFence, 0, 1);
+          }
+        } else {
+          changeFence[1].style.display = "none";
+        }
+
+        //set value of slider and slider to this fence
+        if (fencesArr[activeFence].type == "easyRomBig")
+          pipsSlider.noUiSlider.updateOptions(bigRomSliderOpt);
+        if (fencesArr[activeFence].type == "easyRomSmall")
+          pipsSlider.noUiSlider.updateOptions(smallRomSliderOpt);
+        if (fencesArr[activeFence].type == "easyFence")
+          pipsSlider.noUiSlider.updateOptions(easyFenceSliderOpt);
+        pipsSlider.noUiSlider.set(fencesArr[activeFence].size);
+        closeSliderContainer();
+        //set signs visibility baste on intesection with fances
         newFenceForwardSigns[activeFence].isVisible = true;
         newFenceRightSigns[activeFence].isVisible = true;
         newFenceLeftSigns[activeFence].isVisible = true;
         newFenceBackSigns[activeFence].isVisible = true;
-        if (!smallBoardsArr[activeFence].isVisible) {
-          setActivnesStyle(addFence, 0, 0);
-        } else if (
-          smallBoardsArr[activeFence].isVisible &&
-          fencesArr[activeFence].smBoaCol == 0
-        ) {
-          setActivnesStyle(addFence, 0, 2);
-        } else if (
-          smallBoardsArr[activeFence].isVisible &&
-          fencesArr[activeFence].smBoaCol == 1
-        ) {
-          setActivnesStyle(addFence, 0, 3);
+        intersectArrowSignsFence(
+          fakeFences,
+          newFenceForwardSigns,
+          newFenceRightSigns,
+          newFenceLeftSigns,
+          newFenceBackSigns,
+          activeFence,
+          addFenceSings
+        );
+        for (let i = 0; i < directeHauswandMeshesRight.length; i++) {
+          if (directeHauswandMeshesRight[i].isVisible) {
+            newFenceForwardSigns[activeFence].isVisible = false;
+            newFenceRightSigns[activeFence].isVisible = false;
+            newFenceLeftSigns[activeFence].isVisible = false;
+            newFenceBackSigns[activeFence].isVisible = false;
+          }
         }
+
+        //set activnes of active fence settings
+
+        if (
+          fencesArr[activeFence].type == "easyFence" &&
+          fencesArr[activeFence].inlays == 0
+        )
+          setActivnesStyle(changeFence, 0, 0);
+        if (
+          fencesArr[activeFence].type == "easyRomBig" &&
+          fencesArr[activeFence].smBoaCol == "silber"
+        )
+          setActivnesStyle(changeFence, 0, 2);
+        if (
+          fencesArr[activeFence].type == "easyRomBig" &&
+          fencesArr[activeFence].smBoaCol == "anthrazit"
+        )
+          setActivnesStyle(changeFence, 0, 3);
+        if (
+          fencesArr[activeFence].type == "easyRomSmall" &&
+          fencesArr[activeFence].smBoaCol == "silber"
+        )
+          setActivnesStyle(changeFence, 0, 4);
+        if (
+          fencesArr[activeFence].type == "easyRomSmall" &&
+          fencesArr[activeFence].smBoaCol == "anthrazit"
+        )
+          setActivnesStyle(changeFence, 0, 5);
 
         //deactivate arrows
         activeArrow = false;
@@ -583,10 +700,10 @@ var createScene = function () {
 
         setDayNight(0.6, 0, 0.7);
         setLightColor(4);
+        glow.intensity = 0;
         singsWar.forEach((elm) => {
           elm.isVisible = false;
         });
-
         for (let i = 0; i < allPosts.length; i++) {
           if (leds[i].isVisible) {
             singsDel[i].isVisible = true;
@@ -639,27 +756,25 @@ var createScene = function () {
                 closeSliderContainer();
                 sideAccesories.style.display = "none";
                 addFenceAcc.style.display = "none";
-                result.meshes[1].material =
-                  result.meshes[2].material =
-                  result.meshes[9].material =
-                  result.meshes[10].material =
-                  result.meshes[11].material =
-                  result.meshes[12].material =
-                  result.meshes[13].material =
-                  result.meshes[14].material =
-                  result.meshes[15].material =
-                    fenceBoardMat;
+                addDefaultMaterial(
+                  fenceBoards,
+                  sturmankersVorderseite,
+                  rightPosts,
+                  leftPosts,
+                  directeHauswandMeshes,
+                  fenceBoardMat,
+                  fencePostMat,
+                  concreteMat,
+                  smallBoardsArr,
+                  smallBoardsMat,
+                  smallBoardsMatDark,
+                  fencesArr,
+                  addFenceSings
+                );
 
                 singsDel.forEach((elm) => {
                   elm.isVisible = false;
                 });
-                // console.log(fencesArr[activeFence].smBoaCol);
-                // if (fencesArr[activeFence].smBoaCol == 0)
-                //   result.meshes[1].material = smallBoardsMat;
-                // if (fencesArr[activeFence].smBoaCol == 1)
-                //   result.meshes[1].material = smallBoardsMatDark;
-                // result.meshes[1].material = smallBoardsMat;
-                result.meshes[3].material = fencePostMat;
                 //turn off add new sings
                 newFenceForwardSigns[activeFence].isVisible = false;
                 newFenceRightSigns[activeFence].isVisible = false;
@@ -681,7 +796,6 @@ var createScene = function () {
       //POST CAP
       let rightPostCap = result.meshes[8];
       rightPostCap.material = capMat;
-      // rightPostCap.position.x += posX;
       rightPostCaps.push(rightPostCap);
 
       //BOARDS
@@ -703,92 +817,93 @@ var createScene = function () {
 
       //BOARDS SMALL
       let smallBoards = result.meshes[1];
-      // smallBoards.position.x += posX;
       smallBoards.isVisible = false;
       smallBoards.material = smallBoardsMat;
       smallBoardsArr.push(smallBoards);
 
       //fake fence for intersection
       let fakeFence = new BABYLON.MeshBuilder.CreateBox(
-        "foundationRight",
-        { width: 1.7, height: 1, depth: 0.05 },
+        "fakeFence",
+        { width: 1.7, height: 1.8, depth: 0.05 },
         scene
       );
       fakeFence.position = new BABYLON.Vector3(
         getAbsPosX(smallBoards),
-        0,
+        0.9,
         getAbsPosZ(smallBoards)
       );
       fakeFence.addRotation(0, rotY, 0);
       fakeFences.push(fakeFence);
       fakeFence.isVisible = false;
+      smallBoards.addChild(fakeFence);
 
       //START AND END PARTS
       let startPart = result.meshes[7];
-      // startPart.position.x += posX;
       startParts.push(startPart);
       let endPart = result.meshes[6];
-      // endPart.position.x += posX;
       endParts.push(endPart);
       startPart.material = endPart.material = fenceStartEndMat;
 
       //INLAYS
       // fenceBoards[6].isVisible = false;
       let inlaysViero = result.meshes[24];
-      // inlaysViero.position.x += posX;
       inlaysViero.isVisible = false;
+
       let inlaysAstro = result.meshes[23];
-      // inlaysAstro.position.x += posX;
       inlaysAstro.isVisible = false;
+
       let inlaysSnow = result.meshes[22];
-      // inlaysSnow.position.x += posX;
       inlaysSnow.isVisible = false;
       inlaysSnow.material = inlaysMat;
+
       var newInlaysArr = new Array(inlaysViero, inlaysAstro, inlaysSnow);
       inlays.push(newInlaysArr);
 
+      if (inlaysOnOff == 1) {
+        newBoarsdArr[6].isVisible = false;
+        inlaysViero.isVisible = true;
+        inlaysSnow.isVisible = true;
+      }
+
       //LAISNE
       let laisneOrg = result.meshes[16];
-      // laisneOrg.position.x += posX;
       laisneOrg.isVisible = false;
       laisneOrg.material = laisneMat;
       var newLaisnesArr = new Array();
-      for (let i = 0; i < 7; i++) {
-        var laisne = laisneOrg.clone("laisne");
-        laisne.material = laisneMat;
-        laisne.isVisible = false;
-        //////////////////
-        if (checkboxActive[i]) {
-          laisne.isVisible = true;
-          laisne.position.y = newBoarsdArr[i].position.y + 0.22 / 2 + 0.005;
+      setTimeout(() => {
+        for (let i = 0; i < 7; i++) {
+          var laisne = laisneOrg.clone("laisne");
+          laisne.material = laisneMat;
+          laisne.isVisible = false;
+          //check if laisnes are active to show them
+          if (checkboxActive[i]) {
+            if (smallBoards.isVisible == false) {
+              laisne.isVisible = true;
+            }
+            laisne.position.y = newBoarsdArr[i].position.y + 0.22 / 2 + 0.005;
 
-          startPart.position.y += 0.01;
+            startPart.position.y += 0.01;
 
-          if (i < 6) {
-            inlaysViero.position.y += 0.01;
+            if (i < 6) {
+              inlaysViero.position.y += 0.01;
+              inlaysSnow.position.y += 0.01;
+            }
+
+            for (let j = i; j < 7; j++) {
+              newBoarsdArr[j + 1].position.y += 0.01;
+            }
           }
 
-          for (let j = i; j < 7; j++) {
-            newBoarsdArr[j + 1].position.y += 0.01;
-          }
+          /////////////////
+          newLaisnesArr.push(laisne);
         }
-        /////////////////
-        newLaisnesArr.push(laisne);
-      }
-      laisnes.push(newLaisnesArr);
+      }, 0);
 
-      // for (let i = 0; i < laisnes.length; i++) {
-      //   if (smallBoardsArr[i].isVisible) {
-      //     console.log(laisnes[i]);
-      //     laisnes[i].forEach((elm) => {
-      //       elm.visibility = 0;
-      //     });
-      //   }
-      // }
+      laisnes.push(newLaisnesArr);
 
       //POSTS
       let rightPost = result.meshes[3];
-      // rightPost.position.x += posX;
+
       rightPosts.push(rightPost);
       allPosts.push(rightPost);
       rightPost.material = fencePostMat;
@@ -798,6 +913,8 @@ var createScene = function () {
       let rightRoot1 = result.meshes[5];
 
       roots.push(rightRoot0, rightRoot1);
+      var newRootsArr = new Array(rightRoot0, rightRoot1);
+      rightRoots.push(newRootsArr);
 
       roots.forEach((elm) => {
         elm.material = rootMat;
@@ -826,19 +943,14 @@ var createScene = function () {
         scene
       );
       foundationRight.position = new BABYLON.Vector3(
-        foundationRightStart.position.x,
+        result.meshes[3].getAbsolutePosition().x,
         -0.5 / 2,
-        foundationRightStart.position.z
+        result.meshes[3].getAbsolutePosition().z
       );
       foundationRight.material = foundationMat;
 
       foundations.push(foundationRight);
       foundationsRight.push(foundationRight);
-
-      //set new fence same post size as other
-      if (befePfostenSize == 1) setbefePfosten(1.2, 0.7717, false, 1, -0.5 / 2);
-      if (befePfostenSize == 2)
-        setbefePfosten(1.475, 0.511, false, 1.8, -0.9 / 2);
 
       //PLANE TO HOLD DELETE SIGN
       var signPlaneDelRight = BABYLON.MeshBuilder.CreatePlane(
@@ -969,7 +1081,6 @@ var createScene = function () {
 
       //LEDS
       let rightLed = result.meshes[21];
-      // rightLed.position.x += posX;
       leds.push(rightLed);
       ledsRight.push(rightLed);
 
@@ -1004,6 +1115,9 @@ var createScene = function () {
 
       sturmankersVorderseite.push(rightStrVord);
       sturVorderseiteSrafs.push(rightStrVordSraf);
+
+      let rightVords = new Array(rightStrVord, rightStrVordSraf);
+      sturmankersVorderseiteRight.push(rightVords);
 
       //create foundation start for front stunmankwer
       let foundationVordStart = new BABYLON.MeshBuilder.CreateGround(
@@ -1040,6 +1154,9 @@ var createScene = function () {
       sturmankersRuckseite.push(rightStrRuck);
       sturRuckseiteSrafs.push(rightStrRuckSraf);
 
+      let rightRucks = new Array(rightStrRuck, rightStrRuckSraf);
+      sturmankersRuckseiteRight.push(rightRucks);
+
       //create foundation start for back stunmankwer
       let foundationRuckStart = new BABYLON.MeshBuilder.CreateGround(
         "foundationRuckStart",
@@ -1072,7 +1189,7 @@ var createScene = function () {
 
       //cerate fake strumanker
       let fakeFront = new BABYLON.MeshBuilder.CreateBox(
-        "foundationRight",
+        "fakeFront",
         { width: 0.01, height: 0.3, depth: 0.3 },
         scene
       );
@@ -1080,13 +1197,48 @@ var createScene = function () {
       fakeFronts.push(fakeFront);
       fakeFront.isVisible = false;
       let fakeBack = new BABYLON.MeshBuilder.CreateBox(
-        "foundationRight",
+        "fakeBack",
         { width: 0.01, height: 0.3, depth: 0.3 },
         scene
       );
       fakeBack.parent = rightStrRuck;
       fakeBacks.push(fakeBack);
       fakeBack.isVisible = false;
+
+      //SET NEW FENCE SAME POST SIZE AS THE OTHER
+      if (befePfostenSize == 1) setbefePfosten(1.2, 0.7717, false, 1, -0.5 / 2);
+      if (befePfostenSize == 2)
+        setbefePfosten(1.475, 0.511, false, 1.8, -0.9 / 2);
+
+      //CREATE DIRECTE HAUSWAND
+      createDirecteHauswand(
+        concreteMat,
+        fenceBoards,
+        sturmankersVorderseite,
+        rightPosts,
+        leftPosts,
+        directeHauswandMeshes,
+        directeHauswandMeshesRight,
+        fenceBoardMat,
+        fencePostMat,
+        concreteMat,
+        smallBoardsArr,
+        smallBoardsMat,
+        smallBoardsMatDark,
+        fencesArr,
+        addFenceSings,
+        selectedMat,
+        setDayNight,
+        setLightColor,
+        glow,
+        singsWar,
+        singsDel,
+        leds,
+        ledParts
+      );
+      directeHauswandMeshesRight[directeHauswandMeshesRight.length - 1].parent =
+        rightPostCap;
+
       //    INTESECTION FUNCTION
       intersectionFunction(
         fakeFronts,
@@ -1108,65 +1260,359 @@ var createScene = function () {
       );
 
       //CREATE SINGS FUNCTION
-      createNewFenceSign(result.meshes);
+      createNewFenceSign();
 
-      //CREATE OBJ FOR FENCE
-      fenceId = rightPosts.length - 1;
+      rightPostCap.addChild(foundationRightStart);
+      // rightPostCap.addChild(foundationRight);
+      rightPostCap.addChild(signPlaneWarRight);
+      rightPostCap.addChild(signPlaneDelRight);
+      rightPostCap.addChild(foundationRightStart);
+      rightPostCap.addChild(rightLed);
+      // rightPostCap.addChild(
+      //   directeHauswandMeshesRight[directeHauswandMeshesRight.length - 1]
+      // );
+      rightPostCap.addChild(rightStrVord);
+      rightPostCap.addChild(rightStrVordSraf);
+      rightPostCap.addChild(rightStrRuck);
+      rightPostCap.addChild(rightStrRuckSraf);
+      rightPostCap.addChild(rightRoot0);
+      rightPostCap.addChild(rightRoot1);
 
-      if (fenceBoards[fenceId][0].isVisible) {
-        fenceType = "easyFence";
-      } else {
-        fenceType = "easyRom";
+      if (type == "easyRomBig" && smCol == "silber") {
+        smallBoards.isVisible = true;
+        smallBoards.material = smallBoardsMat;
+        newBoarsdArr.forEach((elm) => {
+          elm.isVisible = false;
+        });
+        startPart.isVisible = endPart.isVisible = false;
+      }
+      if (type == "easyRomSmall" && smCol == "silber") {
+        smallBoards.isVisible = true;
+        smallBoards.material = smallBoardsMat;
+        newBoarsdArr.forEach((elm) => {
+          elm.isVisible = false;
+        });
+        startPart.isVisible = endPart.isVisible = false;
+
+        smallBoards.scaling.x = smallBoards.scaling.x * 0.33;
+        smallBoards.position.x = smallBoards.position.x - 0.6;
+        rightPost.position.x = rightPost.position.x - 1.2;
+
+        rightPostCap.position.x = rightPostCap.position.x - 1.2;
+        foundationRight.position.x = getAbsPosX;
+        foundationRight.setAbsolutePosition(
+          new BABYLON.Vector3(
+            getAbsPosX(rightPost),
+            foundationRight.position.y,
+            getAbsPosZ(rightPost)
+          )
+        );
+
+        newFenceForwardSigns[
+          newFenceForwardSigns.length - 1
+        ].setAbsolutePosition(
+          new BABYLON.Vector3(
+            getAbsPosX(rightPost) + 0.3,
+            newFenceForwardSigns[newFenceForwardSigns.length - 1].position.y,
+            getAbsPosZ(rightPost)
+          )
+        );
+
+        newFenceRightSigns[newFenceRightSigns.length - 1].setAbsolutePosition(
+          new BABYLON.Vector3(
+            getAbsPosX(rightPost),
+            newFenceRightSigns[newFenceRightSigns.length - 1].position.y,
+            getAbsPosZ(rightPost) - 0.3
+          )
+        );
+
+        newFenceLeftSigns[newFenceLeftSigns.length - 1].setAbsolutePosition(
+          new BABYLON.Vector3(
+            getAbsPosX(rightPost),
+            newFenceLeftSigns[newFenceLeftSigns.length - 1].position.y,
+            getAbsPosZ(rightPost) + 0.3
+          )
+        );
+
+        newFenceBackSigns[newFenceBackSigns.length - 1].setAbsolutePosition(
+          new BABYLON.Vector3(
+            getAbsPosX(rightPost) - 0.3,
+            newFenceBackSigns[newFenceBackSigns.length - 1].position.y,
+            getAbsPosZ(rightPost)
+          )
+        );
       }
 
-      fenceSizeObj = 180;
+      if (type == "easyRomBig" && smCol == "anthrazit") {
+        smallBoards.isVisible = true;
+        smallBoards.material = smallBoardsMatDark;
+        newBoarsdArr.forEach((elm) => {
+          elm.isVisible = false;
+        });
+        startPart.isVisible = endPart.isVisible = false;
+      }
+      if (type == "easyRomSmall" && smCol == "anthrazit") {
+        smallBoards.isVisible = true;
+        smallBoards.material = smallBoardsMatDark;
+        newBoarsdArr.forEach((elm) => {
+          elm.isVisible = false;
+        });
+        startPart.isVisible = endPart.isVisible = false;
 
-      fenceInlays = false;
+        smallBoards.scaling.x = smallBoards.scaling.x * 0.33;
+        smallBoards.position.x = smallBoards.position.x - 0.6;
+        rightPost.position.x = rightPost.position.x - 1.2;
 
-      smallBoardsDefaultCol = 0;
+        rightPostCap.position.x = rightPostCap.position.x - 1.2;
+        foundationRight.position.x = getAbsPosX;
+        foundationRight.setAbsolutePosition(
+          new BABYLON.Vector3(
+            getAbsPosX(rightPost),
+            foundationRight.position.y,
+            getAbsPosZ(rightPost)
+          )
+        );
+
+        newFenceForwardSigns[
+          newFenceForwardSigns.length - 1
+        ].setAbsolutePosition(
+          new BABYLON.Vector3(
+            getAbsPosX(rightPost) + 0.3,
+            newFenceForwardSigns[newFenceForwardSigns.length - 1].position.y,
+            getAbsPosZ(rightPost)
+          )
+        );
+
+        newFenceRightSigns[newFenceRightSigns.length - 1].setAbsolutePosition(
+          new BABYLON.Vector3(
+            getAbsPosX(rightPost),
+            newFenceRightSigns[newFenceRightSigns.length - 1].position.y,
+            getAbsPosZ(rightPost) - 0.3
+          )
+        );
+
+        newFenceLeftSigns[newFenceLeftSigns.length - 1].setAbsolutePosition(
+          new BABYLON.Vector3(
+            getAbsPosX(rightPost),
+            newFenceLeftSigns[newFenceLeftSigns.length - 1].position.y,
+            getAbsPosZ(rightPost) + 0.3
+          )
+        );
+
+        newFenceBackSigns[newFenceBackSigns.length - 1].setAbsolutePosition(
+          new BABYLON.Vector3(
+            getAbsPosX(rightPost) - 0.3,
+            newFenceBackSigns[newFenceBackSigns.length - 1].position.y,
+            getAbsPosZ(rightPost)
+          )
+        );
+      }
+
+      //CREATE OBJ FOR FENCE
+      fenceIdCount += 1;
+      fenceId = fenceIdCount;
+
+      fenceType = type;
+
+      smallBoardsDefaultCol = smCol;
+      if (type == "easyRomSmall") {
+        fenceSizeObj = 60;
+      } else {
+        fenceSizeObj = 180;
+      }
+      fenceInlays = inlaysOnOff;
+      childrenThis = [];
 
       fencesArr.push(
-        new NewFence(fenceId, fenceType, fenceSizeObj, fenceInlays, 0)
+        new NewFence(
+          fenceId,
+          fenceType,
+          smallBoardsDefaultCol,
+          fenceSizeObj,
+          fenceInlays,
+          childrenThis
+        )
       );
+      console.log(fencesArr);
+      wholeFences.push(fence);
+      if (fenceId > 0 && typeof activeFence != "boolean") {
+        fencesArr[activeFence].children.push(fenceId);
+      }
       // //
       //END OF MESH
       /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     });
 
-  //createRightFence(posX, posZ, rotY)
-  createRightFence(0.9, 0, 0);
+  //createRightFence(posX, posZ, rotY, type, smCol, inlaysOnOff)
+
+  //CREATE DEFAULT FENCE
+  createRightFence(0.9, 0, 0, "easyFence", "silber", 0);
 
   let addNewFenceNormal = document.getElementById("new-fence-normal");
   addNewFenceNormal.onclick = () => {
-    if (activeArrowSide == 1) {
-      createRightFence(
-        rightPosts[activeArrow].getAbsolutePosition().x + 0.9,
-        rightPosts[activeArrow].getAbsolutePosition().z,
-        0
-      );
-    }
-    if (activeArrowSide == 2) {
-      createRightFence(
-        rightPosts[activeArrow].getAbsolutePosition().x,
-        rightPosts[activeArrow].getAbsolutePosition().z - 0.9,
-        Math.PI / 2
-      );
-    }
-    if (activeArrowSide == 3) {
-      createRightFence(
-        rightPosts[activeArrow].getAbsolutePosition().x,
-        rightPosts[activeArrow].getAbsolutePosition().z + 0.9,
-        -Math.PI / 2
-      );
-    }
-    if (activeArrowSide == 4) {
-      createRightFence(
-        rightPosts[activeArrow].getAbsolutePosition().x - 0.9,
-        rightPosts[activeArrow].getAbsolutePosition().z,
-        Math.PI
-      );
-    }
+    createNewFence(
+      createRightFence,
+      activeArrowSide,
+      rightPosts,
+      leftPosts,
+      activeArrow,
+      fencePostMat,
+      addFenceSings,
+      addNewFenceMeshMat,
+      sideAccesories,
+      addNewFenceToSide,
+      newFenceInlays,
+      newStub,
+      unselect,
+      singsDel,
+      "easyFence",
+      "silber",
+      0
+    );
+  };
+  let newFenceInlays = document.getElementById("newFenceInlays");
+  newFenceInlays.onclick = () => {
+    createNewFence(
+      createRightFence,
+      activeArrowSide,
+      rightPosts,
+      leftPosts,
+      activeArrow,
+      fencePostMat,
+      addFenceSings,
+      addNewFenceMeshMat,
+      sideAccesories,
+      addNewFenceToSide,
+      newFenceInlays,
+      newStub,
+      unselect,
+      singsDel,
+      "easyFence",
+      "silber",
+      inlaysOn
+    );
+  };
+
+  let newFenceRomBigSilber = document.getElementById("newFenceRomBigSilber");
+  newFenceRomBigSilber.onclick = () => {
+    createNewFence(
+      createRightFence,
+      activeArrowSide,
+      rightPosts,
+      leftPosts,
+      activeArrow,
+      fencePostMat,
+      addFenceSings,
+      addNewFenceMeshMat,
+      sideAccesories,
+      addNewFenceToSide,
+      newFenceInlays,
+      newStub,
+      unselect,
+      singsDel,
+      "easyRomBig",
+      "silber",
+      0
+    );
+  };
+
+  let newFenceRomBigAnthrazit = document.getElementById(
+    "newFenceRomBigAnthrazit"
+  );
+  newFenceRomBigAnthrazit.onclick = () => {
+    createNewFence(
+      createRightFence,
+      activeArrowSide,
+      rightPosts,
+      leftPosts,
+      activeArrow,
+      fencePostMat,
+      addFenceSings,
+      addNewFenceMeshMat,
+      sideAccesories,
+      addNewFenceToSide,
+      newFenceInlays,
+      newStub,
+      unselect,
+      singsDel,
+      "easyRomBig",
+      "anthrazit",
+      0
+    );
+  };
+
+  let newFenceRomSmallSilber = document.getElementById(
+    "newFenceRomSmallSilber"
+  );
+  newFenceRomSmallSilber.onclick = () => {
+    createNewFence(
+      createRightFence,
+      activeArrowSide,
+      rightPosts,
+      leftPosts,
+      activeArrow,
+      fencePostMat,
+      addFenceSings,
+      addNewFenceMeshMat,
+      sideAccesories,
+      addNewFenceToSide,
+      newFenceInlays,
+      newStub,
+      unselect,
+      singsDel,
+      "easyRomSmall",
+      "silber",
+      0
+    );
+  };
+
+  let newFenceRomSmallAnthrazit = document.getElementById(
+    "newFenceRomSmallAnthrazit"
+  );
+  newFenceRomSmallAnthrazit.onclick = () => {
+    createNewFence(
+      createRightFence,
+      activeArrowSide,
+      rightPosts,
+      leftPosts,
+      activeArrow,
+      fencePostMat,
+      addFenceSings,
+      addNewFenceMeshMat,
+      sideAccesories,
+      addNewFenceToSide,
+      newFenceInlays,
+      newStub,
+      unselect,
+      singsDel,
+      "easyRomSmall",
+      "anthrazit",
+      0
+    );
+  };
+
+  let newStub = document.getElementById("newStub");
+  newStub.onclick = () => {
+    directeHauswandMeshesRight[activeFence].isVisible = true;
     rightPosts[activeArrow].material = fencePostMat;
+    rightPosts[activeArrow].scaling.z = 1;
+    rightPosts[activeArrow].position.y = 0.962;
+    rightRoots[activeFence].forEach((elm) => {
+      elm.isVisible = false;
+    });
+    foundationStartsRight[activeFence].isVisible = false;
+    foundationVisibilty(
+      foundationStarts,
+      foundations,
+      false,
+      foundationStartsVord,
+      foundationsVord,
+      false,
+      foundationStartsRuck,
+      foundationsRuck,
+      false,
+      activeFence + 1
+    );
     activeArrow = false;
     activeArrowSide = false;
     addFenceSings.forEach((elm) => {
@@ -1174,12 +1620,15 @@ var createScene = function () {
     });
     sideAccesories.style.display = "none";
     addNewFenceToSide.style.display = "none";
+    newFenceInlays.style.display = "none";
+    newStub.style.display = "none";
     unselect();
     singsDel.forEach((elm) => {
       elm.isVisible = false;
     });
   };
 
+  //ADD NEW FENCE SIDE BAR SETTINGS
   function addNewFenceSideBar() {
     sideAccesories.style.display = "none";
     for (let j = 0; j < deleteAccesorie.length; j++) {
@@ -1189,6 +1638,62 @@ var createScene = function () {
     // unselect();
     sideAccesories.style.display = "block";
     addNewFenceToSide.style.display = "block";
+    if (inlaysOn == 1) {
+      newFenceInlays.style.display = "block";
+    } else {
+      newFenceInlays.style.display = "none";
+    }
+    if (
+      !sturmankersVorderseite[activeFence + 1].isVisible &&
+      !leds[activeFence + 1].isVisible
+    ) {
+      if (activeArrowSide == 1) {
+        if (!newFenceBackSigns[activeFence].isVisible) {
+          if (fencesArr[activeFence].children > 0) {
+            newStub.style.display = "none";
+          } else {
+            newStub.style.display = "block";
+          }
+        } else {
+          newStub.style.display = "none";
+        }
+      }
+      if (activeArrowSide == 4) {
+        if (!newFenceForwardSigns[activeFence].isVisible) {
+          if (fencesArr[activeFence].children > 0) {
+            newStub.style.display = "none";
+          } else {
+            newStub.style.display = "block";
+          }
+        } else {
+          newStub.style.display = "none";
+        }
+      }
+      if (activeArrowSide == 2) {
+        if (!newFenceLeftSigns[activeFence].isVisible) {
+          if (fencesArr[activeFence].children > 0) {
+            newStub.style.display = "none";
+          } else {
+            newStub.style.display = "block";
+          }
+        } else {
+          newStub.style.display = "none";
+        }
+      }
+      if (activeArrowSide == 3) {
+        if (!newFenceRightSigns[activeFence].isVisible) {
+          if (fencesArr[activeFence].children > 0) {
+            newStub.style.display = "none";
+          } else {
+            newStub.style.display = "block";
+          }
+        } else {
+          newStub.style.display = "none";
+        }
+      }
+    } else {
+      newStub.style.display = "none";
+    }
   }
 
   //CREATE SINGS FUNCTION
@@ -1196,18 +1701,21 @@ var createScene = function () {
   var activeArrowSide = false;
   function createNewFenceSign() {
     //FRONT SIGN
-    const addNewFenceMesh = BABYLON.MeshBuilder.CreatePlane("plane", {
-      height: 0.3,
-      width: 0.3,
-    });
+    const addNewFenceMesh = BABYLON.MeshBuilder.CreateCylinder(
+      "addNewFenceMesh",
+      {
+        height: 0.01,
+        diameter: 0.3,
+      }
+    );
+    addNewFenceMesh.material = addNewFenceMeshMat;
     addNewFenceMesh.position = new BABYLON.Vector3(
       rightPosts[rightPosts.length - 1].getAbsolutePosition().x + 0.3,
       1,
       rightPosts[rightPosts.length - 1].getAbsolutePosition().z
     );
-    // addNewFenceMesh.rotation.y = rightPosts[rightPosts.length - 1].rotation.y;
-    addNewFenceMesh.material = addNewFenceMeshMat;
-    addNewFenceMesh.isVisible = true;
+    addNewFenceMesh.addRotation(Math.PI / 2, 0, 0);
+
     newFenceForwardSigns.push(addNewFenceMesh);
     //CREATE FENCE FORWARD
     for (let i = 0; i < newFenceForwardSigns.length; i++) {
@@ -1242,6 +1750,15 @@ var createScene = function () {
             newFenceRightSigns[i].isVisible = true;
             newFenceLeftSigns[i].isVisible = true;
             newFenceBackSigns[i].isVisible = true;
+            intersectArrowSignsFence(
+              fakeFences,
+              newFenceForwardSigns,
+              newFenceRightSigns,
+              newFenceLeftSigns,
+              newFenceBackSigns,
+              activeFence,
+              addFenceSings
+            );
             rightPosts[i].material = selectedMat;
           }
         )
@@ -1252,10 +1769,10 @@ var createScene = function () {
     var addNewFenceMeshRight = addNewFenceMesh.clone("addNewFenceMeshRight");
     addNewFenceMeshRight.position = new BABYLON.Vector3(
       rightPosts[rightPosts.length - 1].getAbsolutePosition().x,
-      0.5,
+      1,
       rightPosts[rightPosts.length - 1].getAbsolutePosition().z - 0.3
     );
-    addNewFenceMeshRight.addRotation(0, Math.PI / 2, 0);
+    addNewFenceMeshRight.addRotation(0, 0, -Math.PI / 2);
     newFenceRightSigns.push(addNewFenceMeshRight);
     //CREATE FENCE RIGHT
     for (let i = 0; i < newFenceRightSigns.length; i++) {
@@ -1290,6 +1807,15 @@ var createScene = function () {
             newFenceRightSigns[i].isVisible = true;
             newFenceLeftSigns[i].isVisible = true;
             newFenceBackSigns[i].isVisible = true;
+            intersectArrowSignsFence(
+              fakeFences,
+              newFenceForwardSigns,
+              newFenceRightSigns,
+              newFenceLeftSigns,
+              newFenceBackSigns,
+              activeFence,
+              addFenceSings
+            );
             rightPosts[i].material = selectedMat;
           }
         )
@@ -1300,10 +1826,10 @@ var createScene = function () {
     var addNewFenceMeshLeft = addNewFenceMesh.clone("addNewFenceMeshLeft");
     addNewFenceMeshLeft.position = new BABYLON.Vector3(
       rightPosts[rightPosts.length - 1].getAbsolutePosition().x,
-      1.5,
+      1,
       rightPosts[rightPosts.length - 1].getAbsolutePosition().z + 0.3
     );
-    addNewFenceMeshLeft.addRotation(0, -Math.PI / 2, 0);
+    addNewFenceMeshLeft.addRotation(0, 0, Math.PI / 2);
     newFenceLeftSigns.push(addNewFenceMeshLeft);
     //CREATE FENCE RIGHT
     for (let i = 0; i < newFenceLeftSigns.length; i++) {
@@ -1338,6 +1864,15 @@ var createScene = function () {
             newFenceRightSigns[i].isVisible = true;
             newFenceLeftSigns[i].isVisible = true;
             newFenceBackSigns[i].isVisible = true;
+            intersectArrowSignsFence(
+              fakeFences,
+              newFenceForwardSigns,
+              newFenceRightSigns,
+              newFenceLeftSigns,
+              newFenceBackSigns,
+              activeFence,
+              addFenceSings
+            );
             rightPosts[i].material = selectedMat;
           }
         )
@@ -1386,11 +1921,21 @@ var createScene = function () {
             newFenceRightSigns[i].isVisible = true;
             newFenceLeftSigns[i].isVisible = true;
             newFenceBackSigns[i].isVisible = true;
+            intersectArrowSignsFence(
+              fakeFences,
+              newFenceForwardSigns,
+              newFenceRightSigns,
+              newFenceLeftSigns,
+              newFenceBackSigns,
+              activeFence,
+              addFenceSings
+            );
             rightPosts[i].material = selectedMat;
           }
         )
       );
     }
+
     addFenceSings.push(
       addNewFenceMesh,
       addNewFenceMeshRight,
@@ -1402,6 +1947,141 @@ var createScene = function () {
     });
     //////////////////
   }
+
+  function createMainPostSigns() {
+    //RIGHT SIGHN MAIN POST
+    const addNewFenceMeshRightMain = BABYLON.MeshBuilder.CreateCylinder(
+      "addNewFenceMeshRightMain",
+      {
+        height: 0.01,
+        diameter: 0.3,
+      }
+    );
+    addNewFenceMeshRightMain.material = addNewFenceMeshMat;
+    addNewFenceMeshRightMain.position = new BABYLON.Vector3(
+      leftPosts[0].getAbsolutePosition().x,
+      1,
+      leftPosts[0].getAbsolutePosition().z - 0.3
+    );
+    addNewFenceMeshRightMain.addRotation(Math.PI / 2, 0, -Math.PI / 2);
+    // newFenceRightSigns.push(addNewFenceMeshRightMain);
+    //CREATE FENCE RIGHT MAIN POST
+
+    addNewFenceMeshRightMain.actionManager = new BABYLON.ActionManager(scene);
+    addNewFenceMeshRightMain.actionManager.registerAction(
+      new BABYLON.ExecuteCodeAction(
+        BABYLON.ActionManager.OnPickTrigger,
+        function () {
+          activeArrow = false;
+          activeArrowSide = 5;
+          addNewFenceSideBar();
+          addFenceSings.forEach((elm) => {
+            elm.material = addNewFenceMeshMat;
+          });
+          addNewFenceMeshRightMain.material = addNewFenceMeshMatAct;
+          addDefaultMaterial(
+            fenceBoards,
+            sturmankersVorderseite,
+            rightPosts,
+            leftPosts,
+            directeHauswandMeshes,
+            fenceBoardMat,
+            fencePostMat,
+            concreteMat,
+            smallBoardsArr,
+            smallBoardsMat,
+            smallBoardsMatDark,
+            fencesArr,
+            addFenceSings
+          );
+          addNewFenceMeshRightMain.isVisible = true;
+          addNewFenceMeshLeftMain.isVisible = true;
+          // newFenceRightSigns[i].isVisible = true;
+          // newFenceLeftSigns[i].isVisible = true;
+          // newFenceBackSigns[i].isVisible = true;
+          // intersectArrowSignsFence(
+          //   fakeFences,
+          //   newFenceForwardSigns,
+          //   newFenceRightSigns,
+          //   newFenceLeftSigns,
+          //   newFenceBackSigns,
+          //   activeFence,
+          //   addFenceSings
+          // );
+          // rightPosts[i].material = selectedMat;
+        }
+      )
+    );
+
+    //RIGHT SIGHN MAIN POST
+    const addNewFenceMeshLeftMain = BABYLON.MeshBuilder.CreateCylinder(
+      "addNewFenceMeshLeftMain",
+      {
+        height: 0.01,
+        diameter: 0.3,
+      }
+    );
+    addNewFenceMeshLeftMain.material = addNewFenceMeshMat;
+    addNewFenceMeshLeftMain.position = new BABYLON.Vector3(
+      leftPosts[0].getAbsolutePosition().x,
+      1,
+      leftPosts[0].getAbsolutePosition().z + 0.3
+    );
+    addNewFenceMeshLeftMain.addRotation(Math.PI / 2, 0, Math.PI / 2);
+    // newFenceRightSigns.push(addNewFenceMeshLeftMain);
+    //CREATE FENCE RIGHT MAIN POST
+
+    addNewFenceMeshLeftMain.actionManager = new BABYLON.ActionManager(scene);
+    addNewFenceMeshLeftMain.actionManager.registerAction(
+      new BABYLON.ExecuteCodeAction(
+        BABYLON.ActionManager.OnPickTrigger,
+        function () {
+          activeArrow = false;
+          activeArrowSide = 6;
+          addNewFenceSideBar();
+          addFenceSings.forEach((elm) => {
+            elm.material = addNewFenceMeshMat;
+          });
+          addNewFenceMeshLeftMain.material = addNewFenceMeshMatAct;
+          addDefaultMaterial(
+            fenceBoards,
+            sturmankersVorderseite,
+            rightPosts,
+            leftPosts,
+            directeHauswandMeshes,
+            fenceBoardMat,
+            fencePostMat,
+            concreteMat,
+            smallBoardsArr,
+            smallBoardsMat,
+            smallBoardsMatDark,
+            fencesArr,
+            addFenceSings
+          );
+          addNewFenceMeshRightMain.isVisible = true;
+          addNewFenceMeshLeftMain.isVisible = true;
+          // newFenceRightSigns[i].isVisible = true;
+          // newFenceLeftSigns[i].isVisible = true;
+          // newFenceBackSigns[i].isVisible = true;
+          // intersectArrowSignsFence(
+          //   fakeFences,
+          //   newFenceForwardSigns,
+          //   newFenceRightSigns,
+          //   newFenceLeftSigns,
+          //   newFenceBackSigns,
+          //   activeFence,
+          //   addFenceSings
+          // );
+          // rightPosts[i].material = selectedMat;
+        }
+      )
+    );
+
+    addFenceSings.push(addNewFenceMeshRightMain, addNewFenceMeshLeftMain);
+  }
+  setTimeout(() => {
+    console.log(addFenceSings);
+  }, 1000);
 
   //TO DELETE FUNCTION for sturmanker led
   function onDelete(i) {
@@ -1479,9 +2159,10 @@ var createScene = function () {
           elmB[laisnePos].position.y + 0.22 / 2 + 0.005;
       });
     });
-    if (i < 6) {
+    if (laisnePos < 6) {
       inlays.forEach((elm) => {
         elm[0].position.y += 0.01;
+        elm[2].position.y += 0.01;
       });
     }
     for (let i = laisnePos; i < 7; i++) {
@@ -1514,9 +2195,10 @@ var createScene = function () {
     laisnes.forEach((elmL) => {
       elmL[laisnePos].isVisible = false;
     });
-    if (i < 6) {
+    if (laisnePos < 6) {
       inlays.forEach((elm) => {
         elm[0].position.y -= 0.01;
+        elm[2].position.y -= 0.01;
       });
     }
     for (let i = laisnePos; i < 7; i++) {
@@ -1720,18 +2402,24 @@ var createScene = function () {
     if (!activeFence) {
       inlays.forEach((elmI) => {
         elmI[0].isVisible = b;
+        elmI[2].isVisible = b;
       });
       fenceBoards.forEach((elmF) => {
         elmF[6].isVisible = a;
       });
+      for (let i = 0; i < inlays.length; i++) {
+        inlays[i][0].material.albedoColor = inlays[i][2].material.diffuseColor;
+      }
       for (let i = 0; i < fenceBoards.length; i++) {
         if (smallBoardsArr[i].isVisible) {
           fenceBoards[i][6].isVisible = false;
           inlays[i][0].isVisible = false;
+          inlays[i][2].isVisible = false;
+        } else {
+          fencesArr[i].inlays = 1;
         }
       }
     } else {
-      console.log(activeFence);
       fenceBoards[activeFence].forEach((elm) => {
         elm.isVisible = a;
       });
@@ -1742,22 +2430,20 @@ var createScene = function () {
     // inlays[1].isVisible = c;
     // inlays[2].isVisible = d;
   }
+  var inlaysOn = 0;
   if (designInlays.length > 0) {
     for (let i = 0; i < designInlays.length; i++) {
       designInlays[i].addEventListener("click", () => {
-        if (!smallBoardsArr[0].isVisible) {
-          if (i == 0) {
-            inlaysFunction(true, false);
-          } else if (i == 1 || i == 2) {
-            inlaysFunction(false, true);
-            // } else if (i == 3 || i == 4) {
-            //   inlaysFunction(false, false, true, false);
-            // } else if (i == 5 || i == 6) {
-            //   inlaysFunction(false, false, false, true);
-          }
-        } else {
-          inlaysFunction(false, false);
-          setActivnesStyle(designInlays, 4, 0);
+        if (i == 0) {
+          inlaysFunction(true, false);
+          inlaysOn = 0;
+        } else if (i == 1 || i == 2) {
+          inlaysFunction(false, true);
+          inlaysOn = 1;
+          // } else if (i == 3 || i == 4) {
+          //   inlaysFunction(false, false, true, false);
+          // } else if (i == 5 || i == 6) {
+          //   inlaysFunction(false, false, false, true);
         }
       });
     }
@@ -1921,8 +2607,18 @@ var createScene = function () {
         ""
       );
       colorLightContainer[0].className += " active-color-light-contaier";
-      if (directeHauswandMesh.isVisible) leds[0].isVisible = false;
+      if (directeHauswandMesh.isVisible) {
+        leds[0].isVisible = false;
+        singsDel[0].isVisible = false;
+      }
+      for (let i = 0; i < directeHauswandMeshesRight.length; i++) {
+        if (directeHauswandMeshesRight[i].isVisible) {
+          ledsRight[i].isVisible = false;
+          singsDel[i + 1].isVisible = false;
+        }
+      }
     });
+
     ledParts[2].addEventListener("click", () => {
       intersectionFunction(
         fakeFronts,
@@ -1999,7 +2695,16 @@ var createScene = function () {
       setLightColor(4);
       setLedColor(4);
       setActivnesStyle(ledDayNight, 8, 2);
-      if (directeHauswandMesh.isVisible) leds[0].isVisible = false;
+      if (directeHauswandMesh.isVisible) {
+        leds[0].isVisible = false;
+        singsDel[0].isVisible = false;
+      }
+      for (let i = 0; i < directeHauswandMeshesRight.length; i++) {
+        if (directeHauswandMeshesRight[i].isVisible) {
+          ledsRight[i].isVisible = false;
+          singsDel[i + 1].isVisible = false;
+        }
+      }
     });
     //set if delete sings are visible
     let ledDeleteOnOff = document.getElementsByClassName("set-delete-on-off");
@@ -2149,13 +2854,24 @@ var createScene = function () {
     foundations[0].scaling.y = d;
     foundations[0].position.y = e;
 
-    foundationsVord[0].scaling.z = 1;
-    foundationsRuck[0].scaling.z = 1;
+    // foundationsVord[0].scaling.z = 1;
+    // foundationsRuck[0].scaling.z = 1;
     foundationsVord[0].scaling.y = d;
     foundationsRuck[0].scaling.y = d;
 
     foundationsVord[0].position.y = e;
     foundationsRuck[0].position.y = e;
+
+    //if hauswand is visible on other posts
+    for (let i = 0; i < directeHauswandMeshesRight.length; i++) {
+      if (directeHauswandMeshesRight[i].isVisible) {
+        rightPosts[i].scaling.z = 1;
+        rightPosts[i].position.y = 0.962;
+        rightRoots[i].forEach((elm) => {
+          elm.isVisible = false;
+        });
+      }
+    }
   }
   var befePfostenSize = 0;
   if (befePfostenParts.length > 0) {
@@ -2241,6 +2957,28 @@ var createScene = function () {
       //set wich one is activ
       vorderseiteOn = f;
       ruckseiteOn = g;
+      for (let i = 0; i < directeHauswandMeshesRight.length; i++) {
+        if (directeHauswandMeshesRight[i].isVisible) {
+          sturmankersVorderseiteRight[i].forEach((elm) => {
+            elm.isVisible = false;
+          });
+          sturmankersRuckseiteRight[i].forEach((elm) => {
+            elm.isVisible = false;
+          });
+          foundationVisibilty(
+            foundationStarts,
+            foundations,
+            false,
+            foundationStartsVord,
+            foundationsVord,
+            false,
+            foundationStartsRuck,
+            foundationsRuck,
+            false,
+            i + 1
+          );
+        }
+      }
     }
     sturmankerCon[0].addEventListener("click", () => {
       intersectionFunction(
@@ -2283,6 +3021,22 @@ var createScene = function () {
       vorderseiteOn = false;
       ruckseiteOn = false;
       strurmOn = false;
+      for (let i = 0; i < directeHauswandMeshesRight.length; i++) {
+        if (directeHauswandMeshesRight[i].isVisible) {
+          foundationVisibilty(
+            foundationStarts,
+            foundations,
+            false,
+            foundationStartsVord,
+            foundationsVord,
+            false,
+            foundationStartsRuck,
+            foundationsRuck,
+            false,
+            i + 1
+          );
+        }
+      }
     });
     sturmankerCon[2].addEventListener("click", () => {
       intersectionFunction(
@@ -2359,6 +3113,27 @@ var createScene = function () {
               selectedFound = d[i];
               sideAccesories.style.display = "block";
               deleteAccesorie[1].style.display = "block";
+              addNewFenceToSide.style.display = "none";
+              //set day when select sturmanker
+              setDayNight(0.6, 0, 0.7);
+              setLightColor(4);
+              glow.intensity = 0;
+              singsWar.forEach((elm) => {
+                elm.isVisible = false;
+              });
+              singsDel.forEach((elm) => {
+                elm.isVisible = false;
+              });
+              //set activnes of led when sturamnker is selected
+              aaa = 0;
+              leds.forEach((elm) => {
+                if (elm.isVisible) {
+                  aaa += 1;
+                }
+              });
+              aaa > 0
+                ? setActivnesStyle(ledParts, 6, 1)
+                : setActivnesStyle(ledParts, 6, 0);
             } else {
               a.forEach((elm) => {
                 elm.material = fencePostMat;
@@ -2406,23 +3181,7 @@ var createScene = function () {
         sturmankersRuckseite.indexOf(selectedStur)
       );
     }
-    // selectedFoundStart.scaling.z = selectedFound.scaling.z = 1;
-    // selectedFoundStart.scaling.x = selectedFound.scaling.x = 1;
-    // if (sturmankersVorderseite.includes(selectedStur)) {
-    //   selectedFoundStart.position.z = selectedFound.position.z = getAbsPosZ(
-    //     allPosts[sturmankersVorderseite.indexOf(selectedStur)]
-    //   );
-    //   selectedFoundStart.position.x = selectedFound.position.x = getAbsPosX(
-    //     allPosts[sturmankersVorderseite.indexOf(selectedStur)]
-    //   );
-    // } else {
-    //   selectedFoundStart.position.z = selectedFound.position.z = getAbsPosZ(
-    //     allPosts[sturmankersRuckseite.indexOf(selectedStur)]
-    //   );
-    //   selectedFoundStart.position.x = selectedFound.position.x = getAbsPosX(
-    //     allPosts[sturmankersRuckseite.indexOf(selectedStur)]
-    //   );
-    // }
+
     selectedStur.material = fencePostMat;
     //set activnes of sturmanker parts
     var sturNum2 = 0;
@@ -2448,12 +3207,12 @@ var createScene = function () {
   var directeHauswandMesh = BABYLON.MeshBuilder.CreateBox(
     "directeHauswandMesh",
     {
-      height: 2.1,
+      height: 2,
       width: 0.2,
       depth: 0.25,
     }
   );
-  directeHauswandMesh.position = new BABYLON.Vector3(-0.1, 1.05, 0);
+  directeHauswandMesh.position = new BABYLON.Vector3(-0.1, 1, 0);
   directeHauswandMesh.material = concreteMat;
   directeHauswandMesh.isVisible = false;
 
@@ -2511,6 +3270,28 @@ var createScene = function () {
           directeHauswandMesh.material = selectedMat;
           sideAccesories.style.display = "block";
           deleteAccesorie[0].style.display = "block";
+          addNewFenceToSide.style.display = "none";
+          singsDel[0].isVisible = false;
+          //set day when select sturmanker
+          setDayNight(0.6, 0, 0.7);
+          setLightColor(4);
+          glow.intensity = 0;
+          singsWar.forEach((elm) => {
+            elm.isVisible = false;
+          });
+          singsDel.forEach((elm) => {
+            elm.isVisible = false;
+          });
+          //set activnes of led when sturamnker is selected
+          aaa = 0;
+          leds.forEach((elm) => {
+            if (elm.isVisible) {
+              aaa += 1;
+            }
+          });
+          aaa > 0
+            ? setActivnesStyle(ledParts, 6, 1)
+            : setActivnesStyle(ledParts, 6, 0);
         } else {
           directeHauswandMesh.material = concreteMat;
           sideAccesories.style.display = "none";
@@ -2522,23 +3303,65 @@ var createScene = function () {
   );
 
   deleteImgAccesories[0].addEventListener("click", () => {
-    addRemoveHauswand();
     sideAccesories.style.display = "none";
     deleteAccesorie[0].style.display = "none";
     addFenceAcc.style.display = "none";
-    directeHauswandMesh.material = concreteMat;
-    var currentActCol = document.getElementsByClassName("active-text-color");
-    if (!togAct) {
-      directeHauswand[0].className += " active-text-color";
-      directeHauswand[0].children[2].innerHTML = checkMark;
-      togAct = true;
-    } else {
-      currentActCol[11].className = currentActCol[11].className.replace(
-        " active-text-color",
-        ""
-      );
-      directeHauswand[0].children[2].innerHTML = "";
-      togAct = false;
+    if (directeHauswandMeshes[0].material.id == "selectedMat") {
+      addRemoveHauswand();
+      directeHauswandMesh.material = concreteMat;
+      var currentActCol = document.getElementsByClassName("active-text-color");
+      if (!togAct) {
+        directeHauswand[0].className += " active-text-color";
+        directeHauswand[0].children[2].innerHTML = checkMark;
+        togAct = true;
+      } else {
+        currentActCol[11].className = currentActCol[11].className.replace(
+          " active-text-color",
+          ""
+        );
+        directeHauswand[0].children[2].innerHTML = "";
+        togAct = false;
+      }
+    }
+    for (let i = 0; i < directeHauswandMeshesRight.length; i++) {
+      if (directeHauswandMeshesRight[i].material.id == "selectedMat") {
+        directeHauswandMeshesRight[i].material = concreteMat;
+        directeHauswandMeshesRight[i].isVisible = false;
+        foundationStartsRight[i].isVisible = true;
+        foundationVisibilty(
+          foundationStarts,
+          foundations,
+          true,
+          foundationStartsVord,
+          foundationsVord,
+          false,
+          foundationStartsRuck,
+          foundationsRuck,
+          false,
+          i + 1
+        );
+        if (befePfostenSize == 0) {
+          rightPosts[i].scaling.z = 1;
+          rightPosts[i].position.y = 0.962;
+          rightRoots[i].forEach((elm) => {
+            elm.isVisible = true;
+          });
+          foundations[i + 1].scaling.y = 1;
+          foundations[i + 1].position.y = -0.5 / 2;
+        }
+        if (befePfostenSize == 1) {
+          rightPosts[i].scaling.z = 1.2;
+          rightPosts[i].position.y = 0.7717;
+          foundations[i + 1].scaling.y = 1;
+          foundations[i + 1].position.y = -0.5 / 2;
+        }
+        if (befePfostenSize == 2) {
+          rightPosts[i].scaling.z = 1.475;
+          rightPosts[i].position.y = 0.511;
+          foundations[i + 1].scaling.y = 1.8;
+          foundations[i + 1].position.y = -0.9 / 2;
+        }
+      }
     }
   });
 
@@ -2609,96 +3432,177 @@ var createScene = function () {
     //console.log(activeFence);
   }
   function accCloseButFun(clickable) {
-    for (let i = 0; i < clickable.length; i++) {
-      clickable[i].addEventListener("click", () => {
+    if (typeof clickable.length == "number") {
+      for (let i = 0; i < clickable.length; i++) {
+        clickable[i].addEventListener("click", () => {
+          unselect();
+        });
+      }
+    } else {
+      clickable.addEventListener("click", () => {
         unselect();
       });
     }
   }
 
   //set activnes for add fence
-  let addFence = document.getElementsByClassName("set-activnes-add-fence");
-  setActivnes(addFence, 0);
+  let changeFence = document.getElementsByClassName(
+    "set-activnes-change-fence"
+  );
+  setActivnes(changeFence, 0);
 
   //close add new fence accesoire when close button
   accCloseButFun(sideAccCloseBtn);
-  //close add new fence accesoire when chose fence
-  accCloseButFun(addFence);
 
   //first small board fence colors setings
   let smallBoardsFirst = document.getElementsByClassName(
     "first-set-add-fence-color"
   );
-  // setPartsAndconf(smallBoardsFirst, smallBoardsMat, fencePartsColors);
 
   //second small board fence colors setings
   let smallBoardsSecond = document.getElementsByClassName(
     "second-set-add-fence-color"
   );
-  // setPartsAndconf(smallBoardsSecond, smallBoardsMat, fencePartsColors);
-
-  function changeFence(a, b, c, d, e) {
-    // fenceBoards.forEach((elm) => {
-    //   elm.isVisible = a;
-    // });
+  //function to change fence
+  function changeFenceFunction(a, b, c, d, e, f, g) {
     fenceBoards[activeFence].forEach((elm) => {
       elm.isVisible = a;
     });
-
-    fencesArr[activeFence].smBoaCol = e;
-
     startParts[activeFence].isVisible = endParts[activeFence].isVisible = a;
-    smallBoardsArr[activeFence].isVisible = b;
-    if (fencesArr[activeFence].smBoaCol == 0)
-      smallBoardsArr[activeFence].material = smallBoardsMat;
-    if (fencesArr[activeFence].smBoaCol == 1)
-      smallBoardsArr[activeFence].material = smallBoardsMatDark;
-    // changePosAndScaleFence(c);
-    console.log(
-      fencesArr[activeFence].smBoaCol,
-      smallBoardsArr[activeFence].material.id
-    );
-    //set inlays to ohne
-    // setActivnesStyle(designInlays, 4, 0);
 
+    smallBoardsArr[activeFence].isVisible = b;
+
+    changePosAndScaleFence(c, activeFence);
+    positionChildrenOnParentSizeChange();
+    fencesArr[activeFence].type = d;
+    fencesArr[activeFence].smBoaCol = e;
+    fencesArr[activeFence].size = c;
+    fencesArr[activeFence].inlays = g;
+    if (fencesArr[activeFence].inlays == 0) {
+      inlays[activeFence][0].isVisible = false;
+      inlays[activeFence][2].isVisible = false;
+    }
+    // }
+    if (fencesArr[activeFence].inlays == 1) {
+      inlays[activeFence][0].isVisible = true;
+      inlays[activeFence][2].isVisible = true;
+      fenceBoards[activeFence][6].isVisible = false;
+    }
+
+    //set inlays to ohne
+    aaa = 0;
+    inlays.forEach((elm) => {
+      if (elm[0].isVisible) {
+        aaa += 1;
+      }
+      if (aaa < 1) {
+        setActivnesStyle(designInlays, 4, 0);
+        inlaysOn = 0;
+      }
+
+      console.log(aaa);
+    });
+    //set laisnes
     for (let i = 0; i < laisnes[activeFence].length; i++) {
       if (checkboxActive[i]) {
-        laisnes[activeFence][i].isVisible = d;
-        console.log(
-          activeFence,
-          laisnes[activeFence][i].isVisible,
-          laisnes[activeFence][i].visibility
-        );
+        laisnes[activeFence][i].isVisible = f;
       }
     }
   }
 
-  addFence[0].addEventListener("click", () => {
-    changeFence(true, false, 180, true, 0);
-    // inlays
-    inlaysFunction(true, false);
+  changeFence[0].addEventListener("click", () => {
+    changeFenceFunction(true, false, 180, "easyFence", "silber", true, 0);
+    console.log(fencesArr[activeFence]);
   });
-  addFence[2].addEventListener("click", () => {
-    changeFence(false, true, 180, false, 0);
-    // inlays
-    inlaysFunction(false, false);
+  changeFence[1].addEventListener("click", () => {
+    changeFenceFunction(true, false, 180, "easyFence", "silber", true, 1);
+    console.log(fencesArr[activeFence]);
   });
-  addFence[3].addEventListener("click", () => {
-    changeFence(false, true, 180, false, 1);
-    // inlays
-    inlaysFunction(false, false);
+  changeFence[2].addEventListener("click", () => {
+    changeFenceFunction(false, true, 180, "easyRomBig", "silber", false, 0);
+    console.log(fencesArr[activeFence]);
   });
-  addFence[4].addEventListener("click", () => {
-    changeFence(false, true, 60, false, 0);
-    // inlays
-    inlaysFunction(false, false);
+  changeFence[3].addEventListener("click", () => {
+    changeFenceFunction(false, true, 180, "easyRomBig", "anthrazit", false, 0);
+    console.log(fencesArr[activeFence]);
   });
-  addFence[5].addEventListener("click", () => {
-    changeFence(false, true, 60, false, 1);
-    // inlays
-    inlaysFunction(false, false);
+  changeFence[4].addEventListener("click", () => {
+    changeFenceFunction(false, true, 60, "easyRomSmall", "silber", false, 0);
+    console.log(fencesArr[activeFence]);
   });
+  changeFence[5].addEventListener("click", () => {
+    changeFenceFunction(false, true, 60, "easyRomSmall", "anthrazit", false, 0);
+    console.log(fencesArr[activeFence]);
+  });
+  //close side
+  accCloseButFun(changeFence);
 
+  //DELETE FENCE
+  let deleteFencePart = document.getElementById("set-part-fence-acc-del");
+
+  function deleteFenceOn(a) {
+    if (a > 0) {
+      deleteFencePart.children[0].children[0].style.backgroundImage =
+        "url('img/deleteRound.png')";
+      deleteFencePart.children[1].innerHTML = "Löschen";
+    } else {
+      deleteFencePart.children[0].children[0].style.backgroundImage =
+        "url('img/deleteRoundNo.png')";
+      deleteFencePart.children[1].innerHTML = "Der erste Zaun";
+    }
+  }
+  function deleteFence(fence) {
+    wholeFences[fence].dispose();
+    foundationsRight[fence].dispose();
+    fakeFences[fence].name = "disposedFakeFence";
+    newFenceForwardSigns[fence].dispose();
+    newFenceRightSigns[fence].dispose();
+    newFenceLeftSigns[fence].dispose();
+    newFenceBackSigns[fence].dispose();
+  }
+  function recursiveToChildrenDelete(a) {
+    if (fencesArr[a].children.length > 0) {
+      if (
+        wholeFences[a].rotation.y !=
+        wholeFences[fencesArr[a].children[0]].rotation.y
+      ) {
+        fencesArr[a].children.forEach((elm) => {
+          deleteFence(elm);
+          recursiveToChildrenDelete(elm);
+        });
+      }
+    }
+  }
+  //     foundationsRight[elm].position.x =
+  //       foundationsRight[elm].position.x - 1.8;
+  //     // foundationsRight[elm].position.z =
+  //     //   foundationsRight[elm].position.z - (firstZ - secondZ);
+
+  //     wholeFences[elm].position.x = wholeFences[elm].position.x - 1.8;
+  //     // wholeFences[elm].position.z =
+  //     //   wholeFences[elm].position.z - (firstZ - secondZ);
+
+  //     newFenceForwardSigns[elm].position.x =
+  //       newFenceForwardSigns[elm].position.x - 1.8;
+  //     // newFenceForwardSigns[elm].position.z =
+  //     //   newFenceForwardSigns[elm].position.z - (firstZ - secondZ);
+
+  //     newFenceRightSigns[elm].position.x =
+  //       newFenceRightSigns[elm].position.x - 1.8;
+  //     // newFenceRightSigns[elm].position.z =
+  //     //   newFenceRightSigns[elm].position.z - (firstZ - secondZ);
+
+  //     newFenceLeftSigns[elm].position.x =
+  //       newFenceLeftSigns[elm].position.x - 1.8;
+  //     // newFenceLeftSigns[elm].position.z =
+  //     //   newFenceLeftSigns[elm].position.z - (firstZ - secondZ);
+
+  //     newFenceBackSigns[elm].position.x =
+  //       newFenceBackSigns[elm].position.x - 1.8;
+  //     // newFenceBackSigns[elm].position.z =
+  //     //   newFenceBackSigns[elm].position.z - (firstZ - secondZ);
+  accCloseButFun(deleteFencePart);
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //END OF SCENE
   return scene;
 };
