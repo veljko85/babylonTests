@@ -42,6 +42,39 @@
   <!-- HTML -->
   <div class="configuratorContainer">
 
+    <!-- HEADING -->
+    <div class="heading">
+      <div class="new-start">
+        <div class="get-back">
+          <div id="get-back-arrow">&#8678;</div>
+          <div class="get-back-fence-name">EASY-FENCE</div>
+        </div>
+        <div class="new-fence">
+          <div id="new-fence-but">
+            NEUSTART
+          </div>
+        </div>
+      </div>
+      <div class="heading-menu">
+        <div id="settings-but" class="heading-menu-buttons">
+          <div style="font-size: 25px; padding-right: 5px;"><i class="fa fa-gear"></i></div>
+          <div>Anpassen</div>
+        </div>
+        <div id=" price-but" class="heading-menu-buttons">
+          <i class="fa fa-calculator" style="font-size: 18px; margin-top: 2px; padding-right: 5px;"></i>
+          <div>Preis/Warenkorb</div>
+        </div>
+        <div id="videos-but" class="heading-menu-buttons">
+          <i class="fa fa-play-circle-o" style="font-size: 18px; margin-top: 2px; padding-right: 5px;"></i>
+          <div>Anleitung</div>
+        </div>
+        <div id="screenshot-but" class="heading-menu-buttons">
+          <i class="fa fa-camera" style="font-size: 18px; margin-top: 2px; padding-right: 5px;"></i>
+          <div>Screenshot</div>
+        </div>
+      </div>
+    </div>
+
     <!-- MODAL FADE CONTAINER ZA OBAVESTENJA -->
     <div class="modal-fade" id="modal-fade" style="display: none">
       <!-- MODAL ON STURMANKER -->
@@ -49,7 +82,7 @@
         <div class="modal-header">
           <h4 style="flex: 90%; margin-left: 30px;">Sturamnker</h4>
           <div class="modal-close-btn-container">
-            <div class="modal-close-btn"></div>
+            <div class="modal-close-btn">&#10005</div>
           </div>
         </div>
         <div class="modal-body">
@@ -67,7 +100,7 @@
             Alu-Gitter 10 x 10 mm
           </h4>
           <div class="modal-close-btn-container">
-            <div class="modal-close-btn"></div>
+            <div class="modal-close-btn">&#10005</div>
           </div>
         </div>
         <div class="modal-body">
@@ -82,7 +115,7 @@
           <h4 style="flex: 90%; margin-left: 30px;">LED oder Sturmanker
           </h4>
           <div class="modal-close-btn-container">
-            <div class="modal-close-btn"></div>
+            <div class="modal-close-btn">&#10005</div>
           </div>
         </div>
         <div class="modal-body">
@@ -114,7 +147,7 @@
         <div class="side-accesories-title">
           <div class="accTitle">ausgewählter Zaun</div>
           <div class="settings-close-btn-container">
-            <div class="side-accesories-close-btn">&#10006</div>
+            <div class="side-accesories-close-btn">&#10005</div>
           </div>
         </div>
         <!-- DELETE HOUSWAND ACCESORIE -->
@@ -249,7 +282,8 @@
               <div class="left-side-design-inlays">
                 <div class="img-design-inlays" style="background-image:
                   url('img/rhombus-60.svg');"></div>
-                <div class="title-design-inlays" style="font-size: 10px;">EASY-ROM<br>ALU-Rhombuszaun<br>60x180cm</div>
+                <div class="title-design-inlays" style="font-size: 10px;">EASY-ROM<br>ALU-Rhombuszaun<br>60x180cm
+                </div>
               </div>
               <div class=" right-side-design-inlays">
                 <!-- first design-inlays color -->
@@ -332,7 +366,8 @@
               <div class=" left-side-design-inlays">
                 <div class="img-design-inlays" style="background-image:
                 url('img/rhombus-60.svg');"></div>
-                <div class="title-design-inlays" style="font-size: 10px;">EASY-ROM<br>ALU-Rhombuszaun<br>60x180cm</div>
+                <div class="title-design-inlays" style="font-size: 10px;">EASY-ROM<br>ALU-Rhombuszaun<br>60x180cm
+                </div>
               </div>
               <div class=" right-side-design-inlays">
                 <!-- first design-inlays color -->
@@ -375,11 +410,12 @@
 
         <!-- settings title -->
         <div id="setTitleSec" class="settings-title">
-          <div class="fa-settings-container" style="flex: 20%; "><i class="fa fa-gear" style="font-size:36px;"></i>
+          <div class="gearSettings" style="flex: 10%;"><i class="fa fa-gear" style="font-size:35px;"></i>
           </div>
-          <div class="setTitle" style="flex: 70%;">Anpassen</div>
+          <div class="setTitle" style="flex: 80%;">Anpassen</div>
           <div class=" settings-close-btn-container">
-            <div class="settings-close-btn"></div>
+
+            <div class="settings-close-btn">&#10005</div>
           </div>
         </div>
 
@@ -973,7 +1009,7 @@
 
     </canvas>
     <div id="customLoadingScreenDiv"
-      style="width: 100vw; height: 100vh; background-color: rgb(255, 255, 255); position: absolute;">
+      style="width: 100vw; height: 100vh; background-color: rgb(255, 255, 255); position: absolute; z-index: 200;">
       <div id="lottieWraper" style="width: 50px; height: 50px; position: absolute;
       top: 50%;
       left: 50%;

@@ -1804,6 +1804,52 @@ var createScene = function () {
 
   //CREATE DEFAULT FENCE
   createRightFence(0.94, 0, 0, "easyFence", "silber", 0);
+  // createRightFence(2.78, 0, 0, "easyFence", "silber", 0);
+  // setInterval(() => {
+  //   // rightPosts.forEach((elm) => {
+  //   console.log(
+  //     rightPosts[rightPosts.length - 1].getAbsolutePosition().x + 0.94
+  //   );
+  //   // });
+  //   createRightFence(
+  //     Math.round(
+  //       rightPosts[rightPosts.length - 1].getAbsolutePosition().x * 100
+  //     ) /
+  //       100 +
+  //       0.94,
+  //     0,
+  //     0,
+  //     "easyFence",
+  //     "silber",
+  //     0
+  //   );
+  // }, 0);
+  // setTimeout(() => {
+  //   createRightFence(
+  //     rightPosts[rightPosts.length - 1].getAbsolutePosition().x + 0.94,
+  //     rightPosts[rightPosts.length - 1].getAbsolutePosition().z,
+  //     0,
+  //     "easyFence",
+  //     "silber",
+  //     0
+  //   );
+  //   createRightFence(
+  //     rightPosts[rightPosts.length - 1].getAbsolutePosition().x + 0.94,
+  //     rightPosts[rightPosts.length - 1].getAbsolutePosition().z,
+  //     0,
+  //     "easyFence",
+  //     "silber",
+  //     0
+  //   );
+  //   createRightFence(
+  //     rightPosts[rightPosts.length - 1].getAbsolutePosition().x + 0.94,
+  //     rightPosts[rightPosts.length - 1].getAbsolutePosition().z,
+  //     0,
+  //     "easyFence",
+  //     "silber",
+  //     0
+  //   );
+  // }, 1000);
 
   let addNewFenceNormal = document.getElementById("new-fence-normal");
   addNewFenceNormal.onclick = () => {
@@ -2063,6 +2109,7 @@ var createScene = function () {
       {
         height: 0.01,
         diameter: 0.3,
+        tessellation: 50,
       }
     );
     addNewFenceMesh.material = addNewFenceMeshMat;
@@ -2312,6 +2359,7 @@ var createScene = function () {
       {
         height: 0.01,
         diameter: 0.3,
+        tessellation: 50,
       }
     );
     addNewFenceMeshRightMain.material = addNewFenceMeshMat;
@@ -2376,6 +2424,7 @@ var createScene = function () {
       {
         height: 0.01,
         diameter: 0.3,
+        tessellation: 50,
       }
     );
     addNewFenceMeshLeftMain.material = addNewFenceMeshMat;
@@ -3961,27 +4010,6 @@ var createScene = function () {
       }
     }
   }
-
-  // confirmSliderSize.onclick = () => {
-  //   changePosAndScaleFence(valueOfSlider, activeFence);
-  //   positionChildrenOnParentSizeChange();
-  // };
-
-  // function positionChildrenOnParentSizeChange() {
-  //   for (let i = 0; i < fencesArr[activeFence].children.length; i++) {
-  //     a = fencesArr[activeFence].children[i];
-  //     scaleToOtherFencesToDo(a);
-  //     recursiveToChildrenPositionChange(a);
-  //   }
-  // }
-  // function recursiveToChildrenPositionChange(a) {
-  //   if (fencesArr[a].children.length > 0) {
-  //     fencesArr[a].children.forEach((elm) => {
-  //       scaleToOtherFencesToDo(elm);
-  //       recursiveToChildrenPositionChange(elm);
-  //     });
-  //   }
-  // }
 
   accCloseButFun(deleteFencePart);
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
