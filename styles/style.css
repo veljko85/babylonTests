@@ -331,6 +331,9 @@ body {
   font-weight: 700;
   cursor: pointer;
 }
+.set-part-click-title:hover {
+  color: var(--main-style-color);
+}
 .not-clicked {
   box-shadow: 7px 7px 15px rgba(55, 84, 170, 0.15), -7px -7px 20px white, inset 0px 0px 4px rgba(255, 255, 255, 0.2),
     inset 7px 7px 15px rgba(55, 84, 170, 0), inset -7px -7px 20px rgba(255, 255, 255, 0),
