@@ -187,66 +187,15 @@ var createDefaultEngine = function () {
   });
 };
 
-//for loading
+//FOR LOADING
 BABYLON.DefaultLoadingScreen.prototype.displayLoadingUI = function () {
   if (document.getElementById("customLoadingScreenDiv")) {
     // Do not add a loading screen if there is already one
     document.getElementById("customLoadingScreenDiv").style.display = "initial";
     return;
   }
-  // this._loadingDiv = document.createElement("div");
-  // this._loadingDiv.id = "customLoadingScreenDiv";
-  // this._loadingDiv.innerHTML = `<div id="lottieWraper" style: width: 200px; height: 200px; background-color: red;></div>`;
-  // let animItem = bodymovin.loadAnimation({
-  //   wrapper: this._loadingDiv,
-  //   animType: "svg",
-  //   loop: true,
-  //   // rendererSettings: {
-  //   //   progressiveLoad: false,
-  //   //   preserveAspectRatio: "xMidYMid meet",
-  //   //   viewBoxSize: "10 10 10 10",
-  //   // },
-  //   path: "https://raw.githubusercontent.com/thesvbd/Lottie-examples/master/assets/animations/loading.json",
-  // });
-  // animItem.resize();
-  // animItem.addEventListener("DOMLoaded", function () {
-  //   animItem.playSegments(
-  //     [
-  //       [0, 100],
-  //       [32, 100],
-  //     ],
-  //     true
-  //   );
-  // });
-  // var customLoadingScreenCss = document.createElement("style");
-  // customLoadingScreenCss.type = "text/css";
-  // if (document.body.clientWidth > document.body.clientHeight) {
-  //   customLoadingScreenCss.innerHTML = `
-  //               #customLoadingScreenDiv{
-  //                 width: 100%;
-  //               height: 100%;
-  //               background-color: white;
-  //                   z-index: 20;
-  //                   position: fixed;
-  //               }
-  //                `;
-  // } else {
-  //   customLoadingScreenCss.innerHTML = `
-  //               #customLoadingScreenDiv{
-  //                 width: 100%;
-  //               height: 100%;
-  //               background-color: white;
-  //                   z-index: 20;
-  //                   position: fixed;
-  //               }
-  //                `;
-  // }
-  // document.getElementsByTagName("head")[0].appendChild(customLoadingScreenCss);
-  // this._resizeLoadingUI();
-  // window.addEventListener("resize", this._resizeLoadingUI);
-  // document.body.appendChild(this._loadingDiv);
 };
-
+//lottie
 let animItem = bodymovin.loadAnimation({
   wrapper: document.getElementById("lottieWraper"),
   animType: "svg",
@@ -275,7 +224,7 @@ BABYLON.DefaultLoadingScreen.prototype.hideLoadingUI = function () {
 };
 //end of loading
 
-//CREATE SCENE
+//CREATE SCENE ///////////////////////////////////////////////////
 var createScene = function () {
   // for loading
   engine.displayLoadingUI();
@@ -640,12 +589,12 @@ var createScene = function () {
 
     fenceBoards[activeFence].forEach((elm) => {
       elm.scaling.x = fenceScale;
-      elm.position.x = -0.9 + fenceSize / 2;
+      elm.position.x = -0.9 + fenceSize / 2 - 0.01;
     });
 
     laisnes[activeFence].forEach((elm) => {
       elm.scaling.x = fenceScale;
-      elm.position.x = -0.9 + fenceSize / 2;
+      elm.position.x = -0.9 + fenceSize / 2 - 0.01;
     });
 
     startParts[activeFence].scaling.x =
@@ -657,10 +606,10 @@ var createScene = function () {
       endParts[activeFence].position.x =
       inlays[activeFence][0].position.x =
         -0.9 + fenceSize / 2;
-    inlays[activeFence][2].position.x = -0.9 + fenceSize / 2;
+    inlays[activeFence][2].position.x = -0.9 + fenceSize / 2 - 0.01;
 
     smallBoardsArr[activeFence].scaling.x = fenceScale;
-    smallBoardsArr[activeFence].position.x = -0.9 + fenceSize / 2;
+    smallBoardsArr[activeFence].position.x = -0.9 + fenceSize / 2 - 0.01;
     rightPosts[activeFence].position.x = -0.9 + fenceSize;
     rightPostCaps[activeFence].position.x = rightPosts[activeFence].position.x;
 
@@ -1925,7 +1874,10 @@ var createScene = function () {
       // }, 0);
       // //
       //for loading
-      engine.hideLoadingUI();
+      setTimeout(() => {
+        engine.hideLoadingUI();
+      }, 3000);
+
       //END OF MESH
       /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     });
