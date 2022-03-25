@@ -8,8 +8,10 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>Babylon.js sample code</title>
 
+  <!-- fa fa fonts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+  <!-- main style -->
   <link rel="stylesheet" type="text/css" href="styles/style.css" />
 
   <!-- nouislider cdn -->
@@ -50,27 +52,29 @@
           <div class="get-back-fence-name">EASY-FENCE</div>
         </div>
         <div class="new-fence">
-          <div id="new-fence-but">
-            NEUSTART
-          </div>
+          <a href="index.html">
+            <div id="new-fence-but">
+              NEUSTART
+            </div>
+          </a>
         </div>
       </div>
       <div class="heading-menu">
-        <div id="settings-but" class="heading-menu-buttons">
-          <div style="font-size: 25px; padding-right: 5px;"><i class="fa fa-gear"></i></div>
-          <div>Anpassen</div>
+        <div id="settings-but" class="heading-menu-buttons active-menu-buttons">
+          <i class="fa fa-gear" id="fa-gear"></i>
+          <div class="heading-menu-title">Anpassen</div>
         </div>
-        <div id=" price-but" class="heading-menu-buttons">
-          <i class="fa fa-calculator" style="font-size: 18px; margin-top: 2px; padding-right: 5px;"></i>
-          <div>Preis/Warenkorb</div>
+        <div id="price-but" class="heading-menu-buttons">
+          <i class="fa fa-calculator"></i>
+          <div class="heading-menu-title">Preis/Warenkorb</div>
         </div>
         <div id="videos-but" class="heading-menu-buttons">
-          <i class="fa fa-play-circle-o" style="font-size: 18px; margin-top: 2px; padding-right: 5px;"></i>
-          <div>Anleitung</div>
+          <i class="fa fa-play-circle-o"></i>
+          <div class="heading-menu-title">Anleitung</div>
         </div>
         <div id="screenshot-but" class="heading-menu-buttons">
-          <i class="fa fa-camera" style="font-size: 18px; margin-top: 2px; padding-right: 5px;"></i>
-          <div>Screenshot</div>
+          <i class="fa fa-camera"></i>
+          <div class="heading-menu-title">Screenshot</div>
         </div>
       </div>
     </div>
@@ -135,6 +139,36 @@
           <button class="modal-ver-sch-btn" style="margin: 0 auto; cursor: pointer;">Schließen</button>
         </div>
       </div>
+      <!-- MODAL VIDEOS -->
+      <div class="modal-content" id="modal-videos" style="display: none;">
+        <div class="modal-header">
+          <h4 style="flex: 90%; margin-left: 30px;">Anleitung</h4>
+          <div class="modal-close-btn-container">
+            <div class="modal-close-btn">&#10005</div>
+          </div>
+        </div>
+        <div class="modal-body" style="display: block;">
+          <div class="modal-videos-part">Navigieren mit Schaltflächen</div>
+          <div class="modal-videos-part">Navigieren mit einer Maus / Smartphone / Tablet</div>
+          <div class="modal-videos-part">Navigieren mit der Tastatur</div>
+          <div class="modal-videos-part">Produkte hinzufügen</div>
+          <div class="modal-videos-part">Produkte austauschen</div>
+          <div class="modal-videos-part" style="border: none;">Konfiguration neu starten</div>
+        </div>
+        <div class="modal-footer"><button class="modal-ver-sch-btn"
+            style="margin: 0 auto; cursor: pointer;">Schließen</button>
+        </div>
+      </div>
+
+      <div class="modal-content" id="modal-video">
+        <div class="modal-close-btn-container-video">
+          <div class="modal-close-btn">&#10005</div>
+        </div>
+        <video id='modal-video-video' controls loop="true" src="videos/5.webm" type="video/webm">
+          Your browser does not support the video tag.
+        </video>
+
+      </div>
 
       <!-- END OF MODAL -->
     </div>
@@ -145,7 +179,7 @@
       <!-- SIDE ACCESORIES -->
       <div class="side-accesories" id="side-accesories" style="display: none;">
         <div class="side-accesories-title">
-          <div class="accTitle">ausgewählter Zaun</div>
+          <div class="accTitle" style="margin-left: 5%;">ausgewählter Zaun</div>
           <div class="settings-close-btn-container">
             <div class="side-accesories-close-btn">&#10005</div>
           </div>
@@ -230,7 +264,7 @@
           </div>
 
           <!-- change fence -->
-          <div class="set-part-container" style="height: auto;">
+          <div class="set-part-container" style="height: auto; margin-bottom: 100px;">
             <!-- first part -->
             <div class="set-part-design-inlays-1 set-activnes-change-fence active-text-color">
               <div class="side-img-design-inlays-container">
@@ -312,7 +346,7 @@
 
         <!-- SIDE WHEN ADD NEW FENCE ARROW IS CLICKED -->
         <!-- add new fence -->
-        <div id="addNewFenceToSide" style="height: auto; display: none;">
+        <div id="addNewFenceToSide" style="height: auto; display: none; margin-bottom: 100px;">
           <!-- first part -->
           <div class="set-part-container" style="height: auto;">
             <div class="set-part-design-inlays-1" id="new-fence-normal">
@@ -986,7 +1020,7 @@
           <div class="title-is-active">+</div>
         </div>
         <!-- PARTS CONTAINER -->
-        <div class="set-part-container" style="margin-bottom: 20px;">
+        <div class="set-part-container" style="margin-bottom: 100px;">
           <!-- first part -->
           <div class="set-part-direkte-hauswand">
             <div class="side-img-direkte-hauswand-container">
@@ -1009,7 +1043,7 @@
 
     </canvas>
     <div id="customLoadingScreenDiv"
-      style="width: 100vw; height: 100vh; background-color: rgb(255, 255, 255); position: absolute; z-index: 200;">
+      style="width: 100vw; height: 100vh; background-color: rgb(255, 255, 255); position: absolute; z-index: 100;">
       <div id="lottieWraper" style="width: 50px; height: 50px; position: absolute;
       top: 50%;
       left: 50%;

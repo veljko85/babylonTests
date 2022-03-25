@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Babylon.js sample code</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <link rel="stylesheet" type="text/css" href="style.css" />
+
+  <!-- Babylon.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+  <script src="https://preview.babylonjs.com/ammo.js"></script>
+  <script src="https://preview.babylonjs.com/cannon.js"></script>
+  <script src="https://preview.babylonjs.com/Oimo.js"></script>
+  <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+  <script src="https://preview.babylonjs.com/babylon.js"></script>
+  <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+  <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+  <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+  <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+  <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+  <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+  <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+</head>
+
+<body>
+
+  <!-- HTML -->
+  <div class="configuratorContainer">
+
+    <!-- MODAL FADE CONTAINER ZA OBAVESTENJA -->
+    <div class="modal-fade" id="modal-fade" style="display: none">
+      <!-- MODAL ON STURMANKER -->
+      <div class="modal-content" id="on-sturmanker" style="display: none;">
+        <div class="modal-header">
+          <h4 style="flex: 90%; margin-left: 30px;">Sturamnker</h4>
+          <div class="modal-close-btn-container">
+            <div class="modal-close-btn"></div>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="modal-body-img" style="background-image: url('img/sturmanker.webp');"></div>
+          <div class="modal-body-text">zum Löschen anklicken
+          </div>
+        </div>
+        <div class="modal-footer"><button class="modal-ver-sch-btn"
+            style="margin: 0 auto; cursor: pointer;">Verstaden</button></div>
+      </div>
+      <!-- MODAL INLAY INFO -->
+      <div class="modal-content" id="on-inlay-info" style="display: none;">
+        <div class="modal-header">
+          <h4 style="flex: 90%; margin-left: 30px;">VIERO<br>
+            Alu-Gitter 10 x 10 mm
+          </h4>
+          <div class="modal-close-btn-container">
+            <div class="modal-close-btn"></div>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="modal-body-info-img" style="background-image: url('img/preview-viero.jpg');"></div>
+        </div>
+        <div class="modal-footer"><button class="modal-ver-sch-btn"
+            style="margin: 0 auto; cursor: pointer;">Schließen</button></div>
+      </div>
+      <!-- MODAL LED STURMANKER -->
+      <div class="modal-content" id="on-led-sturmanker" style="display: none;">
+        <div class="modal-header">
+          <h4 style="flex: 90%; margin-left: 30px;">LED oder Sturmanker
+          </h4>
+          <div class="modal-close-btn-container">
+            <div class="modal-close-btn"></div>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="modal-body-img" style="background-image: url('img/sturmankerLed.webp');"></div>
+          <div class="modal-body-text">LED und Sturmanker können nicht zusammen<br>montiert werden!
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="modal-ver-sch-btn" id="ledStur-btn" style="margin: 0 auto; cursor: pointer; display: none;">LED
+            durch Sturmanker
+            ersetzen
+          </button>
+          <button class="modal-ver-sch-btn" id="sturLed-btn" style="margin: 0 auto; cursor: pointer; display: none;">
+            Sturmanker durch LED
+            ersetzen
+          </button>
+          <button class="modal-ver-sch-btn" style="margin: 0 auto; cursor: pointer;">Schließen</button>
+        </div>
+      </div>
+
+      <!-- END OF MODAL -->
+    </div>
+
+    <!-- CONFIGURATOR -->
+    <div class="configurator-section">
+
+      <!-- SIDE ACCESORIES -->
+      <div class="side-accesories" id="side-accesories" style="display: none;">
+        <div class="side-accesories-title">
+          <div class="accTitle">ausgewählter Zaun</div>
+          <div class="settings-close-btn-container">
+            <div class="side-accesories-close-btn"></div>
+          </div>
+        </div>
+        <!-- DELETE HOUSWAND ACCESORIE -->
+        <div class="set-part-container del-acc" style="height: 50px; cursor: default; display: none;">
+          <!-- first part -->
+          <div class="set-part-direkte-hauswand-acc">
+            <div class="side-img-direkte-hauswand-container-acc">
+              <div class="side-img-direkte-hauswand-acc" style="background-image:
+                  url('img/wall-bar.svg');"></div>
+            </div>
+            <div class="part-set-part-title">Montageprofil<br>3x4x190cm</div>
+            <div class="delete-img-accesories-container" style="flex: 10%">
+              <div class="delete-img-accesories"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- SETTINGS -->
+      <div class="settings">
+
+        <!-- settings title -->
+        <div id="setTitleSec" class="settings-title">
+          <div class="fa-settings-container" style="flex: 20%; "><i class="fa fa-gear" style="font-size:36px;"></i>
+          </div>
+          <div class="setTitle" style="flex: 70%;">Anpassen</div>
+          <div class=" settings-close-btn-container">
+            <div class="settings-close-btn"></div>
+          </div>
+        </div>
+
+        <!-- 1 -->
+        <!-- MAIN FARBE  -->
+        <div class="set-part-click-title not-clicked">
+          <div class="set-num"></div>
+          <div class="title-set-part-title">Farbe WPC-Steckprofil</div>
+          <div class="title-is-active">+</div>
+        </div>
+        <!-- PARTS CONTAINER -->
+        <div class="set-part-container">
+          <!-- first part -->
+          <div class="set-part-main-farbe active-text-color">
+            <div class="color-badge-set-part">
+              <div class="color-badge"></div>
+            </div>
+            <div class="part-set-part-title">WPC grau</div>
+            <div class="part-is-active">&#10003</div>
+          </div>
+          <!-- second part -->
+          <div class="set-part-main-farbe">
+            <div class="color-badge-set-part">
+              <div class="color-badge"></div>
+            </div>
+            <div class="part-set-part-title">WPC anthrazit</div>
+            <div class="part-is-active"></div>
+          </div>
+          <!-- third part -->
+          <div class="set-part-main-farbe">
+            <div class="color-badge-set-part">
+              <div class="color-badge"></div>
+            </div>
+            <div class="part-set-part-title">WPC braun</div>
+            <div class="part-is-active"></div>
+          </div>
+          <!-- third part -->
+          <div class="set-part-main-farbe">
+            <div class="color-badge-set-part">
+              <div class="color-badge"></div>
+            </div>
+            <div class="part-set-part-title">WPC sand</div>
+            <div class="part-is-active"></div>
+          </div>
+        </div>
+
+        <!-- 2 -->
+        <!-- START UND ABSCH  -->
+        <div class="set-part-click-title not-clicked">
+          <div class="set-num"></div>
+          <div class="title-set-part-title">Start- und Abschlussleisten</div>
+          <div class="title-is-active">+</div>
+        </div>
+        <!-- PARTS CONTAINER -->
+        <div class="set-part-container">
+          <!-- first part -->
+          <div class="set-part-start-und-absch">
+            <div class="color-badge-set-part">
+              <div class="color-badge"></div>
+            </div>
+            <div class="part-set-part-title">silber</div>
+            <div class="part-is-active"></div>
+          </div>
+          <!-- second part -->
+          <div class="set-part-start-und-absch active-text-color">
+            <div class="color-badge-set-part">
+              <div class="color-badge"></div>
+            </div>
+            <div class="part-set-part-title">anthrazit</div>
+            <div class="part-is-active">&#10003</div>
+          </div>
+          <!-- explenation img part -->
+          <div class="img-part"></div>
+        </div>
+
+        <!-- 3 -->
+        <!-- DESIGNlLEISTEN AUS ALUMINIUM  -->
+        <div class="set-part-click-title not-clicked">
+          <div class="set-num"></div>
+          <div class="title-set-part-title">Designleisten aus Aluminium
+            (optional)</div>
+          <div class="title-is-active">+</div>
+        </div>
+        <!-- PARTS CONTAINER -->
+        <div class="set-part-container column-reverse">
+          <!-- change material first part -->
+          <div class="set-part-designleisten-aus-aluminium-act-col
+              active-text-color">
+            <div class="color-badge-set-part">
+              <div class="color-badge"></div>
+            </div>
+            <div class="part-set-part-title">silber</div>
+            <div class="part-is-active">&#10003</div>
+          </div>
+          <!-- change material second part -->
+          <div class="set-part-designleisten-aus-aluminium-act-col">
+            <div class="color-badge-set-part">
+              <div class="color-badge"></div>
+            </div>
+            <div class="part-set-part-title">anthrazit</div>
+            <div class="part-is-active"></div>
+          </div>
+          <!-- first part -->
+          <div class="set-part-designleisten-aus-aluminium">
+            <div class="checkmark-badge-set-part">
+              <div class="checkmark-badge"></div>
+            </div>
+            <div class="laisne-rep"></div>
+            <div class="sep-part"></div>
+          </div>
+          <!-- second part -->
+          <div class="set-part-designleisten-aus-aluminium">
+            <div class="checkmark-badge-set-part">
+              <div class="checkmark-badge"></div>
+            </div>
+            <div class="laisne-rep"></div>
+            <div class="sep-part"></div>
+          </div>
+          <!-- third part -->
+          <div class="set-part-designleisten-aus-aluminium">
+            <div class="checkmark-badge-set-part">
+              <div class="checkmark-badge"></div>
+            </div>
+            <div class="laisne-rep"></div>
+            <div class="sep-part"></div>
+          </div>
+          <!-- fourth part -->
+          <div class="set-part-designleisten-aus-aluminium">
+            <div class="checkmark-badge-set-part">
+              <div class="checkmark-badge"></div>
+            </div>
+            <div class="laisne-rep"></div>
+            <div class="sep-part"></div>
+          </div>
+          <!-- fifth part -->
+          <div class="set-part-designleisten-aus-aluminium">
+            <div class="checkmark-badge-set-part">
+              <div class="checkmark-badge"></div>
+            </div>
+            <div class="laisne-rep"></div>
+            <div class="sep-part"></div>
+          </div>
+          <!-- sixt part -->
+          <div class="set-part-designleisten-aus-aluminium">
+            <div class="checkmark-badge-set-part">
+              <div class="checkmark-badge"></div>
+            </div>
+            <div class="laisne-rep"></div>
+            <div class="sep-part"></div>
+          </div>
+          <!-- seventh part -->
+          <div class="set-part-designleisten-aus-aluminium">
+            <div class="checkmark-badge-set-part">
+              <div class="checkmark-badge"></div>
+            </div>
+            <div class="laisne-rep"></div>
+            <div class="sep-part"></div>
+          </div>
+          <!-- text on top -->
+          <div style="margin-left: 20px;">
+            <h4>Klicken Sie auf die Linien unten, um Designleisten
+              hinzuzufügen</h4>
+          </div>
+        </div>
+
+        <!-- 4 -->
+        <!-- DESIGN - INLAYS  -->
+        <div class="set-part-click-title not-clicked">
+          <div class="set-num"></div>
+          <div class="title-set-part-title">Design-Inlays (optional)</div>
+          <div class="title-is-active">+</div>
+        </div>
+        <!-- PARTS CONTAINER -->
+        <div class="set-part-container">
+          <!-- first part -->
+          <div class="set-part-design-inlays-1 set-activnes-design-inlays
+              active-text-color">
+            <div class="side-img-design-inlays-container">
+              <div class="side-img-design-inlays"></div>
+            </div>
+            <div class="part-set-part-title">Ohne</div>
+            <div class="part-is-active">&#10003</div>
+          </div>
+          <!-- second part -->
+          <div class="set-part-design-inlays-2">
+            <div class="left-side-design-inlays">
+              <div class="img-design-inlays" id="viero-img" style="background-image:
+                  url('img/inlay-q.svg');"></div>
+              <div class="title-design-inlays">VIERO</div>
+            </div>
+            <div class="right-side-design-inlays">
+              <!-- first design-inlays color -->
+              <div class="set-part-design-inlays set-activnes-design-inlays
+                  first-set-design-inlays-color">
+                <div class="color-badge-set-part">
+                  <div class="color-badge color-badge-designe-inline"></div>
+                </div>
+                <div class="part-set-part-title">silber</div>
+                <div class="part-is-active"></div>
+              </div>
+              <!-- second design-inlays color -->
+              <div class="set-part-design-inlays set-activnes-design-inlays
+                  first-set-design-inlays-color">
+                <div class="color-badge-set-part">
+                  <div class="color-badge color-badge-designe-inline"></div>
+                </div>
+                <div class="part-set-part-title">anthrazit</div>
+                <div class="part-is-active"></div>
+              </div>
+            </div>
+            <div class="title2-design-inlays">Alu-Gitter 10x10mm</div>
+          </div>
+          <!-- third part -->
+          <!-- <div class="set-part-design-inlays-2">
+            <div class="left-side-design-inlays">
+              <div class="img-design-inlays" style="background-image:
+                  url('img/inlay-astro.svg');"></div>
+              <div class="title-design-inlays">ASTRO</div>
+            </div>
+            <div class="right-side-design-inlays"> -->
+          <!-- first design-inlays color -->
+          <!-- <div class="set-part-design-inlays set-activnes-design-inlays
+                  second-set-design-inlays-color">
+                <div class="color-badge-set-part">
+                  <div class="color-badge color-badge-designe-inline"></div>
+                </div>
+                <div class="part-set-part-title">silber</div>
+                <div class="part-is-active"></div>
+              </div> -->
+          <!-- second design-inlays color -->
+          <!-- <div class="set-part-design-inlays set-activnes-design-inlays
+                  second-set-design-inlays-color">
+                <div class="color-badge-set-part">
+                  <div class="color-badge color-badge-designe-inline"></div>
+                </div>
+                <div class="part-set-part-title">anthrazit</div>
+                <div class="part-is-active"></div>
+              </div>
+            </div>
+            <div class="title2-design-inlays">Alu-Sternenhimmel Ø5–25mm</div>
+          </div> -->
+          <!-- fourth part -->
+          <!-- <div class="set-part-design-inlays-2">
+            <div class="left-side-design-inlays">
+              <div class="img-design-inlays" style="background-image:
+                  url('img/inlay-mattglas.svg');"></div>
+              <div class="title-design-inlays">SNOW</div>
+            </div>
+            <div class="right-side-design-inlays"> -->
+          <!-- first design-inlays color -->
+          <!-- <div class="set-part-design-inlays set-activnes-design-inlays
+                  third-set-design-inlays-color">
+                <div class="color-badge-set-part">
+                  <div class="color-badge color-badge-designe-inline"></div>
+                </div>
+                <div class="part-set-part-title">silber</div>
+                <div class="part-is-active"></div>
+              </div> -->
+          <!-- second design-inlays color -->
+          <!-- <div class="set-part-design-inlays set-activnes-design-inlays
+                  third-set-design-inlays-color">
+                <div class="color-badge-set-part">
+                  <div class="color-badge color-badge-designe-inline"></div>
+                </div>
+                <div class="part-set-part-title">anthrazit</div>
+                <div class="part-is-active"></div>
+              </div>
+            </div>
+            <div class="title2-design-inlays">Acrylglas matt mit Alu-Rahmen</div>
+          </div> -->
+        </div>
+
+        <!-- 5 -->
+        <!-- FARBE PFOSTEN  -->
+        <div class="set-part-click-title not-clicked">
+          <div class="set-num"></div>
+          <div class="title-set-part-title">Farbe Pfosten</div>
+          <div class="title-is-active">+</div>
+        </div>
+        <!-- PARTS CONTAINER -->
+        <div class="set-part-container">
+          <!-- first part -->
+          <div class="set-part-farbe-pfosten">
+            <div class="color-badge-set-part">
+              <div class="color-badge"></div>
+            </div>
+            <div class="part-set-part-title">silber</div>
+            <div class="part-is-active"></div>
+          </div>
+          <!-- second part -->
+          <div class="set-part-farbe-pfosten active-text-color">
+            <div class="color-badge-set-part">
+              <div class="color-badge"></div>
+            </div>
+            <div class="part-set-part-title">anthrazit</div>
+            <div class="part-is-active">&#10003</div>
+          </div>
+        </div>
+
+        <!-- 6 -->
+        <!-- LED  -->
+        <div class="set-part-click-title not-clicked">
+          <div class="set-num"></div>
+          <div class="title-set-part-title">LED-Pfostenbeleuchtung (optional)</div>
+          <div class="title-is-active">+</div>
+        </div>
+        <!-- PARTS CONTAINER -->
+        <div class="set-part-container">
+          <!-- text on top -->
+          <div style="margin-left: 20px;">
+            <h4>Verfügbar ab März 2022</h4>
+          </div>
+          <!-- first part -->
+          <div class="set-part-led active-text-color">
+            <div class="side-img-led-container">
+              <div class="side-img-led" style="background-image:
+                  url('img/bulbDenied.png');"></div>
+            </div>
+            <div class="part-set-part-title">Ohne</div>
+            <div class="part-is-active">&#10003</div>
+          </div>
+          <!-- second part -->
+          <div class="set-part-led">
+            <div class="side-img-led-container">
+              <div class="side-img-led" style="background-image:
+                  url('img/bulbRgb.png');"></div>
+            </div>
+            <div class="part-set-part-title">RGB-Farben (dimmbar)</div>
+            <div class="part-is-active"></div>
+          </div>
+          <!-- third part -->
+          <div class="set-part-led">
+            <div class="side-img-led-container">
+              <div class="side-img-led" style="background-image:
+                  url('img/bulbEmpty.png');"></div>
+            </div>
+            <div class="part-set-part-title">warm-weiß</div>
+            <div class="part-is-active"></div>
+          </div>
+
+          <!-- light setings -->
+          <div class="light-settings" id="light-settings" style="display:
+              none;">
+            <!-- light setings 1 -->
+            <div class="light-settings-1" style="margin-top: 10px;">
+              <div style="margin: 0 20px;">
+                auswählen und löschen
+              </div>
+              <div class="delete-on-off">
+                <div class="set-delete-on-off active-text-color" style="border-right: 1px solid gray;">
+                  <div class="side-img-led-container">
+                    <div class="side-img-led" style="background-image:
+                        url('img/deleteOn64.png');">
+                    </div>
+                  </div>
+                  <div class="part-set-part-title" style="flex: 33%;">On</div>
+                  <div class="part-is-active" style="flex: 33%;">&#10003</div>
+                </div>
+                <div class="set-delete-on-off">
+                  <div class="side-img-led-container">
+                    <div class="side-img-led" style="background-image:
+                        url('img/deleteOff64.png');">
+                    </div>
+                  </div>
+                  <div class="part-set-part-title" style="flex: 33%;">Off</div>
+                  <div class="part-is-active" style="flex: 33%;"></div>
+                </div>
+              </div>
+            </div>
+            <!-- light setings 2 -->
+            <div class="light-settings-2" style="margin-top: 10px;">
+              <div style="margin: 0 20px;">
+                Licht
+              </div>
+              <div class="day-night" style="width: 90%;">
+                <div class="set-day-night" style="border-right: 1px solid
+                    gray;">
+                  <div class="side-img-led-container">
+                    <div class="side-img-led" style="background-image:
+                        url('img/bulbDenied.png');">
+                    </div>
+                  </div>
+                  <div class="part-set-part-title" style="flex: 33%;">Off</div>
+                  <div class="part-is-active" style="flex: 33%;"></div>
+                </div>
+                <div class="set-day-night" style="border-right: 1px solid
+                    gray;">
+                  <div class="side-img-led-container">
+                    <div class="side-img-led" style="background-image:
+                        url('img/day.png');">
+                    </div>
+                  </div>
+                  <div class="part-set-part-title" style="flex: 33%;">Tag</div>
+                  <div class="part-is-active" style="flex: 33%;"></div>
+                </div>
+                <div class="set-day-night active-text-color">
+                  <div class="side-img-led-container">
+                    <div class="side-img-led" style="background-image:
+                        url('img/night.png');">
+                    </div>
+                  </div>
+                  <div class="part-set-part-title" style="flex: 33%;">Nacht</div>
+                  <div class="part-is-active" style="flex: 33%;">&#10003</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- light color settings -->
+          <div class="light-color-settings" id="light-color-settings" style="margin-top: 10px; display: none;">
+            <div style="margin: 0 20px;">
+              Beispielfarben
+            </div>
+            <div class="light-color-1" style="display: flex; width: 90%;
+                margin-left: 5%;">
+
+              <div class="color-light-container active-color-light-contaier">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+            </div>
+
+            <div class="light-color-2" style="display: flex; width: 90%;
+                margin-left: 5%;">
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+              <div class="color-light-container">
+                <div class="color-light-image">
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- 7 -->
+        <!-- DUBINSKI STUB Befestigungsmethode Pfosten  -->
+        <div class="set-part-click-title not-clicked">
+          <div class="set-num"></div>
+          <div class="title-set-part-title">Befestigungsmethode Pfosten</div>
+          <div class="title-is-active">+</div>
+        </div>
+        <!-- PARTS CONTAINER -->
+        <div class="set-part-container">
+          <!-- first part -->
+          <div class="set-part-befe-pfosten active-text-color">
+            <div class="side-img-befe-pfosten-container">
+              <div class="side-img-befe-pfosten" style="background-image:
+                  url('img/pfostentraeeger.svg');"></div>
+            </div>
+            <div class="part-set-part-title">Pfosten L=190cm<br>für
+              Pfostenträger</div>
+            <div class="part-is-active">&#10003</div>
+          </div>
+          <!-- second part -->
+          <div class="set-part-befe-pfosten">
+            <div class="side-img-befe-pfosten-container">
+              <div class="side-img-befe-pfosten" style="background-image:
+                  url('img/alu-pfosten-2.svg');"></div>
+            </div>
+            <div class="part-set-part-title">Pfosten L=235cm<br>zum
+              Einbetonieren</div>
+            <div class="part-is-active"></div>
+          </div>
+          <!-- third part -->
+          <div class="set-part-befe-pfosten">
+            <div class="side-img-befe-pfosten-container">
+              <div class="side-img-befe-pfosten" style="background-image:
+                  url('img/alu-pfosten-2.png');"></div>
+            </div>
+            <div class="part-set-part-title" style="font-size: 15px;">Pfosten
+              L=295cm<br>zum Einbetonieren bei besonders
+              starkem Gefälle</div>
+            <div class="part-is-active"></div>
+          </div>
+        </div>
+
+        <!-- 8 -->
+        <!-- DRZAC SA STRANE STURMANKER -->
+        <div class="set-part-click-title not-clicked">
+          <div class="set-num"></div>
+          <div class="title-set-part-title">Sturmanker (optional)</div>
+          <div class="title-is-active">+</div>
+        </div>
+        <!-- PARTS CONTAINER -->
+        <div class="set-part-container">
+          <!-- first part -->
+          <div class="set-part-sturmanker">
+            <div class="side-img-sturmanker-container">
+              <div class="side-img-sturmanker" style="background-image:
+                  url('img/sturmanker1.svg');"></div>
+            </div>
+            <div class="part-set-part-title" style="font-size: 15px;">Sturmanker<br>
+              Kann nicht zusammen mit LED montiert werden</div>
+            <div class="part-is-active"></div>
+          </div>
+          <!-- second part -->
+          <div class="set-part-sturmanker">
+            <div class="sturmanker-container">
+              <div class="sturmanker-con" style="border-right: 1px solid
+                  gray;">
+                <div></div>
+                <div class="part-set-part-title" style="font-size: 15px;">Rückseite</div>
+                <div class="part-is-active"></div>
+              </div>
+              <div class="sturmanker-con active-text-color" style="border-right: 1px solid gray; flex: 24%;">
+                <div></div>
+                <div class="part-set-part-title" style="font-size: 15px;">Ohne</div>
+                <div class="part-is-active">&#10003</div>
+              </div>
+              <div class="sturmanker-con">
+                <div></div>
+                <div class="part-set-part-title" style="font-size: 15px;">Vorderseite</div>
+                <div class="part-is-active"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9 -->
+        <!-- BETONSKI STUB SA STRANE  -->
+        <div class="set-part-click-title not-clicked">
+          <div class="set-num"></div>
+          <div class="title-set-part-title">Direkte Montage an Hauswand
+            (optional)</div>
+          <div class="title-is-active">+</div>
+        </div>
+        <!-- PARTS CONTAINER -->
+        <div class="set-part-container">
+          <!-- first part -->
+          <div class="set-part-direkte-hauswand">
+            <div class="side-img-direkte-hauswand-container">
+              <div class="side-img-direkte-hauswand" style="background-image:
+                  url('img/wall-bar.svg');"></div>
+            </div>
+            <div class="part-set-part-title">Montageprofil<br>3x4x190cm</div>
+            <div class="part-is-active"></div>
+          </div>
+        </div>
+
+      </div><!-- end setings div-->
+
+    </div><!-- end configurator section div-->
+
+    <!-- END OF SETTINGS -->
+
+    <!-- CANVAS -->
+    <canvas id="renderCanvas"></canvas>
+  </div>
+
+  <script src="index.js"></script>
+</body>
+
+</html>

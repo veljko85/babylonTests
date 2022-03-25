@@ -1,0 +1,419 @@
+:root {
+  --main-style-color: #3967ff;
+  --main-bg-color: #e6f0ff;
+  --main-font-color: #333333;
+}
+html,
+body {
+  /* overflow: hidden; */
+  /* width: 400px;
+  height: 100%; */
+  margin: 0;
+  padding: 0;
+}
+.configuratorContainer {
+  width: 100%;
+  height: 100%;
+  color: var(--main-font-color);
+  background-color: aquamarine;
+  user-select: none;
+  font-family: Helvetica, sans-serif;
+}
+
+/* MODAL FOR OBAVESTENJA */
+.modal-fade {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+.modal-content {
+  width: 500px;
+  margin: 40px auto;
+  background-color: #fff;
+  border-radius: 10px;
+}
+.modal-header {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+}
+.modal-close-btn-container,
+.settings-close-btn-container {
+  flex: 10%;
+}
+.modal-close-btn,
+.settings-close-btn,
+.side-accesories-close-btn {
+  width: 15px;
+  height: 15px;
+  background-image: url("img/close.png");
+  background-size: cover;
+  background-position: center;
+  margin: 0 auto;
+  cursor: pointer;
+}
+.modal-body {
+  width: 100%;
+  padding: 20px 0;
+  display: flex;
+  align-items: center;
+  background-color: var(--main-bg-color);
+}
+.modal-body-img {
+  float: left;
+  margin: 0 10px;
+  width: 100px;
+  height: 100px;
+  background-size: cover;
+  background-position: center;
+}
+.modal-body-info-img {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+}
+.modal-footer {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+}
+#renderCanvas {
+  width: 80%;
+  height: 100%;
+  touch-action: none;
+  outline: none !important;
+  position: fixed;
+  right: 0;
+}
+
+/* CONFIGURATOR SECTION */
+.configurator-section {
+  width: 20%;
+  min-height: 100%;
+  background-color: var(--main-bg-color);
+  position: fixed;
+}
+
+/* SIDE ACCESORIES SECTION */
+.side-accesories {
+  z-index: 100;
+  height: 100vh;
+  width: 100%;
+  overflow-y: auto;
+}
+.side-accesories-title,
+.settings-title {
+  display: flex;
+  width: 90%;
+  height: 50px;
+  margin-left: 5%;
+  margin-top: 10px;
+  align-items: center;
+}
+.accTitle,
+.setTitle {
+  flex: 90%;
+  text-align: left;
+  font-size: 20px;
+  font-weight: 900;
+}
+.delete-img-accesories {
+  width: 35px;
+  height: 35px;
+  background-image: url("img/deleteRound.png");
+  background-size: cover;
+  background-position: center;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+/* SETTINGS SECTION */
+.settings {
+  height: 100vh;
+  width: 100%;
+  overflow-y: auto;
+}
+.settings::-webkit-scrollbar {
+  width: 0.1em;
+}
+.settings::-webkit-scrollbar-thumb {
+  background-color: var(--main-font-color);
+}
+.set-part-click-title {
+  width: 90%;
+  height: 50px;
+  margin-left: 5%;
+  margin-top: 10px;
+  background-color: var(--main-bg-color);
+  display: flex;
+  align-items: center;
+  text-align: center;
+  border-radius: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.not-clicked {
+  box-shadow: 7px 7px 15px rgba(55, 84, 170, 0.15), -7px -7px 20px white,
+    inset 0px 0px 4px rgba(255, 255, 255, 0.2),
+    inset 7px 7px 15px rgba(55, 84, 170, 0),
+    inset -7px -7px 20px rgba(255, 255, 255, 0),
+    0px 0px 4px rgba(255, 255, 255, 0);
+}
+.clicked {
+  box-shadow: inset 7px 7px 15px rgba(55, 84, 170, 0.15),
+    inset -7px -7px 20px white, 0px 0px 4px rgba(255, 255, 255, 0.2),
+    7px 7px 15px rgba(55, 84, 170, 0), -7px -7px 20px rgba(255, 255, 255, 0),
+    inset 0px 0px 4px rgba(255, 255, 255, 0);
+  color: var(--main-style-color);
+}
+.active-text-color {
+  color: var(--main-style-color);
+}
+.set-num {
+  flex: 10%;
+}
+.title-set-part-title {
+  flex: 80%;
+}
+.title-is-active {
+  flex: 10%;
+  font-size: 30px;
+}
+.set-part-container {
+  width: 90%;
+  height: 0;
+  border-radius: 20px;
+  margin-left: 5%;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: inset 7px 7px 15px rgba(55, 84, 170, 0.15),
+    inset -7px -7px 20px white, 0px 0px 4px rgba(255, 255, 255, 0.2),
+    7px 7px 15px rgba(55, 84, 170, 0), -7px -7px 20px rgba(255, 255, 255, 0),
+    inset 0px 0px 4px rgba(255, 255, 255, 0);
+}
+/* set parts container */
+.set-part-main-farbe,
+.set-part-start-und-absch,
+.set-part-designleisten-aus-aluminium,
+.set-part-designleisten-aus-aluminium-act-col,
+.set-part-farbe-pfosten,
+.set-part-design-inlays-1,
+.set-part-befe-pfosten,
+.set-part-direkte-hauswand,
+.set-part-direkte-hauswand-acc,
+.set-part-sturmanker,
+.set-part-sturmanker-acc,
+.set-part-led {
+  width: 90%;
+  height: 40px;
+  margin: 5px 5%;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.color-badge-set-part {
+  flex: 20%;
+}
+.color-badge {
+  width: 30px;
+  height: 30px;
+  margin: 0 auto;
+  border-radius: 50%;
+  box-sizing: border-box;
+  border: 2px solid;
+}
+.part-set-part-title {
+  flex: 60%;
+}
+.part-is-active {
+  flex: 20%;
+  text-align: center;
+}
+/* for 2 part image (START UND ABSCH)*/
+.img-part {
+  width: 100px;
+  height: 100px;
+  margin: 20px auto;
+  background-image: url("img/kolorramy.jpg");
+  background-size: cover;
+  background-position: center;
+}
+/* for 3 part (DESIGNlLEISTEN AUS ALUMINIUM)*/
+.column-reverse {
+  flex-direction: column-reverse;
+}
+.checkmark-badge-set-part,
+/* 4 */
+.side-img-design-inlays-container,
+/* 6 */
+.side-img-led-container,
+/* 7 */
+.side-img-befe-pfosten-container,
+/* 8 */
+.side-img-direkte-hauswand-container,
+ /* accesories delete */
+.side-img-direkte-hauswand-container-acc,
+.side-img-sturmanker-container-acc,
+/* 9 */
+.side-img-sturmanker-container {
+  flex: 20%;
+}
+.checkmark-badge {
+  width: 30px;
+  height: 30px;
+  margin: 0 auto;
+  text-align: center;
+  border: 2px solid var(--main-style-color);
+  border-radius: 50%;
+  box-sizing: border-box;
+  color: #fff;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.laisne-rep {
+  flex: 70%;
+  /* width: 50%; */
+  height: 5px;
+  background-color: var(--main-style-color);
+}
+.sep-part {
+  flex: 10%;
+}
+/* for 4 part (DESIGN - INLAYS)*/
+.side-img-design-inlays,
+/* 6 */
+.side-img-led,
+ /* 7 */
+.side-img-befe-pfosten, 
+/* 8 */
+.side-img-direkte-hauswand, 
+/* acc delete */
+.side-img-direkte-hauswand-acc,
+.side-img-sturmanker-acc,
+/* 9 */
+.side-img-sturmanker {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  background-image: url("img/inlay-no.svg");
+  background-size: cover;
+  background-position: center;
+}
+.set-part-design-inlays-2 {
+  width: 90%;
+  margin: 5px 5%;
+  cursor: pointer;
+  border-top: 2px solid rgb(230, 230, 230);
+}
+.left-side-design-inlays {
+  width: 50%;
+  height: 60px;
+  float: left;
+  display: flex;
+  align-items: center;
+}
+.right-side-design-inlays {
+  width: 50%;
+  height: 60px;
+  float: left;
+}
+.img-design-inlays {
+  width: 40px;
+  height: 40px;
+  margin-left: 8%;
+  background-image: url("img/inlay-q.svg");
+  background-size: cover;
+  background-position: center;
+}
+.title-design-inlays {
+  height: 40px;
+  margin-left: 5%;
+  display: flex;
+  align-items: center;
+}
+.title2-design-inlays {
+  height: 20px;
+  margin-top: 10px;
+  float: left;
+}
+.set-part-design-inlays {
+  display: flex;
+  align-items: center;
+  height: 50%;
+  width: 100%;
+  font-size: small;
+}
+.color-badge-designe-inline {
+  width: 25px;
+  height: 25px;
+}
+/* for part 6 LED */
+.delete-on-off,
+.day-night {
+  display: flex;
+  width: 60%;
+  height: 40px;
+  margin-left: 5%;
+  border-radius: 10px;
+  border: 1px solid gray;
+}
+.set-delete-on-off,
+.set-day-night {
+  flex: 50%;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+}
+.side-img-led-container {
+  flex: 33%;
+}
+.side-img-led,
+.color-light-image {
+  width: 30px;
+  height: 30px;
+  background-size: cover;
+  background-position: center;
+  background-image: url("img/bulbEmpty.png");
+}
+.color-light-container {
+  height: 40px;
+  flex: 16%;
+  margin: 1%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.active-color-light-contaier {
+  border: 3px solid rgb(120, 255, 42);
+}
+/* for part 9*/
+.sturmanker-container {
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  border: 1px solid gray;
+}
+.sturmanker-con {
+  flex: 38%;
+  height: 35px;
+  align-items: center;
+  text-align: center;
+  display: flex;
+}

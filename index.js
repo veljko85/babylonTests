@@ -1,3 +1,35 @@
+//HEADING MENU
+//videos
+var videosBut = document.getElementById("videos-but");
+var modalVideos = document.getElementById("modal-videos");
+videosBut.onclick = () => {
+  modalFade.style.display = "block";
+  modalVideos.style.display = "block";
+};
+var modalVideosParts = document.getElementsByClassName("modal-videos-part");
+var modalVideo = document.getElementById("modal-video");
+var modalVideoVideo = document.getElementById("modal-video-video");
+for (let i = 0; i < modalVideosParts.length; i++) {
+  modalVideosParts[i].addEventListener("click", () => {
+    modalVideos.style.display = "none";
+    modalVideo.style.display = "block";
+    modalVideoVideo.setAttribute("src", `videos/${i}.webm`);
+  });
+}
+
+// Add active class to the current button (highlight it)
+// var hedingBtns = document.getElementsByClassName("heading-menu-buttons");
+// for (var i = 0; i < hedingBtns.length; i++) {
+//   hedingBtns[i].addEventListener("click", function () {
+//     var current = document.getElementsByClassName("active-menu-buttons");
+//     current[0].className = current[0].className.replace(
+//       " active-menu-buttons",
+//       ""
+//     );
+//     this.className += " active-menu-buttons";
+//   });
+// }
+
 //MODAL SECTION FADE
 let modalFade = document.getElementById("modal-fade");
 let modalContent = document.getElementsByClassName("modal-content");
@@ -732,56 +764,283 @@ var createScene = function () {
     }
   }
 
-  //MAIN POST MESH
-  createMainPost(
-    capMat,
-    leftPosts,
-    createMainPostSigns,
-    fakeFences,
-    newFenceForwardSigns,
-    newFenceRightSigns,
-    newFenceLeftSigns,
-    newFenceBackSigns,
-    activeFence,
-    roots,
-    fencePostMat,
-    concreteMat,
-    foundationStarts,
-    foundationMat,
-    foundations,
-    signmatDel,
-    singsDel,
-    signmatWar,
-    singsWar,
-    leds,
-    ledMat,
-    lights,
-    sturmankersVorderseite,
-    sturVorderseiteSrafs,
-    sturmankersRuckseite,
-    sturRuckseiteSrafs,
-    rootMat,
-    fenceBoards,
-    rightPosts,
-    directeHauswandMeshes,
-    fenceBoardMat,
-    selectedMat,
-    smallBoardsArr,
-    smallBoardsMat,
-    smallBoardsMatDark,
-    fencesArr,
-    addFenceSings,
-    allPosts,
-    fakeFronts,
-    fakeBacks,
-    foundationStartsVord,
-    foundationsVord,
-    foundationStartsRuck,
-    foundationsRuck,
-    setDayNight,
-    setLightColor,
-    glow,
-    0
+  //MAIN POST MESH //////////////////////////////////////////////////////////////////////////
+  BABYLON.SceneLoader.ImportMeshAsync("", "mesh/", "mainPost.glb").then(
+    (result) => {
+      var mainPost = result.meshes[0];
+      mainPost.rotationQuaternion = null;
+      mainPost.scaling = new BABYLON.Vector3(1.01, 1, 1.01);
+      mainPost.addRotation(0, Math.PI, 0);
+
+      //SET POSITION
+      scene.getNodeByName("post-root-left").position.x =
+        scene.getNodeByName("sturmanker-left-front").position.x =
+        scene.getNodeByName("sturmanker-left-rear").position.x =
+          0;
+      for (let i = 0; i < result.meshes.length; i++) {
+        result.meshes[i].position.x = 0;
+      }
+      //POST CAP
+      let leftPostCap = scene.getMeshByName("post-cap-left");
+      leftPostCap.material = capMat;
+
+      //POSTS
+      let leftPost = scene.getMeshByName("post-left");
+      leftPosts.push(leftPost);
+      allPosts.push(leftPost);
+      leftPost.material = fencePostMat;
+      createMainPostSigns();
+      //add selected to mesh
+      leftPost.actionManager = new BABYLON.ActionManager(scene);
+      leftPost.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPickTrigger,
+          function () {
+            if (leftPost.material.id != "selectedMat") {
+              removeSideAccesories(
+                sideAccesories,
+                deleteAccesorie,
+                addFenceAcc
+              );
+              closeSliderContainer();
+              addDefaultMaterial(
+                fenceBoards,
+                sturmankersVorderseite,
+                rightPosts,
+                leftPosts,
+                directeHauswandMeshes,
+                fenceBoardMat,
+                fencePostMat,
+                concreteMat,
+                smallBoardsArr,
+                smallBoardsMat,
+                smallBoardsMatDark,
+                fencesArr,
+                addFenceSings
+              );
+              activeFence = false;
+              leftPost.material = selectedMat;
+              addFenceSings[0].isVisible = true;
+              addFenceSings[1].isVisible = true;
+              intersectArrowSignsFence(
+                fakeFences,
+                newFenceForwardSigns,
+                newFenceRightSigns,
+                newFenceLeftSigns,
+                newFenceBackSigns,
+                activeFence,
+                addFenceSings
+              );
+              //set day when select sturmanker
+              setDayNight(0.6, 0, 0.7);
+              setLightColor(4);
+              glow.intensity = 0;
+              singsWar.forEach((elm) => {
+                elm.isVisible = false;
+              });
+              singsDel.forEach((elm) => {
+                elm.isVisible = false;
+              });
+            } else {
+              leftPost.material = fencePostMat;
+              addFenceSings[0].isVisible = false;
+              addFenceSings[1].isVisible = false;
+            }
+          }
+        )
+      );
+
+      //post roots
+      let leftRoot0 = scene.getMeshByName("post-root-left_primitive0");
+      let leftRoot1 = scene.getMeshByName("post-root-left_primitive1");
+      roots.push(leftRoot0, leftRoot1);
+
+      //create foundation start
+      let foundationLeftStart = new BABYLON.MeshBuilder.CreateGround(
+        "foundationLeftStart",
+        { width: 0.4, height: 0.4 },
+        scene
+      );
+      foundationLeftStart.position = new BABYLON.Vector3(
+        leftPost.position.x,
+        0.0001,
+        0
+      );
+      foundationLeftStart.material = concreteMat;
+      foundationStarts.push(foundationLeftStart);
+
+      //create foundation
+      let foundationLeft = new BABYLON.MeshBuilder.CreateBox(
+        "foundationLeft",
+        { width: 0.4, height: 0.5, depth: 0.4 },
+        scene
+      );
+      foundationLeft.position.x = foundationLeftStart.position.x;
+      foundationLeft.position.y = -0.5 / 2;
+      foundationLeft.material = foundationMat;
+
+      foundations.push(foundationLeft);
+
+      //PLANE TO HOLD DELETE SIGN
+      var signPlaneDelLeft = BABYLON.MeshBuilder.CreatePlane(
+        "signPlaneDelLeft",
+        {
+          height: 0.4,
+          width: 0.4,
+        }
+      );
+      signPlaneDelLeft.position = new BABYLON.Vector3(
+        leftPost.position.x,
+        2.2,
+        0
+      );
+      signPlaneDelLeft.isVisible = false;
+      signPlaneDelLeft.material = signmatDel;
+      singsDel.push(signPlaneDelLeft);
+
+      //PLANE TO HOLD WARNING SIGN
+      var signPlaneWarLeft = BABYLON.MeshBuilder.CreatePlane(
+        "signPlaneWarLeft",
+        {
+          height: 0.4,
+          width: 0.4,
+        }
+      );
+      signPlaneWarLeft.position = new BABYLON.Vector3(
+        leftPost.position.x,
+        2.2,
+        0
+      );
+      signPlaneWarLeft.isVisible = false;
+      signPlaneWarLeft.material = signmatWar;
+      singsWar.push(signPlaneWarLeft);
+
+      //LEDS
+      let leftLed = scene.getMeshByName("led-left");
+
+      leds.push(leftLed);
+
+      leftLed.material = ledMat;
+
+      leftLed.isVisible = false;
+
+      //spot light for led
+      // var light5 = new BABYLON.SpotLight(
+      //   "spotLight5",
+      //   new BABYLON.Vector3(
+      //     leftPost.getAbsolutePosition().x,
+      //     1,
+      //     leftPost.getAbsolutePosition().z
+      //   ),
+      //   new BABYLON.Vector3(0, -1, 0),
+      //   Math.PI,
+      //   1,
+      //   scene
+      // );
+
+      // lights.push(light5);
+      // lightsLed.push(light5);
+
+      //STRUMANKER
+      //VORD ***************
+      let leftStrVord = scene.getMeshByName("sturmanker-left-front_primitive0");
+      leftStrVord.isVisible = false;
+
+      let leftStrVordSraf = scene.getMeshByName(
+        "sturmanker-left-front_primitive1"
+      );
+      leftStrVordSraf.isVisible = false;
+
+      sturmankersVorderseite.push(leftStrVord);
+      sturVorderseiteSrafs.push(leftStrVordSraf);
+
+      //create foundation start for front stunmankwer
+      let foundationVordStart = new BABYLON.MeshBuilder.CreateGround(
+        "foundationVordStart",
+        { width: 0.4, height: 0.7 },
+        scene
+      );
+
+      foundationVordStart.position = new BABYLON.Vector3(0, -0.01, 0.13);
+      foundationVordStart.material = concreteMat;
+      foundationVordStart.parent = leftRoot0;
+      foundationStartsVord.push(foundationVordStart);
+      foundationVordStart.isVisible = false;
+
+      //create foundation for front stunmankwer
+      let foundationVord = new BABYLON.MeshBuilder.CreateBox(
+        "foundationVord",
+        { width: 0.4, height: 0.5, depth: 0.7 },
+        scene
+      );
+      foundationVord.material = foundationMat;
+      foundationVord.position = new BABYLON.Vector3(0, -0.262, 0.13);
+      foundationVord.parent = leftRoot0;
+      foundationsVord.push(foundationVord);
+      foundationVord.isVisible = false;
+
+      // RUCK **********
+      let leftStrRuck = scene.getMeshByName("sturmanker-left-rear_primitive0");
+      leftStrRuck.isVisible = false;
+
+      let leftStrRuckSraf = scene.getMeshByName(
+        "sturmanker-left-rear_primitive1"
+      );
+      leftStrRuckSraf.isVisible = false;
+
+      sturmankersRuckseite.push(leftStrRuck);
+      sturRuckseiteSrafs.push(leftStrRuckSraf);
+
+      //create foundation start for back stunmankwer
+      let foundationRuckStart = new BABYLON.MeshBuilder.CreateGround(
+        "foundationRuckStart",
+        { width: 0.4, height: 0.7 },
+        scene
+      );
+      foundationRuckStart.position = new BABYLON.Vector3(0, -0.01, -0.13);
+      foundationRuckStart.material = concreteMat;
+      foundationRuckStart.parent = leftRoot0;
+      foundationStartsRuck.push(foundationRuckStart);
+      foundationRuckStart.isVisible = false;
+
+      //create foundation for back stunmankwer
+      let foundationRuck = new BABYLON.MeshBuilder.CreateBox(
+        "foundationRuck",
+        { width: 0.4, height: 0.5, depth: 0.7 },
+        scene
+      );
+      foundationRuck.material = foundationMat;
+      foundationRuck.position = new BABYLON.Vector3(0, -0.262, -0.13);
+      foundationRuck.parent = leftRoot0;
+      foundationsRuck.push(foundationRuck);
+      foundationRuck.isVisible = false;
+
+      //set material
+      leftStrVord.material = leftStrRuck.material = fencePostMat;
+      //set sraf material
+      leftStrVordSraf.material = leftStrRuckSraf.material = rootMat;
+
+      //cerate fake strumanker
+      let fakeFront = new BABYLON.MeshBuilder.CreateBox(
+        "foundationRight",
+        { width: 0.01, height: 0.3, depth: 0.3 },
+        scene
+      );
+      fakeFront.parent = leftStrVord;
+      fakeFronts.push(fakeFront);
+      fakeFront.isVisible = false;
+
+      let fakeBack = new BABYLON.MeshBuilder.CreateBox(
+        "foundationRight",
+        { width: 0.01, height: 0.3, depth: 0.3 },
+        scene
+      );
+      fakeBack.parent = leftStrRuck;
+      fakeBacks.push(fakeBack);
+      fakeBack.isVisible = false;
+    }
+
+    //END OF MAIN POST
   );
 
   function NewFence(id, type, smBoaCol, size, inlays, children) {
@@ -1658,8 +1917,9 @@ var createScene = function () {
         fencesArr[activeFence].children.push(fenceId);
         fencesArr[fenceId].parent = fencesArr[activeFence].id;
       }
-      console.log(fencesArr);
-
+      // fencesArr.forEach((elm) => {
+      //   console.log(elm);
+      // });
       //set Ground
       setGround();
       // }, 0);
@@ -1670,8 +1930,10 @@ var createScene = function () {
       /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     });
 
+  //SET GROUND
   var groundSizeX = 0;
   var groundSizeZ = 0;
+
   function setGround() {
     arrX = [];
     arrZ = [];
@@ -1681,7 +1943,6 @@ var createScene = function () {
         arrX.push(Math.round(allPosts[i].getAbsolutePosition().x * 100) / 100);
 
         arrZ.push(Math.round(allPosts[i].getAbsolutePosition().z * 100) / 100);
-        console.log(sturmankersVorderseite[i].isVisible);
       }
     }
 
@@ -1691,7 +1952,6 @@ var createScene = function () {
     arrZ.sort(function (a, b) {
       return a - b;
     });
-    console.log(arrX, arrZ);
     arrXFirst = Math.abs(arrX[0]);
     arrXSecond = arrX[arrX.length - 1];
     arrZFirst = Math.abs(arrZ[0]);
@@ -1804,52 +2064,6 @@ var createScene = function () {
 
   //CREATE DEFAULT FENCE
   createRightFence(0.94, 0, 0, "easyFence", "silber", 0);
-  // createRightFence(2.78, 0, 0, "easyFence", "silber", 0);
-  // setInterval(() => {
-  //   // rightPosts.forEach((elm) => {
-  //   console.log(
-  //     rightPosts[rightPosts.length - 1].getAbsolutePosition().x + 0.94
-  //   );
-  //   // });
-  //   createRightFence(
-  //     Math.round(
-  //       rightPosts[rightPosts.length - 1].getAbsolutePosition().x * 100
-  //     ) /
-  //       100 +
-  //       0.94,
-  //     0,
-  //     0,
-  //     "easyFence",
-  //     "silber",
-  //     0
-  //   );
-  // }, 0);
-  // setTimeout(() => {
-  //   createRightFence(
-  //     rightPosts[rightPosts.length - 1].getAbsolutePosition().x + 0.94,
-  //     rightPosts[rightPosts.length - 1].getAbsolutePosition().z,
-  //     0,
-  //     "easyFence",
-  //     "silber",
-  //     0
-  //   );
-  //   createRightFence(
-  //     rightPosts[rightPosts.length - 1].getAbsolutePosition().x + 0.94,
-  //     rightPosts[rightPosts.length - 1].getAbsolutePosition().z,
-  //     0,
-  //     "easyFence",
-  //     "silber",
-  //     0
-  //   );
-  //   createRightFence(
-  //     rightPosts[rightPosts.length - 1].getAbsolutePosition().x + 0.94,
-  //     rightPosts[rightPosts.length - 1].getAbsolutePosition().z,
-  //     0,
-  //     "easyFence",
-  //     "silber",
-  //     0
-  //   );
-  // }, 1000);
 
   let addNewFenceNormal = document.getElementById("new-fence-normal");
   addNewFenceNormal.onclick = () => {
@@ -3895,11 +4109,11 @@ var createScene = function () {
       if (elm[0].isVisible) {
         aaa += 1;
       }
-      if (aaa < 1) {
-        setActivnesStyle(designInlays, 4, 0);
-        inlaysOn = 0;
-      }
     });
+    if (aaa < 1) {
+      setActivnesStyle(designInlays, 4, 0);
+      inlaysOn = 0;
+    }
     //set laisnes
     for (let i = 0; i < laisnes[activeFence].length; i++) {
       if (checkboxActive[i]) {
@@ -3912,27 +4126,21 @@ var createScene = function () {
 
   changeFence[0].addEventListener("click", () => {
     changeFenceFunction(true, false, 180, "easyFence", "silber", true, 0);
-    console.log(fencesArr[activeFence]);
   });
   changeFence[1].addEventListener("click", () => {
     changeFenceFunction(true, false, 180, "easyFence", "silber", true, 1);
-    console.log(fencesArr[activeFence]);
   });
   changeFence[2].addEventListener("click", () => {
     changeFenceFunction(false, true, 180, "easyRomBig", "silber", false, 0);
-    console.log(fencesArr[activeFence]);
   });
   changeFence[3].addEventListener("click", () => {
     changeFenceFunction(false, true, 180, "easyRomBig", "anthrazit", false, 0);
-    console.log(fencesArr[activeFence]);
   });
   changeFence[4].addEventListener("click", () => {
     changeFenceFunction(false, true, 60, "easyRomSmall", "silber", false, 0);
-    console.log(fencesArr[activeFence]);
   });
   changeFence[5].addEventListener("click", () => {
     changeFenceFunction(false, true, 60, "easyRomSmall", "anthrazit", false, 0);
-    console.log(fencesArr[activeFence]);
   });
   //close side
   accCloseButFun(changeFence);
@@ -3965,10 +4173,12 @@ var createScene = function () {
 
       fencesArr[fencesArr[a].parent].children.push(elm);
     });
-    fencesArr[fencesArr[a].parent].children.splice(
-      fencesArr[fencesArr[a].parent].children.indexOf(a),
-      1
-    );
+    if (fencesArr[fencesArr[a].parent] != undefined) {
+      fencesArr[fencesArr[a].parent].children.splice(
+        fencesArr[fencesArr[a].parent].children.indexOf(a),
+        1
+      );
+    }
     fencesArr[a].parent = undefined;
     setGround();
   }
@@ -3990,28 +4200,41 @@ var createScene = function () {
   function delFenFun(a) {
     if (fencesArr[a].children.length > 0) {
       firstX = getAbsPosX(rightPosts[a]);
-      secondX = getAbsPosX(rightPosts[fencesArr[a].parent]);
       firstZ = getAbsPosZ(rightPosts[a]);
-      secondZ = getAbsPosZ(rightPosts[fencesArr[a].parent]);
-
+      if (fencesArr[a].parent != undefined) {
+        secondX = getAbsPosX(rightPosts[fencesArr[a].parent]);
+        secondZ = getAbsPosZ(rightPosts[fencesArr[a].parent]);
+      } else {
+        secondX = 0;
+        secondZ = 0;
+      }
       for (let i = 0; i < fencesArr[a].children.length; i++) {
-        if (
-          wholeFences[a].rotation.y !=
-            wholeFences[fencesArr[a].parent].rotation.y ||
-          wholeFences[a].rotation.y !=
-            wholeFences[fencesArr[a].children[i]].rotation.y
-        ) {
-          recursiveToChildrenDelete2(a);
+        if (fencesArr[a].parent != undefined) {
+          if (
+            wholeFences[a].rotation.y !=
+              wholeFences[fencesArr[a].parent].rotation.y ||
+            wholeFences[a].rotation.y !=
+              wholeFences[fencesArr[a].children[i]].rotation.y
+          ) {
+            recursiveToChildrenDelete2(a);
+          } else {
+            b = fencesArr[a].children[i];
+            scaleToOtherFencesToDo(b);
+            recursiveToChildrenDelete(b);
+          }
         } else {
-          b = fencesArr[a].children[i];
-          scaleToOtherFencesToDo(b);
-          recursiveToChildrenDelete(b);
+          recursiveToChildrenDelete2(a);
         }
       }
     }
   }
-
   accCloseButFun(deleteFencePart);
+
+  //TAKE SCREENSHOT
+  var screenshotBtn = document.getElementById("screenshot-but");
+  screenshotBtn.onclick = () => {
+    BABYLON.Tools.CreateScreenshot(engine, camera, 1024);
+  };
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //END OF SCENE
   return scene;
