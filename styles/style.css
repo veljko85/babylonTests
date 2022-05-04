@@ -331,7 +331,7 @@ video {
   margin: 0 auto;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 40px;
+  font-size: 35px;
   color: var(--main-style-color);
 }
 .slider-btns:hover {
