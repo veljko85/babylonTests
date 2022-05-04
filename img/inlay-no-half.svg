@@ -1,0 +1,16 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 539 539" width="539" height="539">
+	<title>inlay-no-svg</title>
+	<defs>
+		<image  width="515" height="255" id="img1" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgMAAAD/CAMAAABbyiUuAAAAAXNSR0IB2cksfwAAAD9QTFRFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAQEBwcHAwMDLy8vkpKSBgYGg4OD////AAAAAAAAAAAAAAAAc3DwwwAAABV0Uk5TAUqAA06DVf+C//////////9eDWpoNEPrxQAAAc5JREFUeJzt0oERgjAQALAi6FNaQND9Z5Xj3OKTGVLK8CCzoZRxepLZNJZXkNurzBF1IasaMV8HWl/Jqrf7wLa/yWrfHMjOARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzAARzgf6D1lax6uw9EXciqxnXgCHI7yvmZyex7/gCb0WA4E272ZAAAAABJRU5ErkJggg=="/>
+	</defs>
+	<style>
+		.s0 { fill: #999999;stroke: #000000;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3 } 
+		.s1 { fill: none;stroke: #000000;stroke-linecap: round;stroke-linejoin: round;stroke-width: 3 } 
+	</style>
+	<use id="Shape 1" href="#img1" x="11" y="262"/>
+	<path id="Layer" class="s0" d="m13.5 510.7h511.3v9.1h-511.3z"/>
+	<path id="Layer" class="s0" d="m13.5 259.7h511.3v9.1h-511.3z"/>
+	<path id="Layer" class="s1" d="m15.4 447.6h509"/>
+	<path id="Layer" class="s1" d="m15.4 387.6h509"/>
+	<path id="Layer" class="s1" d="m15.4 327.6h509"/>
+</svg>

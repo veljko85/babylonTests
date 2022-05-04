@@ -49,7 +49,13 @@ function createDirecteHauswand(
       BABYLON.ActionManager.OnPickTrigger,
       function () {
         if (directeHauswandMeshRight.material.id != "selectedMat") {
-          removeSideAccesories(sideAccesories, deleteAccesorie, addFenceAcc);
+          removeSideAccesories(
+            sideAccesories,
+            deleteAccesorie,
+            addFenceAcc,
+            editPost,
+            addNewFenceToSide
+          );
           addDefaultMaterial(
             fenceBoards,
             sturmankersVorderseite,
@@ -87,8 +93,8 @@ function createDirecteHauswand(
             }
           });
           aaa > 0
-            ? setActivnesStyle(ledParts, 6, 1)
-            : setActivnesStyle(ledParts, 6, 0);
+            ? setActivnesStyle(ledParts, 6, 1, "active-text-color")
+            : setActivnesStyle(ledParts, 6, 0, "active-text-color");
         } else {
           directeHauswandMeshRight.material = concreteMat;
           sideAccesories.style.display = "none";

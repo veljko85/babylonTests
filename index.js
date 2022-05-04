@@ -405,31 +405,37 @@ var createScene = function () {
   fencePartsColors = ["#e6e6e6", "#474747"];
 
   //FENCE BORDS MATERIAL
-  var fenceBoardMat = new BABYLON.StandardMaterial("fencePartMat", scene);
+  var fenceBoardMat = new BABYLON.StandardMaterial("fenceBoardMat", scene);
   fenceBoardMat.diffuseColor = BABYLON.Color3.FromHexString(
     fenceBoardsColors[0]
   );
   fenceBoardMat.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
 
   //SMALL BOARDS MATERIAL
-  var smallBoardsMat = new BABYLON.StandardMaterial("fencePartMat", scene);
+  var smallBoardsMat = new BABYLON.StandardMaterial("smallBoardsMat", scene);
   smallBoardsMat.diffuseColor = BABYLON.Color3.FromHexString(
     fencePartsColors[0]
   );
   smallBoardsMat.specularColor = new BABYLON.Color3(0.5, 0.5, 0.5);
 
-  var smallBoardsMatDark = new BABYLON.StandardMaterial("fencePartMat", scene);
+  var smallBoardsMatDark = new BABYLON.StandardMaterial(
+    "smallBoardsMatDark",
+    scene
+  );
   smallBoardsMatDark.diffuseColor = BABYLON.Color3.FromHexString(
     fencePartsColors[1]
   );
   smallBoardsMatDark.specularColor = new BABYLON.Color3(0.5, 0.5, 0.5);
 
   // //FENCE POSTS MATERIAL
-  var fencePostMat = new BABYLON.StandardMaterial("fencePartMat", scene);
+  var fencePostMat = new BABYLON.StandardMaterial("fencePostMat", scene);
   fencePostMat.diffuseColor = BABYLON.Color3.FromHexString(fencePartsColors[1]);
 
   //FENCE START AND END MATERIALS
-  var fenceStartEndMat = new BABYLON.StandardMaterial("fencePartMat", scene);
+  var fenceStartEndMat = new BABYLON.StandardMaterial(
+    "fenceStartEndMat",
+    scene
+  );
   fenceStartEndMat.diffuseColor = BABYLON.Color3.FromHexString(
     fencePartsColors[1]
   );
@@ -462,19 +468,19 @@ var createScene = function () {
   rootMat.diffuseColor = BABYLON.Color3.FromHexString("#b4b4b4");
 
   //CONCRETE MATERIAL
-  let concreteMat = new BABYLON.StandardMaterial("dirHausMat", scene);
+  let concreteMat = new BABYLON.StandardMaterial("concreteMat", scene);
   concreteMat.diffuseTexture = new BABYLON.Texture("img/concrete.jpg", scene);
   concreteMat.specularColor = new BABYLON.Color3(0.01, 0.01, 0.01);
   concreteMat.backFaceCulling = false;
 
   //FOUNDATION MATERIAL
-  var foundationMat = new BABYLON.StandardMaterial("rootMat", scene);
+  var foundationMat = new BABYLON.StandardMaterial("foundationMat", scene);
   foundationMat.diffuseColor = BABYLON.Color3.FromHexString("#ffffff");
   foundationMat.alpha = 0.5;
 
   //SINGS MATEIALS AD TEXTURES
   //delete sign
-  var signmatDel = new BABYLON.StandardMaterial("signmatOne", scene);
+  var signmatDel = new BABYLON.StandardMaterial("signmatDel", scene);
   var signTexDel = new BABYLON.Texture("img/deleteOn64.png", scene);
   signTexDel.hasAlpha = true;
   signmatDel.useAlphaFromDiffuseTexture = true;
@@ -489,7 +495,7 @@ var createScene = function () {
   signmatWar.diffuseTexture = signTexWar;
 
   //ADD NEW FENCE SING MATERIAL
-  const addNewFenceMeshMat = new BABYLON.StandardMaterial("addNewFenceMesh");
+  const addNewFenceMeshMat = new BABYLON.StandardMaterial("addNewFenceMeshMat");
   addNewFenceMeshMat.diffuseTexture = new BABYLON.Texture("img/arrow.png");
   addNewFenceMeshMat.specularColor = new BABYLON.Color3(0.01, 0.01, 0.01);
   // addNewFenceMeshMat.diffuseColor = new BABYLON.Vector4(1,0,0,1);
@@ -508,10 +514,12 @@ var createScene = function () {
   //MATERIAL FOR SELECTION
   var selectedMat = new BABYLON.StandardMaterial("selectedMat", scene);
   selectedMat.diffuseColor = BABYLON.Color3.FromHexString("#C10000");
-  selectedMat.specularColor = new BABYLON.Color3(0.01, 0.01, 0.01);
+  // selectedMat.specularColor = new BABYLON.Color3(0.01, 0.01, 0.01);
 
   //FENCE VARIABLES
+  var leftPostCaps = [];
   var rightPostCaps = [];
+  var rightPostCapClones = [];
   var fenceBoards = [];
   var smallBoardsArr = [];
   var startParts = [];
@@ -602,11 +610,10 @@ var createScene = function () {
       inlays[activeFence][0].scaling.x =
         fenceScale;
     inlays[activeFence][2].scaling.x = fenceScale;
-    startParts[activeFence].position.x =
-      endParts[activeFence].position.x =
-      inlays[activeFence][0].position.x =
-        -0.9 + fenceSize / 2;
-    inlays[activeFence][2].position.x = -0.9 + fenceSize / 2 - 0.01;
+    startParts[activeFence].position.x = endParts[activeFence].position.x =
+      -0.9 + fenceSize / 2 - 0.01;
+    inlays[activeFence][0].position.x = inlays[activeFence][2].position.x =
+      -0.9 + fenceSize / 2 - 0.02;
 
     smallBoardsArr[activeFence].scaling.x = fenceScale;
     smallBoardsArr[activeFence].position.x = -0.9 + fenceSize / 2 - 0.01;
@@ -732,6 +739,7 @@ var createScene = function () {
       //POST CAP
       let leftPostCap = scene.getMeshByName("post-cap-left");
       leftPostCap.material = capMat;
+      leftPostCaps.push(leftPostCap);
 
       //POSTS
       let leftPost = scene.getMeshByName("post-left");
@@ -745,11 +753,16 @@ var createScene = function () {
         new BABYLON.ExecuteCodeAction(
           BABYLON.ActionManager.OnPickTrigger,
           function () {
-            if (leftPost.material.id != "selectedMat") {
+            if (
+              leftPost.material.id != "selectedMat" &&
+              leftPost.scaling.x == 1
+            ) {
               removeSideAccesories(
                 sideAccesories,
                 deleteAccesorie,
-                addFenceAcc
+                addFenceAcc,
+                editPost,
+                addNewFenceToSide
               );
               closeSliderContainer();
               addDefaultMaterial(
@@ -790,14 +803,46 @@ var createScene = function () {
               singsDel.forEach((elm) => {
                 elm.isVisible = false;
               });
+              sideAccesories.style.display = "block";
+              editPost.style.display = "block";
+              if (leftPost.scaling.y < 1.1) {
+                setActivnesStyle(
+                  pfostensSingle,
+                  1,
+                  0,
+                  "active-text-color-single"
+                );
+              } else if (leftPost.scaling.y > 1.1 && leftPost.scaling.y < 1.4) {
+                setActivnesStyle(
+                  pfostensSingle,
+                  1,
+                  1,
+                  "active-text-color-single"
+                );
+              } else if (leftPost.scaling.y > 1.4) {
+                setActivnesStyle(
+                  pfostensSingle,
+                  1,
+                  2,
+                  "active-text-color-single"
+                );
+              }
+              document.getElementsByClassName("accTitle")[0].innerHTML =
+                "Pfosten bearbeiten";
             } else {
+              document.getElementsByClassName("accTitle")[0].innerHTML =
+                "ausgewählter Zaun";
               leftPost.material = fencePostMat;
               addFenceSings[0].isVisible = false;
               addFenceSings[1].isVisible = false;
+              sideAccesories.style.display = "none";
+              editPost.style.display = "none";
             }
           }
         )
       );
+
+      // onHover(leftPost, "Edit Post");
 
       //post roots
       let leftRoot0 = scene.getMeshByName("post-root-left_primitive0");
@@ -992,13 +1037,14 @@ var createScene = function () {
     //END OF MAIN POST
   );
 
-  function NewFence(id, type, smBoaCol, size, inlays, children) {
+  function NewFence(id, type, smBoaCol, size, inlays, children, laisnes) {
     this.id = id;
     this.type = type;
     this.smBoaCol = smBoaCol;
     this.size = size;
     this.inlays = inlays;
     this.children = children;
+    this.laisnes = laisnes;
   }
 
   // fencesArr.push(new NewFence(1, "easyFence", 180, false));
@@ -1037,6 +1083,55 @@ var createScene = function () {
           if (activeFence > 0) {
             delFenFun(activeFence);
             deleteFence(activeFence);
+            //set inlays to ohne
+            aaa = 0;
+            inlays.forEach((elm) => {
+              if (elm[0].isVisible) {
+                aaa += 1;
+              }
+            });
+            if (aaa < 1) {
+              setActivnesStyle(designInlays, 4, 0, "active-text-color");
+              inlaysOn = 0;
+            }
+            //set activnes of led when deleted led
+            ledsOn = 0;
+            leds.forEach((elm) => {
+              if (elm.isVisible) {
+                ledsOn += 1;
+              }
+            });
+            if (ledsOn == 0) {
+              //set to ohne on led lights
+              //set html
+              lightSettings.style.display = "none";
+              lightColorSet.style.display = "none";
+              //set babylon
+              leds.forEach((elm) => {
+                elm.isVisible = false;
+              });
+              setDayNight(0.6, 0, 0.7);
+              ledColNum = 4;
+              setLightColor(ledColNum);
+              setLedColor(ledColNum);
+              setActivnesStyle(ledParts, 6, 0, "active-text-color");
+            }
+
+            //set activnes of sturmanker parts
+            sturNum = 0;
+            for (let i = 0; i < sturmankersVorderseite.length; i++) {
+              if (sturmankersVorderseite[i].isVisible) {
+                sturNum += 1;
+              } else if (sturmankersRuckseite[i].isVisible) {
+                sturNum += 1;
+              }
+            }
+            if (sturNum < 1) {
+              setActivnesStyle(sturmankerCon, 10, 1, "active-text-color");
+              strurmOn = false;
+            } else {
+              strurmOn = true;
+            }
           }
         };
 
@@ -1044,7 +1139,7 @@ var createScene = function () {
         if (inlaysOn == 1) {
           changeFence[1].style.display = "flex";
           if (fencesArr[activeFence].inlays == 1) {
-            setActivnesStyle(changeFence, 0, 1);
+            setActivnesStyle(changeFence, 0, 1, "active-text-color");
           }
         } else {
           changeFence[1].style.display = "none";
@@ -1088,27 +1183,32 @@ var createScene = function () {
           fencesArr[activeFence].type == "easyFence" &&
           fencesArr[activeFence].inlays == 0
         )
-          setActivnesStyle(changeFence, 0, 0);
+          setActivnesStyle(changeFence, 0, 0, "active-text-color");
         if (
           fencesArr[activeFence].type == "easyRomBig" &&
           fencesArr[activeFence].smBoaCol == "silber"
         )
-          setActivnesStyle(changeFence, 0, 2);
+          setActivnesStyle(changeFence, 0, 2, "active-text-color");
         if (
           fencesArr[activeFence].type == "easyRomBig" &&
           fencesArr[activeFence].smBoaCol == "anthrazit"
         )
-          setActivnesStyle(changeFence, 0, 3);
+          setActivnesStyle(changeFence, 0, 3, "active-text-color");
         if (
           fencesArr[activeFence].type == "easyRomSmall" &&
           fencesArr[activeFence].smBoaCol == "silber"
         )
-          setActivnesStyle(changeFence, 0, 4);
+          setActivnesStyle(changeFence, 0, 4, "active-text-color");
         if (
           fencesArr[activeFence].type == "easyRomSmall" &&
           fencesArr[activeFence].smBoaCol == "anthrazit"
         )
-          setActivnesStyle(changeFence, 0, 5);
+          setActivnesStyle(changeFence, 0, 5, "active-text-color");
+        if (
+          fencesArr[activeFence].type == "easyFenceHalf" &&
+          fencesArr[activeFence].inlays == 0
+        )
+          setActivnesStyle(changeFence, 0, 6, "active-text-color");
 
         //deactivate arrows
         activeArrow = false;
@@ -1129,6 +1229,35 @@ var createScene = function () {
             singsDel[i].isVisible = true;
           }
         }
+        //single edits exit options on all
+        for (let i = 0; i < clickablePartSingleFence.length; i++) {
+          if (
+            clickablePartSingleFence[i].className ==
+            "set-part-click-title-single clicked"
+          ) {
+            clickablePartSingleFence[i].className = clickablePartSingleFence[
+              i
+            ].className.replace(" clicked", " not-clicked");
+            clickablePartSingleFence[i].children[1].innerHTML = "+";
+            clickablePartSingleFence[i].nextElementSibling.style.height = 0;
+          }
+        }
+        //laines single edit
+        for (let i = 0; i < fencesArr[activeFence].laisnes.length; i++) {
+          if (fencesArr[activeFence].laisnes[i]) {
+            designleistensSingle[
+              i
+            ].children[0].children[0].style.backgroundColor = "#3967ff";
+            designleistensSingle[i].children[0].children[0].innerHTML =
+              checkMark;
+          } else {
+            designleistensSingle[
+              i
+            ].children[0].children[0].style.backgroundColor = "transparent";
+            designleistensSingle[i].children[0].children[0].innerHTML = "";
+          }
+        }
+        console.log(fencesArr[activeFence]);
       }
 
       //add selected to mesh
@@ -1142,7 +1271,9 @@ var createScene = function () {
                 removeSideAccesories(
                   sideAccesories,
                   deleteAccesorie,
-                  addFenceAcc
+                  addFenceAcc,
+                  editPost,
+                  addNewFenceToSide
                 );
                 addDefaultMaterial(
                   fenceBoards,
@@ -1216,6 +1347,10 @@ var createScene = function () {
       rightPostCap.material = capMat;
       rightPostCaps.push(rightPostCap);
 
+      let rightPostCapClone = rightPostCap.clone("rightPostCapClone");
+      rightPostCapClone.position.y = 0.052;
+      rightPostCapClone.isVisible = false;
+      rightPostCapClones.push(rightPostCapClone);
       //BOARDS
       var newBoarsdArr = new Array(
         result.meshes[2],
@@ -1319,14 +1454,13 @@ var createScene = function () {
               newBoarsdArr[j + 1].position.y += 0.01;
             }
           }
-
           /////////////////
           newLaisnesArr.push(laisne);
         }
       }, 0);
 
       laisnes.push(newLaisnesArr);
-
+      var editPost = document.getElementById("editPost");
       //POSTS
       let rightPost = result.meshes[3];
 
@@ -1334,6 +1468,101 @@ var createScene = function () {
       allPosts.push(rightPost);
       rightPost.material = fencePostMat;
 
+      rightPost.actionManager = new BABYLON.ActionManager(scene);
+      rightPost.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+          BABYLON.ActionManager.OnPickTrigger,
+          function () {
+            if (
+              rightPost.material.id != "selectedMat" &&
+              rightPost.scaling.x == 1
+            ) {
+              removeSideAccesories(
+                sideAccesories,
+                deleteAccesorie,
+                addFenceAcc,
+                editPost,
+                addNewFenceToSide
+              );
+              addDefaultMaterial(
+                fenceBoards,
+                sturmankersVorderseite,
+                rightPosts,
+                leftPosts,
+                directeHauswandMeshes,
+                fenceBoardMat,
+                fencePostMat,
+                concreteMat,
+                smallBoardsArr,
+                smallBoardsMat,
+                smallBoardsMatDark,
+                fencesArr,
+                addFenceSings
+              );
+              rightPost.material = selectedMat;
+              sideAccesories.style.display = "block";
+              editPost.style.display = "block";
+              if (
+                (rightPost.scaling.z > 0.999 && rightPost.scaling.z < 1.1) ||
+                rightPost.scaling.z < 0.55
+              ) {
+                setActivnesStyle(
+                  pfostensSingle,
+                  1,
+                  0,
+                  "active-text-color-single"
+                );
+              } else if (
+                (rightPost.scaling.z > 1.1 && rightPost.scaling.z < 1.4) ||
+                (rightPost.scaling.z > 0.7 && rightPost.scaling.z < 0.8)
+              ) {
+                setActivnesStyle(
+                  pfostensSingle,
+                  1,
+                  1,
+                  "active-text-color-single"
+                );
+              } else if (
+                rightPost.scaling.z > 1.4 ||
+                (rightPost.scaling.z < 1 && rightPost.scaling.z > 0.9)
+              ) {
+                setActivnesStyle(
+                  pfostensSingle,
+                  1,
+                  2,
+                  "active-text-color-single"
+                );
+              }
+              document.getElementsByClassName("accTitle")[0].innerHTML =
+                "Pfosten bearbeiten";
+            } else {
+              removeSideAccesories(
+                sideAccesories,
+                deleteAccesorie,
+                addFenceAcc,
+                editPost,
+                addNewFenceToSide
+              );
+              addDefaultMaterial(
+                fenceBoards,
+                sturmankersVorderseite,
+                rightPosts,
+                leftPosts,
+                directeHauswandMeshes,
+                fenceBoardMat,
+                fencePostMat,
+                concreteMat,
+                smallBoardsArr,
+                smallBoardsMat,
+                smallBoardsMatDark,
+                fencesArr,
+                addFenceSings
+              );
+            }
+          }
+        )
+      );
+      // onHover(rightPost, "Edit Post");
       //post roots
       let rightRoot0 = result.meshes[4];
       let rightRoot1 = result.meshes[5];
@@ -1449,7 +1678,7 @@ var createScene = function () {
                 ledsOn -= 1;
                 sturmankerOnOff(true, i);
                 if (ledsOn < 1) {
-                  setActivnesStyle(ledParts, 6, 0);
+                  setActivnesStyle(ledParts, 6, 0, "active-text-color");
                 }
               };
 
@@ -1480,7 +1709,7 @@ var createScene = function () {
                   }
                 }
                 if (sturNum < 1) {
-                  setActivnesStyle(sturmankerCon, 10, 1);
+                  setActivnesStyle(sturmankerCon, 10, 1, "active-text-color");
                   strurmOn = false;
                 } else {
                   strurmOn = true;
@@ -1493,11 +1722,11 @@ var createScene = function () {
                   if (elm.isVisible) warSingsOn = true;
                 });
                 if (!strurmOn && !warSingsOn) {
-                  setActivnesStyle(sturmankerCon, 10, 1);
+                  setActivnesStyle(sturmankerCon, 10, 1, "active-text-color");
                   strurmOn = false;
                 }
                 if (ledsOn < 1 && !warSingsOn) {
-                  setActivnesStyle(ledParts, 6, 0);
+                  setActivnesStyle(ledParts, 6, 0, "active-text-color");
                 }
               };
             }
@@ -1535,7 +1764,6 @@ var createScene = function () {
       //STRUMANKER
       let rightStrVord = result.meshes[19];
       rightStrVord.isVisible = false;
-
       let rightStrVordSraf = result.meshes[20];
       rightStrVordSraf.isVisible = false;
 
@@ -1632,9 +1860,38 @@ var createScene = function () {
       fakeBack.isVisible = false;
 
       //SET NEW FENCE SAME POST SIZE AS THE OTHER
-      if (befePfostenSize == 1) setbefePfosten(1.2, 0.7717, false, 1, -0.5 / 2);
-      if (befePfostenSize == 2)
-        setbefePfosten(1.475, 0.511, false, 1.8, -0.9 / 2);
+      // setTimeout(() => {
+      if (befePfostenSize == 1) {
+        rightPost.scaling.z = 1.2;
+        rightPost.position.y = 0.7717;
+        rightRoot0.isVisible = false;
+        rightRoot1.isVisible = false;
+
+        foundationRight.scaling.y = 1;
+        foundationVord.scaling.z = 1;
+        foundationRuck.scaling.z = 1;
+
+        foundationRight.position.y = -0.25;
+        foundationVord.position.z = 0.25;
+        foundationRuck.position.z = 0.25;
+      }
+      // setbefePfosten(1.2, 0.7717, false, 1, -0.5 / 2);
+      if (befePfostenSize == 2) {
+        rightPost.scaling.z = 1.475;
+        rightPost.position.y = 0.511;
+        rightRoot0.isVisible = false;
+        rightRoot1.isVisible = false;
+
+        foundationRight.scaling.y = 1.8;
+        foundationVord.scaling.z = 1.8;
+        foundationRuck.scaling.z = 1.8;
+
+        foundationRight.position.y = -0.45;
+        foundationVord.position.z = 0.45;
+        foundationRuck.position.z = 0.45;
+      }
+      // setbefePfosten(1.475, 0.511, false, 1.8, -0.9 / 2);
+      // }, 0);
 
       //CREATE DIRECTE HAUSWAND
       createDirecteHauswand(
@@ -1666,7 +1923,7 @@ var createScene = function () {
       directeHauswandMeshesRight[directeHauswandMeshesRight.length - 1].parent =
         rightPostCap;
 
-      //    INTESECTION FUNCTION
+      //INTERSECTION FUNCTION
       intersectionFunction(
         fakeFronts,
         fakeFences,
@@ -1689,6 +1946,7 @@ var createScene = function () {
       //CREATE SINGS FUNCTION
       createNewFenceSign();
 
+      rightPostCap.addChild(rightPostCapClone);
       rightPostCap.addChild(foundationRightStart);
       // rightPostCap.addChild(foundationRight);
       rightPostCap.addChild(signPlaneWarRight);
@@ -1849,6 +2107,10 @@ var createScene = function () {
       }
       fenceInlays = inlaysOnOff;
       childrenThis = [];
+      laisnesThis = [];
+      for (let i = 0; i < checkboxActive.length; i++) {
+        laisnesThis.push(checkboxActive[i]);
+      }
 
       fencesArr.push(
         new NewFence(
@@ -1857,7 +2119,8 @@ var createScene = function () {
           smallBoardsDefaultCol,
           fenceSizeObj,
           fenceInlays,
-          childrenThis
+          childrenThis,
+          laisnesThis
         )
       );
 
@@ -1865,7 +2128,25 @@ var createScene = function () {
       if (fenceId > 0 && typeof activeFence != "boolean") {
         fencesArr[activeFence].children.push(fenceId);
         fencesArr[fenceId].parent = fencesArr[activeFence].id;
+
+        //set parent right post
+        ledsRight[fencesArr[fenceId].parent].scaling.z = 1;
+        ledsRight[fencesArr[fenceId].parent].position.z = 0;
+        ledsRight[fencesArr[fenceId].parent].position.y = 0.001;
+        rightPosts[fencesArr[fenceId].parent].scaling.z = 1;
+        rightPosts[fencesArr[fenceId].parent].position.y = 0.962;
+        if (befePfostenSize == 1) {
+          rightPosts[fencesArr[fenceId].parent].scaling.z = 1.2;
+          rightPosts[fencesArr[fenceId].parent].position.y = 0.7717;
+        }
+        if (befePfostenSize == 2) {
+          rightPosts[fencesArr[fenceId].parent].scaling.z = 1.475;
+          rightPosts[fencesArr[fenceId].parent].position.y = 0.511;
+        }
+        rightPostCaps[fencesArr[fenceId].parent].isVisible = true;
+        rightPostCapClones[fencesArr[fenceId].parent].isVisible = false;
       }
+
       // fencesArr.forEach((elm) => {
       //   console.log(elm);
       // });
@@ -1897,7 +2178,6 @@ var createScene = function () {
         arrZ.push(Math.round(allPosts[i].getAbsolutePosition().z * 100) / 100);
       }
     }
-
     arrX.sort(function (a, b) {
       return a - b;
     });
@@ -2160,15 +2440,33 @@ var createScene = function () {
     );
   };
 
+  // 0.7,
+  // 0.7,
+  // -0.005,
+  // rightPostCaps[0].position.y - 0.01
   let newStub = document.getElementById("newStub");
   newStub.onclick = () => {
     directeHauswandMeshesRight[activeFence].isVisible = true;
     rightPosts[activeArrow].material = fencePostMat;
     rightPosts[activeArrow].scaling.z = 1;
-    rightPosts[activeArrow].position.y = 0.962;
+    rightPosts[activeArrow].position.y = 0.95;
+    rightPosts[activeArrow].scaling.x = rightPostCaps[
+      activeArrow
+    ].scaling.x = 0.7;
+    rightPosts[activeArrow].scaling.y = rightPostCaps[
+      activeArrow
+    ].scaling.y = 0.7;
+    directeHauswandMeshesRight[activeArrow].scaling.z =
+      directeHauswandMeshesRight[activeArrow].scaling.x = 1.43;
+    directeHauswandMeshesRight[activeArrow].position.z =
+      directeHauswandMeshesRight[activeArrow].position.z - 0.05;
+    directeHauswandMeshesRight[activeArrow].position.x =
+      directeHauswandMeshesRight[activeArrow].position.x + 0.05;
     rightRoots[activeFence].forEach((elm) => {
       elm.isVisible = false;
     });
+    rightPostCaps[activeFence].position.y =
+      rightPostCaps[activeFence].position.y - 0.01;
     foundationStartsRight[activeFence].isVisible = false;
     foundationVisibilty(
       foundationStarts,
@@ -2199,11 +2497,13 @@ var createScene = function () {
 
   //ADD NEW FENCE SIDE BAR SETTINGS
   function addNewFenceSideBar() {
-    sideAccesories.style.display = "none";
-    for (let j = 0; j < deleteAccesorie.length; j++) {
-      deleteAccesorie[j].style.display = "none";
-    }
-    addFenceAcc.style.display = "none";
+    removeSideAccesories(
+      sideAccesories,
+      deleteAccesorie,
+      addFenceAcc,
+      editPost,
+      addNewFenceToSide
+    );
     // unselect();
     sideAccesories.style.display = "block";
     addNewFenceToSide.style.display = "block";
@@ -2536,8 +2836,6 @@ var createScene = function () {
     );
     addNewFenceMeshRightMain.addRotation(Math.PI / 2, 0, -Math.PI / 2);
     // newFenceRightSigns.push(addNewFenceMeshRightMain);
-    //CREATE FENCE RIGHT MAIN POST
-
     addNewFenceMeshRightMain.actionManager = new BABYLON.ActionManager(scene);
     addNewFenceMeshRightMain.actionManager.registerAction(
       new BABYLON.ExecuteCodeAction(
@@ -2579,12 +2877,12 @@ var createScene = function () {
           //   activeFence,
           //   addFenceSings
           // );
-          // rightPosts[i].material = selectedMat;
+          leftPosts[0].material = selectedMat;
         }
       )
     );
 
-    //RIGHT SIGHN MAIN POST
+    //LEFT SIGHN MAIN POST
     const addNewFenceMeshLeftMain = BABYLON.MeshBuilder.CreateCylinder(
       "addNewFenceMeshLeftMain",
       {
@@ -2601,8 +2899,6 @@ var createScene = function () {
     );
     addNewFenceMeshLeftMain.addRotation(Math.PI / 2, 0, Math.PI / 2);
     // newFenceRightSigns.push(addNewFenceMeshLeftMain);
-    //CREATE FENCE RIGHT MAIN POST
-
     addNewFenceMeshLeftMain.actionManager = new BABYLON.ActionManager(scene);
     addNewFenceMeshLeftMain.actionManager.registerAction(
       new BABYLON.ExecuteCodeAction(
@@ -2644,7 +2940,7 @@ var createScene = function () {
           //   activeFence,
           //   addFenceSings
           // );
-          // rightPosts[i].material = selectedMat;
+          leftPosts[0].material = selectedMat;
         }
       )
     );
@@ -2656,9 +2952,15 @@ var createScene = function () {
   function onDelete(i) {
     leds[i].isVisible = false;
     singsDel[i].isVisible = false;
-    ledsOn -= 1;
-    // lightsLed[i].intensity = 0;
-    if (ledsOn < 1) {
+
+    //set activnes of led when deleted led
+    ledsOn = 0;
+    leds.forEach((elm) => {
+      if (elm.isVisible) {
+        ledsOn += 1;
+      }
+    });
+    if (ledsOn == 0) {
       //set to ohne on led lights
       //set html
       lightSettings.style.display = "none";
@@ -2671,7 +2973,7 @@ var createScene = function () {
       ledColNum = 4;
       setLightColor(ledColNum);
       setLedColor(ledColNum);
-      setActivnesStyle(ledParts, 6, 0);
+      setActivnesStyle(ledParts, 6, 0, "active-text-color");
     }
   }
   //LED STURMANKER FUNCTION
@@ -2720,36 +3022,28 @@ var createScene = function () {
   }
 
   //ADD LAISNE ON FENCE - 3
-  let createLaisne = (laisnePos) => {
-    laisnes.forEach((elmL) => {
-      elmL[laisnePos].isVisible = true;
-      fenceBoards.forEach((elmB) => {
-        elmL[laisnePos].position.y =
-          elmB[laisnePos].position.y + 0.22 / 2 + 0.005;
-      });
-    });
-    if (laisnePos < 6) {
-      inlays.forEach((elm) => {
-        elm[0].position.y += 0.01;
-        elm[2].position.y += 0.01;
-      });
-    }
-    for (let i = laisnePos; i < 7; i++) {
-      fenceBoards.forEach((elmB) => {
-        elmB[i + 1].position.y += 0.01;
-      });
+  let createLaisne = (laisnePos, j) => {
+    if (rightPosts[j].isVisible) {
+      if (fencesArr[j].type != "easyFenceHalf" || laisnePos < 3) {
+        laisnes[j][laisnePos].isVisible = true;
+        startParts[j].position.y += 0.01;
+      }
+      laisnes[j][laisnePos].position.y =
+        fenceBoards[j][laisnePos].position.y + 0.22 / 2 + 0.005;
 
-      if (i < 6) {
-        laisnes.forEach((elmL) => {
-          if (checkboxActive[i + 1]) {
-            elmL[i + 1].position.y += 0.01;
+      if (laisnePos < 6) {
+        inlays[j][0].position.y += 0.01;
+        inlays[j][2].position.y += 0.01;
+      }
+      for (let i = laisnePos; i < 7; i++) {
+        fenceBoards[j][i + 1].position.y += 0.01;
+        if (i < 6) {
+          if (fencesArr[j].laisnes[i + 1]) {
+            laisnes[j][i + 1].position.y += 0.01;
           }
-        });
+        }
       }
     }
-    startParts.forEach((elm) => {
-      elm.position.y += 0.01;
-    });
     for (let i = 0; i < laisnes.length; i++) {
       if (smallBoardsArr[i].isVisible) {
         laisnes[i].forEach((elm) => {
@@ -2760,31 +3054,23 @@ var createScene = function () {
   };
 
   //REMOVE LAISNE FROM FENCE
-  let disposeLaisne = (laisnePos) => {
-    laisnes.forEach((elmL) => {
-      elmL[laisnePos].isVisible = false;
-    });
+  let disposeLaisne = (laisnePos, j) => {
+    if (fencesArr[j].type != "easyFenceHalf" || laisnePos < 3) {
+      laisnes[j][laisnePos].isVisible = false;
+      startParts[j].position.y -= 0.01;
+    }
     if (laisnePos < 6) {
-      inlays.forEach((elm) => {
-        elm[0].position.y -= 0.01;
-        elm[2].position.y -= 0.01;
-      });
+      inlays[j][0].position.y -= 0.01;
+      inlays[j][2].position.y -= 0.01;
     }
     for (let i = laisnePos; i < 7; i++) {
-      fenceBoards.forEach((elmB) => {
-        elmB[i + 1].position.y -= 0.01;
-      });
+      fenceBoards[j][i + 1].position.y -= 0.01;
       if (i < 6) {
-        laisnes.forEach((elmL) => {
-          if (checkboxActive[i + 1]) {
-            elmL[i + 1].position.y -= 0.01;
-          }
-        });
+        if (fencesArr[j].laisnes[i + 1]) {
+          laisnes[j][i + 1].position.y -= 0.01;
+        }
       }
     }
-    startParts.forEach((elm) => {
-      elm.position.y -= 0.01;
-    });
   };
 
   //SET NUMBER ON BEGINING
@@ -2830,7 +3116,7 @@ var createScene = function () {
 
       //set activnes on leds parts to turn of led
       if (i != 5) {
-        setActivnesStyle(ledDayNight, 8, 0);
+        setActivnesStyle(ledDayNight, 8, 0, "active-text-color");
         for (let i = 0; i < leds.length; i++) {
           setDayNight(0.6, 0, 0.7);
           setLightColor(4);
@@ -2856,27 +3142,27 @@ var createScene = function () {
 
   //SET ACTIVNES
   //ACTIVE CHECKMARK
-
+  // "active-text-color"
   let checkMark = "&#10003";
   //set activness style
-  function setActivnesStyle(parts, partNum, i) {
+  function setActivnesStyle(parts, partNum, i, actClass) {
     //change active singhts
-    var currentActCol = document.getElementsByClassName("active-text-color");
+    var currentActCol = document.getElementsByClassName(actClass);
     //add remove active chackmark
     currentActCol[partNum].children[2].innerHTML = "";
     parts[i].children[2].innerHTML = checkMark;
     //change active color
     currentActCol[partNum].className = currentActCol[partNum].className.replace(
-      " active-text-color",
+      " " + actClass,
       ""
     );
-    parts[i].className += " active-text-color";
+    parts[i].className += " " + actClass;
   }
 
-  function setActivnes(parts, partNum) {
+  function setActivnes(parts, partNum, actClass) {
     for (let i = 0; i < parts.length; i++) {
       parts[i].addEventListener("click", () => {
-        setActivnesStyle(parts, partNum, i);
+        setActivnesStyle(parts, partNum, i, actClass);
       });
     }
   }
@@ -2905,21 +3191,21 @@ var createScene = function () {
   //1 SET MAIN FARBE FUNCIONALITY
   let mainFarbeParts = document.getElementsByClassName("set-part-main-farbe");
   setPartsAndconf(mainFarbeParts, fenceBoardMat, fenceBoardsColors);
-  setActivnes(mainFarbeParts, 1);
+  setActivnes(mainFarbeParts, 1, "active-text-color");
 
   //2 SET START UND AVBSCH
   let startUndAbschParts = document.getElementsByClassName(
     "set-part-start-und-absch"
   );
   setPartsAndconf(startUndAbschParts, fenceStartEndMat, fencePartsColors);
-  setActivnes(startUndAbschParts, 2);
+  setActivnes(startUndAbschParts, 2, "active-text-color");
 
   //3 DESIGNlLEISTEN AUS ALUMINIUM
   let designleistensMat = document.getElementsByClassName(
     "set-part-designleisten-aus-aluminium-act-col"
   );
   setPartsAndconf(designleistensMat, laisneMat, fencePartsColors);
-  setActivnes(designleistensMat, 3);
+  setActivnes(designleistensMat, 3, "active-text-color");
   //DESIGNELEISTEN CHECH BOX TO ACTIVE
   let designleistens = document.getElementsByClassName(
     "set-part-designleisten-aus-aluminium"
@@ -2928,19 +3214,30 @@ var createScene = function () {
     let actCol = "#3967ff";
     let transperent = "transparent";
     let empty = "";
-    function addLaisnes(a, b, c, d, i) {
+    function addLaisnes(a, b, c, i) {
       designleistens[i].children[0].children[0].style.backgroundColor = a;
       designleistens[i].children[0].children[0].innerHTML = b;
       checkboxActive[i] = c;
-      d;
     }
     var checkboxActive = [false, false, false, false, false, false, false];
     for (let i = 0; i < designleistens.length; i++) {
       designleistens[i].addEventListener("click", () => {
         if (!checkboxActive[i]) {
-          addLaisnes(actCol, checkMark, true, createLaisne(i), i);
+          for (let j = 0; j < fencesArr.length; j++) {
+            if (checkboxActive[i] == fencesArr[j].laisnes[i]) {
+              createLaisne(i, j);
+              fencesArr[j].laisnes[i] = true;
+            }
+          }
+          addLaisnes(actCol, checkMark, true, i);
         } else {
-          addLaisnes(transperent, empty, false, disposeLaisne(i), i);
+          for (let j = 0; j < fencesArr.length; j++) {
+            if (checkboxActive[i] == fencesArr[j].laisnes[i]) {
+              disposeLaisne(i, j);
+              fencesArr[j].laisnes[i] = false;
+            }
+          }
+          addLaisnes(transperent, empty, false, i);
         }
       });
     }
@@ -2950,7 +3247,7 @@ var createScene = function () {
   let designInlays = document.getElementsByClassName(
     "set-activnes-design-inlays"
   );
-  setActivnes(designInlays, 4);
+  setActivnes(designInlays, 4, "active-text-color");
   //first inlay setings
   let designInlaysFirst = document.getElementsByClassName(
     "first-set-design-inlays-color"
@@ -2969,10 +3266,16 @@ var createScene = function () {
   //inlays show or not
   function inlaysFunction(a, b) {
     if (!activeFence) {
-      inlays.forEach((elmI) => {
-        elmI[0].isVisible = b;
-        elmI[2].isVisible = b;
-      });
+      for (let i = 0; i < rightPosts.length; i++) {
+        if (rightPosts[i].isVisible) {
+          inlays[i][0].isVisible = b;
+          inlays[i][2].isVisible = b;
+        }
+      }
+      // inlays.forEach((elmI) => {
+      //   elmI[0].isVisible = b;
+      //   elmI[2].isVisible = b;
+      // });
       fenceBoards.forEach((elmF) => {
         elmF[6].isVisible = a;
       });
@@ -2980,7 +3283,10 @@ var createScene = function () {
         inlays[i][0].material.albedoColor = inlays[i][2].material.diffuseColor;
       }
       for (let i = 0; i < fenceBoards.length; i++) {
-        if (smallBoardsArr[i].isVisible) {
+        if (
+          smallBoardsArr[i].isVisible ||
+          fencesArr[i].type == "easyFenceHalf"
+        ) {
           fenceBoards[i][6].isVisible = false;
           inlays[i][0].isVisible = false;
           inlays[i][2].isVisible = false;
@@ -3023,11 +3329,11 @@ var createScene = function () {
     "set-part-farbe-pfosten"
   );
   setPartsAndconf(fencePostsParts, fencePostMat, fencePartsColors);
-  setActivnes(fencePostsParts, 5);
+  setActivnes(fencePostsParts, 5, "active-text-color");
 
   //6 SET LED
   let ledParts = document.getElementsByClassName("set-part-led");
-  setActivnes(ledParts, 6);
+  setActivnes(ledParts, 6, "active-text-color");
   let lightSettings = document.getElementById("light-settings");
   let lightColorSet = document.getElementById("light-color-settings");
   //set day night
@@ -3124,12 +3430,15 @@ var createScene = function () {
         }
       }
       if (!strurmOn) {
+        for (let i = 0; i < allPosts.length; i++) {
+          if (allPosts[i].isVisible) {
+            leds[i].isVisible = true;
+            singsDel[i].isVisible = true;
+            // ledsOn += 1;
+          }
+        }
         leds.forEach((elm) => {
-          elm.isVisible = true;
-        });
-        ledsOn = leds.length;
-        singsDel.forEach((elm) => {
-          elm.isVisible = true;
+          if (elm.isVisible) ledsOn += 1;
         });
         ledColNum = 0;
         setLightColor(ledColNum);
@@ -3140,18 +3449,20 @@ var createScene = function () {
           elm.isVisible = false;
         });
         //set warning sings to visible if sturmanker is visible
-        for (let i = 0; i < sturmankersVorderseite.length; i++) {
-          if (
-            sturmankersVorderseite[i].isVisible ||
-            sturmankersRuckseite[i].isVisible
-          ) {
-            singsWar[i].isVisible = true;
-          }
-          if (
-            !sturmankersVorderseite[i].isVisible &&
-            !sturmankersRuckseite[i].isVisible
-          ) {
-            leds[i].isVisible = true;
+        for (let i = 0; i < allPosts.length; i++) {
+          if (allPosts[i].isVisible) {
+            if (
+              sturmankersVorderseite[i].isVisible ||
+              sturmankersRuckseite[i].isVisible
+            ) {
+              singsWar[i].isVisible = true;
+            }
+            if (
+              !sturmankersVorderseite[i].isVisible &&
+              !sturmankersRuckseite[i].isVisible
+            ) {
+              leds[i].isVisible = true;
+            }
           }
         }
         setDayNight(0.2, 0, 1.15);
@@ -3164,7 +3475,7 @@ var createScene = function () {
         //   }
         // }
       }
-      setActivnesStyle(ledDayNight, 8, 2);
+      setActivnesStyle(ledDayNight, 8, 2, "active-text-color");
       //set active color to first
       //html
       var currentActColLig = document.getElementsByClassName(
@@ -3225,12 +3536,14 @@ var createScene = function () {
         }
       }
       if (!strurmOn) {
+        for (let i = 0; i < allPosts.length; i++) {
+          if (allPosts[i].isVisible) {
+            leds[i].isVisible = true;
+            singsDel[i].isVisible = true;
+          }
+        }
         leds.forEach((elm) => {
-          elm.isVisible = true;
-        });
-        ledsOn = leds.length;
-        singsDel.forEach((elm) => {
-          elm.isVisible = true;
+          if (elm.isVisible) ledsOn += 1;
         });
         setDayNight(0.2, 0.5, 1.15);
       } else {
@@ -3238,18 +3551,20 @@ var createScene = function () {
           elm.isVisible = false;
         });
         //set warning sings to visible if sturmanker is visible
-        for (let i = 0; i < sturmankersVorderseite.length; i++) {
-          if (
-            sturmankersVorderseite[i].isVisible ||
-            sturmankersRuckseite[i].isVisible
-          ) {
-            singsWar[i].isVisible = true;
-          }
-          if (
-            !sturmankersVorderseite[i].isVisible &&
-            !sturmankersRuckseite[i].isVisible
-          ) {
-            leds[i].isVisible = true;
+        for (let i = 0; i < allPosts.length; i++) {
+          if (allPosts[i].isVisible) {
+            if (
+              sturmankersVorderseite[i].isVisible ||
+              sturmankersRuckseite[i].isVisible
+            ) {
+              singsWar[i].isVisible = true;
+            }
+            if (
+              !sturmankersVorderseite[i].isVisible &&
+              !sturmankersRuckseite[i].isVisible
+            ) {
+              leds[i].isVisible = true;
+            }
           }
         }
         setDayNight(0.2, 0, 1.15);
@@ -3262,7 +3577,7 @@ var createScene = function () {
       ledColNum = 4;
       setLightColor(4);
       setLedColor(4);
-      setActivnesStyle(ledDayNight, 8, 2);
+      setActivnesStyle(ledDayNight, 8, 2, "active-text-color");
       if (directeHauswandMesh.isVisible) {
         leds[0].isVisible = false;
         singsDel[0].isVisible = false;
@@ -3276,7 +3591,7 @@ var createScene = function () {
     });
     //set if delete sings are visible
     let ledDeleteOnOff = document.getElementsByClassName("set-delete-on-off");
-    setActivnes(ledDeleteOnOff, 7);
+    setActivnes(ledDeleteOnOff, 7, "active-text-color");
 
     for (let i = 0; i < ledDeleteOnOff.length; i++) {
       ledDeleteOnOff[0].addEventListener("click", () => {
@@ -3292,7 +3607,7 @@ var createScene = function () {
     }
     //set day and night
     var ledDayNight = document.getElementsByClassName("set-day-night");
-    setActivnes(ledDayNight, 8);
+    setActivnes(ledDayNight, 8, "active-text-color");
 
     function setDayNightOff(a, b, c, d, e) {
       setDayNight(a, b, e);
@@ -3344,20 +3659,53 @@ var createScene = function () {
   let befePfostenParts = document.getElementsByClassName(
     "set-part-befe-pfosten"
   );
-  setActivnes(befePfostenParts, 9);
+  setActivnes(befePfostenParts, 9, "active-text-color");
 
-  function setbefePfosten(a, b, c, d, e) {
+  function setbefePfosten(a, b, c, d, e, f, g) {
     //post roots
-    roots.forEach((elm) => {
-      elm.isVisible = c;
-    });
+    for (let i = 0; i < allPosts.length; i++) {
+      if (allPosts[i].isVisible) {
+        roots[i * 2].isVisible = roots[i * 2 + 1].isVisible = c;
+      }
+    }
+    // roots.forEach((elm) => {
+    //   elm.isVisible = c;
+    // });
     if (!directeHauswandMesh.isVisible) {
-      leftPosts[0].scaling.y = a;
-      leftPosts[0].position.y = b;
-      rightPosts.forEach((elm) => {
-        elm.scaling.z = a;
-        elm.position.y = b;
-      });
+      if (fencesArr[0].type == "easyFenceHalf") {
+        // console.log(fencesArr[0].type);
+        leftPosts[0].scaling.y = f;
+        leftPosts[0].position.y = g;
+      } else {
+        leftPosts[0].scaling.y = a;
+        leftPosts[0].position.y = b;
+      }
+      for (let i = 0; i < fencesArr.length; i++) {
+        if (fencesArr[i].type == "easyFenceHalf") {
+          //////////////
+          let childTypeSetPhosten = 0;
+          for (let j = 0; j < fencesArr[i].children.length; j++) {
+            if (fencesArr[fencesArr[i].children[j]].type != "easyFenceHalf") {
+              childTypeSetPhosten += 1;
+            }
+          }
+          ////////////
+          if (childTypeSetPhosten == 0) {
+            rightPosts[i].scaling.z = f;
+            rightPosts[i].position.y = g;
+          } else {
+            rightPosts[i].scaling.z = a;
+            rightPosts[i].position.y = b;
+          }
+        } else {
+          rightPosts[i].scaling.z = a;
+          rightPosts[i].position.y = b;
+        }
+      }
+      // rightPosts.forEach((elm) => {
+      //   elm.scaling.z = a;
+      //   elm.position.y = b;
+      // });
       if (sturmankersVorderseite[0].isVisible) {
         foundationVisibilty(
           foundationStarts,
@@ -3399,10 +3747,32 @@ var createScene = function () {
         );
       }
     } else {
-      rightPosts.forEach((elm) => {
-        elm.scaling.z = a;
-        elm.position.y = b;
-      });
+      for (let i = 0; i < fencesArr.length; i++) {
+        if (fencesArr[i].type == "easyFenceHalf") {
+          //////////////
+          let childTypeSetPhosten = 0;
+          for (let j = 0; j < fencesArr[i].children.length; j++) {
+            if (fencesArr[fencesArr[i].children[j]].type != "easyFenceHalf") {
+              childTypeSetPhosten += 1;
+            }
+          }
+          ////////////
+          if (childTypeSetPhosten == 0) {
+            rightPosts[i].scaling.z = f;
+            rightPosts[i].position.y = g;
+          } else {
+            rightPosts[i].scaling.z = a;
+            rightPosts[i].position.y = b;
+          }
+        } else {
+          rightPosts[i].scaling.z = a;
+          rightPosts[i].position.y = b;
+        }
+      }
+      // rightPosts.forEach((elm) => {
+      //   elm.scaling.z = a;
+      //   elm.position.y = b;
+      // });
       roots[0].isVisible = false;
       roots[1].isVisible = false;
       foundations[0].isVisible = false;
@@ -3422,8 +3792,6 @@ var createScene = function () {
     foundations[0].scaling.y = d;
     foundations[0].position.y = e;
 
-    // foundationsVord[0].scaling.z = 1;
-    // foundationsRuck[0].scaling.z = 1;
     foundationsVord[0].scaling.y = d;
     foundationsRuck[0].scaling.y = d;
 
@@ -3444,25 +3812,99 @@ var createScene = function () {
   var befePfostenSize = 0;
   if (befePfostenParts.length > 0) {
     befePfostenParts[0].addEventListener("click", () => {
-      setbefePfosten(1, 0.962, true, 1, -0.5 / 2);
+      setbefePfosten(1, 0.962, true, 1, -0.5 / 2, 0.524, 0.504);
+      // setbefePfosten(0.55, 0.53, true, 1, -0.5 / 2);
       befePfostenSize = 0;
     });
     befePfostenParts[1].addEventListener("click", () => {
-      setbefePfosten(1.2, 0.7717, false, 1, -0.5 / 2);
+      setbefePfosten(1.2, 0.7717, false, 1, -0.5 / 2, 0.724, 0.3119);
+      // setbefePfosten(0.75, 0.3397, false, 1, -0.5 / 2);
       befePfostenSize = 1;
     });
     befePfostenParts[2].addEventListener("click", () => {
-      setbefePfosten(1.475, 0.511, false, 1.8, -0.9 / 2);
+      setbefePfosten(1.475, 0.511, false, 1.8, -0.9 / 2, 0.999, 0.053);
+      // setbefePfosten(1.025, 0.079, false, 1.8, -0.9 / 2);
       befePfostenSize = 2;
     });
   }
+  //single post size change
+  let pfostensSingle = document.getElementsByClassName(
+    "set-part-befe-pfosten-single"
+  );
+  function changeSinglePostSize(a, b, c, d, e, f, g) {
+    for (let i = 0; i < rightPosts.length; i++) {
+      if (rightPosts[i].material.id == "selectedMat") {
+        if (fencesArr[i].type == "easyFenceHalf") {
+          //////////////
+          let childTypeSetPhosten = 0;
+          for (let j = 0; j < fencesArr[i].children.length; j++) {
+            if (fencesArr[fencesArr[i].children[j]].type != "easyFenceHalf") {
+              childTypeSetPhosten += 1;
+            }
+          }
+          ////////////
+          if (childTypeSetPhosten == 0) {
+            rightPosts[i].scaling.z = f;
+            rightPosts[i].position.y = g;
+          } else {
+            rightPosts[i].scaling.z = a;
+            rightPosts[i].position.y = b;
+          }
+        } else {
+          rightPosts[i].scaling.z = a;
+          rightPosts[i].position.y = b;
+        }
 
+        rightRoots[i].forEach((elm) => {
+          elm.isVisible = c;
+        });
+
+        foundations[i + 1].scaling.y = d;
+        foundationsVord[i + 1].scaling.z = d;
+        foundationsRuck[i + 1].scaling.z = d;
+
+        foundations[i + 1].position.y = -e;
+        foundationsVord[i + 1].position.z = e;
+        foundationsRuck[i + 1].position.z = e;
+      }
+    }
+    if (leftPosts[0].material.id == "selectedMat") {
+      if (fencesArr[0].type == "easyFenceHalf") {
+        leftPosts[0].scaling.y = f;
+        leftPosts[0].position.y = g;
+      } else {
+        leftPosts[0].scaling.y = a;
+        leftPosts[0].position.y = b;
+      }
+      roots[0].isVisible = roots[1].isVisible = c;
+
+      foundations[0].scaling.y = d;
+      foundationsVord[0].scaling.y = d;
+      foundationsRuck[0].scaling.y = d;
+
+      foundations[0].position.y = -e;
+      foundationsVord[0].position.y = -e;
+      foundationsRuck[0].position.y = -e;
+    }
+  }
+  pfostensSingle[0].addEventListener("click", () => {
+    changeSinglePostSize(1, 0.962, true, 1, 0.25, 0.524, 0.504);
+    setActivnesStyle(pfostensSingle, 1, 0, "active-text-color-single");
+  });
+  pfostensSingle[1].addEventListener("click", () => {
+    changeSinglePostSize(1.2, 0.7717, false, 1, 0.25, 0.724, 0.3119);
+    setActivnesStyle(pfostensSingle, 1, 1, "active-text-color-single");
+  });
+  pfostensSingle[2].addEventListener("click", () => {
+    changeSinglePostSize(1.475, 0.511, false, 1.8, 0.45, 0.999, 0.053);
+    setActivnesStyle(pfostensSingle, 1, 2, "active-text-color-single");
+  });
   //8 STURMANKER
   let sturmankerCon = document.getElementsByClassName("sturmanker-con");
-  setActivnes(sturmankerCon, 10);
+  setActivnes(sturmankerCon, 10, "active-text-color");
   function setSturmanker(a, b, c, d, e) {
-    for (let i = 0; i < leds.length; i++) {
-      if (!leds[i].isVisible) {
+    for (let i = 0; i < allPosts.length; i++) {
+      if (!leds[i].isVisible && allPosts[i].isVisible) {
         sturmankersRuckseite[i].isVisible = a;
         sturRuckseiteSrafs[i].isVisible = a;
         sturmankersVorderseite[i].isVisible = b;
@@ -3520,7 +3962,7 @@ var createScene = function () {
           singsDel[i].isVisible = false;
         }
         //set activnes on leds parts to turn of led
-        setActivnesStyle(ledDayNight, 8, 0);
+        setActivnesStyle(ledDayNight, 8, 0, "active-text-color");
       }
       //set wich one is activ
       vorderseiteOn = f;
@@ -3654,7 +4096,9 @@ var createScene = function () {
               removeSideAccesories(
                 sideAccesories,
                 deleteAccesorie,
-                addFenceAcc
+                addFenceAcc,
+                editPost,
+                addNewFenceToSide
               );
               addDefaultMaterial(
                 fenceBoards,
@@ -3700,8 +4144,8 @@ var createScene = function () {
                 }
               });
               aaa > 0
-                ? setActivnesStyle(ledParts, 6, 1)
-                : setActivnesStyle(ledParts, 6, 0);
+                ? setActivnesStyle(ledParts, 6, 1, "active-text-color")
+                : setActivnesStyle(ledParts, 6, 0, "active-text-color");
             } else {
               a.forEach((elm) => {
                 elm.material = fencePostMat;
@@ -3761,7 +4205,7 @@ var createScene = function () {
       }
     }
     if (sturNum2 < 1) {
-      setActivnesStyle(sturmankerCon, 10, 1);
+      setActivnesStyle(sturmankerCon, 10, 1, "active-text-color");
       strurmOn = false;
     }
   });
@@ -3784,10 +4228,15 @@ var createScene = function () {
   directeHauswandMesh.material = concreteMat;
   directeHauswandMesh.isVisible = false;
 
-  function setHauswand(a, b, c, d, e, f) {
+  function setHauswand(a, b, c, d, e, f, g, h, j, k) {
     directeHauswandMesh.isVisible = a;
     leftPosts[0].scaling.y = b;
+    leftPosts[0].scaling.x = leftPostCaps[0].scaling.x = g;
+    leftPosts[0].scaling.z = leftPostCaps[0].scaling.z = h;
     leftPosts[0].position.y = c;
+    leftPosts[0].position.x = leftPostCaps[0].position.x = j;
+    // leftPostCaps[0].position.y = k;
+
     if (roots[3].isVisible && !directeHauswandMesh.isVisible) {
       roots[0].isVisible = roots[1].isVisible = true;
     } else if (
@@ -3819,7 +4268,13 @@ var createScene = function () {
       BABYLON.ActionManager.OnPickTrigger,
       function () {
         if (directeHauswandMesh.material.id != "selectedMat") {
-          removeSideAccesories(sideAccesories, deleteAccesorie, addFenceAcc);
+          removeSideAccesories(
+            sideAccesories,
+            deleteAccesorie,
+            addFenceAcc,
+            editPost,
+            addNewFenceToSide
+          );
           addDefaultMaterial(
             fenceBoards,
             sturmankersVorderseite,
@@ -3858,8 +4313,8 @@ var createScene = function () {
             }
           });
           aaa > 0
-            ? setActivnesStyle(ledParts, 6, 1)
-            : setActivnesStyle(ledParts, 6, 0);
+            ? setActivnesStyle(ledParts, 6, 1, "active-text-color")
+            : setActivnesStyle(ledParts, 6, 0, "active-text-color");
         } else {
           directeHauswandMesh.material = concreteMat;
           sideAccesories.style.display = "none";
@@ -3895,6 +4350,13 @@ var createScene = function () {
       if (directeHauswandMeshesRight[i].material.id == "selectedMat") {
         directeHauswandMeshesRight[i].material = concreteMat;
         directeHauswandMeshesRight[i].isVisible = false;
+        directeHauswandMeshesRight[i].scaling.z = directeHauswandMeshesRight[
+          i
+        ].scaling.x = 1;
+        directeHauswandMeshesRight[i].position.z =
+          directeHauswandMeshesRight[i].position.z + 0.05;
+        directeHauswandMeshesRight[i].position.x =
+          directeHauswandMeshesRight[i].position.x - 0.05;
         foundationStartsRight[i].isVisible = true;
         foundationVisibilty(
           foundationStarts,
@@ -3909,7 +4371,13 @@ var createScene = function () {
           i + 1
         );
         if (befePfostenSize == 0) {
-          rightPosts[i].scaling.z = 1;
+          rightPosts[i].scaling.z =
+            rightPosts[i].scaling.y =
+            rightPosts[i].scaling.x =
+            rightPostCaps[i].scaling.x =
+            rightPostCaps[i].scaling.y =
+              1;
+          rightPostCaps[i].position.y = rightPostCaps[i].position.y + 0.01;
           rightPosts[i].position.y = 0.962;
           rightRoots[i].forEach((elm) => {
             elm.isVisible = true;
@@ -3919,12 +4387,24 @@ var createScene = function () {
         }
         if (befePfostenSize == 1) {
           rightPosts[i].scaling.z = 1.2;
+          rightPosts[i].scaling.y =
+            rightPosts[i].scaling.x =
+            rightPostCaps[i].scaling.x =
+            rightPostCaps[i].scaling.y =
+              1;
+          rightPostCaps[i].position.y = rightPostCaps[i].position.y + 0.01;
           rightPosts[i].position.y = 0.7717;
           foundations[i + 1].scaling.y = 1;
           foundations[i + 1].position.y = -0.5 / 2;
         }
         if (befePfostenSize == 2) {
           rightPosts[i].scaling.z = 1.475;
+          rightPosts[i].scaling.y =
+            rightPosts[i].scaling.x =
+            rightPostCaps[i].scaling.x =
+            rightPostCaps[i].scaling.y =
+              1;
+          rightPostCaps[i].position.y = rightPostCaps[i].position.y + 0.01;
           rightPosts[i].position.y = 0.511;
           foundations[i + 1].scaling.y = 1.8;
           foundations[i + 1].position.y = -0.9 / 2;
@@ -3935,7 +4415,18 @@ var createScene = function () {
 
   function addRemoveHauswand() {
     if (!directeHauswandMesh.isVisible) {
-      setHauswand(true, 1, 0.962, false, false, false);
+      setHauswand(
+        true,
+        1,
+        0.962,
+        false,
+        false,
+        false,
+        0.7,
+        0.7,
+        -0.005
+        // leftPostCaps[0].position.y
+      );
       sturmankersRuckseite[0].isVisible = false;
       sturRuckseiteSrafs[0].isVisible = false;
       sturmankersVorderseite[0].isVisible = false;
@@ -3945,14 +4436,19 @@ var createScene = function () {
     } else {
       setHauswand(
         false,
-        rightPosts[0].scaling.z,
-        rightPosts[0].position.y,
+        1,
+        0.962,
         true,
         false,
-        false
+        false,
+        1,
+        1,
+        0
+        // leftPostCaps[0].position.y
       );
-      // foundationStarts[0].scaling.z = foundations[0].scaling.z = 1;
-      // foundationStarts[0].position.z = foundations[0].position.z = 0;
+      foundationStarts[0].scaling.z = foundations[0].scaling.y = 1;
+      foundationStarts[0].position.z = 0;
+      foundations[0].position.y = -0.5 / 2;
       directeHauswandMesh.material = concreteMat;
     }
   }
@@ -4015,7 +4511,7 @@ var createScene = function () {
   let changeFence = document.getElementsByClassName(
     "set-activnes-change-fence"
   );
-  setActivnes(changeFence, 0);
+  setActivnes(changeFence, 0, "active-text-color");
 
   //close add new fence accesoire when close button
   accCloseButFun(sideAccCloseBtn);
@@ -4029,6 +4525,7 @@ var createScene = function () {
   let smallBoardsSecond = document.getElementsByClassName(
     "second-set-add-fence-color"
   );
+
   //function to change fence
   function changeFenceFunction(a, b, c, d, e, f, g) {
     fenceBoards[activeFence].forEach((elm) => {
@@ -4063,13 +4560,173 @@ var createScene = function () {
       }
     });
     if (aaa < 1) {
-      setActivnesStyle(designInlays, 4, 0);
+      setActivnesStyle(designInlays, 4, 0, "active-text-color");
       inlaysOn = 0;
     }
     //set laisnes
-    for (let i = 0; i < laisnes[activeFence].length; i++) {
-      if (checkboxActive[i]) {
+    for (let i = 0; i < fencesArr[activeFence].laisnes.length; i++) {
+      if (fencesArr[activeFence].laisnes[i]) {
         laisnes[activeFence][i].isVisible = f;
+      }
+    }
+    //set fence height
+    if (d == "easyFenceHalf") {
+      for (let i = 4; i < fenceBoards[activeFence].length; i++) {
+        fenceBoards[activeFence][i].isVisible = false;
+      }
+      laisnes[activeFence].forEach((elm) => {
+        elm.isVisible = false;
+      });
+      for (let i = 0; i < 3; i++) {
+        if (fencesArr[activeFence].laisnes[i]) {
+          laisnes[activeFence][i].isVisible = true;
+        }
+      }
+
+      //children
+      let childType = 0;
+      for (let i = 0; i < fencesArr[activeFence].children.length; i++) {
+        if (
+          fencesArr[fencesArr[activeFence].children[i]].type != "easyFenceHalf"
+        ) {
+          childType += 1;
+        }
+      }
+      if (childType == 0) {
+        ledsRight[activeFence].scaling.z = 0.524;
+        ledsRight[activeFence].position.z = 0.46;
+        ledsRight[activeFence].position.y = 0.001;
+        rightPosts[activeFence].scaling.z = 0.524;
+        rightPosts[activeFence].position.y = 0.504;
+        if (befePfostenSize == 1) {
+          rightPosts[activeFence].scaling.z = 0.724;
+          rightPosts[activeFence].position.y = 0.3119;
+        }
+        if (befePfostenSize == 2) {
+          rightPosts[activeFence].scaling.z = 0.999;
+          rightPosts[activeFence].position.y = 0.053;
+        }
+        rightPostCaps[activeFence].isVisible = false;
+        rightPostCapClones[activeFence].isVisible = true;
+      }
+
+      //parent
+      if (activeFence > 0) {
+        if (fencesArr[fencesArr[activeFence].parent].type == "easyFenceHalf") {
+          let fenceSibling = 0;
+          for (
+            let i = 0;
+            i < fencesArr[fencesArr[activeFence].parent].children.length;
+            i++
+          ) {
+            if (
+              fencesArr[fencesArr[fencesArr[activeFence].parent].children[i]]
+                .type != "easyFenceHalf"
+            ) {
+              fenceSibling += 1;
+            }
+          }
+          if (fenceSibling < 1) {
+            ledsRight[fencesArr[activeFence].parent].scaling.z = 0.524;
+            ledsRight[fencesArr[activeFence].parent].position.z = 0.46;
+            ledsRight[fencesArr[activeFence].parent].position.y = 0.001;
+            rightPosts[fencesArr[activeFence].parent].scaling.z = 0.524;
+            rightPosts[fencesArr[activeFence].parent].position.y = 0.504;
+            if (befePfostenSize == 1) {
+              rightPosts[fencesArr[activeFence].parent].scaling.z = 0.724;
+              rightPosts[fencesArr[activeFence].parent].position.y = 0.3119;
+            }
+            if (befePfostenSize == 2) {
+              rightPosts[fencesArr[activeFence].parent].scaling.z = 0.999;
+              rightPosts[fencesArr[activeFence].parent].position.y = 0.053;
+            }
+            rightPostCaps[fencesArr[activeFence].parent].isVisible = false;
+            rightPostCapClones[fencesArr[activeFence].parent].isVisible = true;
+          }
+        }
+      }
+
+      if (activeFence == 0) {
+        leftPosts[0].scaling.y = 0.524;
+        leftPosts[0].position.y = 0.504;
+        if (befePfostenSize == 1) {
+          leftPosts[0].scaling.y = 0.724;
+          leftPosts[0].position.y = 0.3119;
+        }
+        if (befePfostenSize == 2) {
+          leftPosts[0].scaling.y = 0.999;
+          leftPosts[0].position.y = 0.053;
+        }
+        leftPostCaps[0].position.y = 0.052;
+        leds[activeFence].scaling.y = 0.524;
+        leds[activeFence].position.y = 0.5;
+        leds[activeFence].position.z = 0.001;
+      }
+
+      startParts[activeFence].position.y =
+        fenceBoards[activeFence][3].position.y + 0.23 / 2 + 0.005;
+    } else {
+      for (let i = 4; i < fenceBoards[activeFence].length; i++) {
+        if (d == "easyRomBig" || d == "easyRomSmall") {
+          fenceBoards[activeFence][i].isVisible = false;
+        } else {
+          fenceBoards[activeFence][i].isVisible = true;
+        }
+      }
+      ledsRight[activeFence].scaling.z = 1;
+      ledsRight[activeFence].position.z = 0;
+      ledsRight[activeFence].position.y = 0.001;
+      if (fencesArr[activeFence].inlays == 1) {
+        fenceBoards[activeFence][6].isVisible = false;
+      }
+      startParts[activeFence].position.y =
+        fenceBoards[activeFence][7].position.y + 0.23 / 2 + 0.005;
+      rightPosts[activeFence].scaling.z = 1;
+      rightPosts[activeFence].position.y = 0.962;
+      if (befePfostenSize == 1) {
+        rightPosts[activeFence].scaling.z = 1.2;
+        rightPosts[activeFence].position.y = 0.7717;
+      }
+      if (befePfostenSize == 2) {
+        rightPosts[activeFence].scaling.z = 1.475;
+        rightPosts[activeFence].position.y = 0.511;
+      }
+      rightPostCaps[activeFence].isVisible = true;
+      rightPostCapClones[activeFence].isVisible = false;
+
+      if (activeFence == 0) {
+        leftPosts[0].scaling.y = 1;
+        leftPosts[0].position.y = 0.962;
+        if (befePfostenSize == 1) {
+          leftPosts[0].scaling.y = 1.2;
+          leftPosts[0].position.y = 0.7717;
+        }
+        if (befePfostenSize == 2) {
+          leftPosts[0].scaling.y = 1.475;
+          leftPosts[0].position.y = 0.511;
+        }
+        leftPostCaps[0].position.y = 0.962;
+        leds[activeFence].scaling.y = 1;
+        leds[activeFence].position.y = 0.962;
+        leds[activeFence].position.z = 0.001;
+      }
+      //set parent right post
+      if (activeFence > 0) {
+        ledsRight[fencesArr[activeFence].parent].scaling.z = 1;
+        ledsRight[fencesArr[activeFence].parent].position.z = 0;
+        ledsRight[fencesArr[activeFence].parent].position.y = 0.001;
+        rightPosts[fencesArr[activeFence].parent].scaling.z = 1;
+        rightPosts[fencesArr[activeFence].parent].position.y = 0.962;
+        if (befePfostenSize == 1) {
+          rightPosts[fencesArr[activeFence].parent].scaling.z = 1.2;
+          rightPosts[fencesArr[activeFence].parent].position.y = 0.7717;
+        }
+        if (befePfostenSize == 2) {
+          rightPosts[fencesArr[activeFence].parent].scaling.z = 1.475;
+          rightPosts[fencesArr[activeFence].parent].position.y = 0.511;
+        }
+        rightPostCaps[fencesArr[activeFence].parent].isVisible = true;
+        rightPostCapClones[fencesArr[activeFence].parent].isVisible = false;
       }
     }
     //set ground size
@@ -4094,6 +4751,124 @@ var createScene = function () {
   changeFence[5].addEventListener("click", () => {
     changeFenceFunction(false, true, 60, "easyRomSmall", "anthrazit", false, 0);
   });
+  changeFence[6].addEventListener("click", () => {
+    changeFenceFunction(true, false, 180, "easyFenceHalf", "silber", true, 0);
+  });
+  // SINGLE FENCE EDITING
+  //set activnes single fences
+  let clickablePartSingleFence = document.getElementsByClassName(
+    "set-part-click-title-single"
+  );
+  for (let i = 0; i < clickablePartSingleFence.length; i++) {
+    clickablePartSingleFence[i].onclick = () => {
+      if (
+        clickablePartSingleFence[i].className !=
+        "set-part-click-title-single clicked"
+      ) {
+        clickablePartSingleFence[i].className = clickablePartSingleFence[
+          i
+        ].className.replace(" not-clicked", " clicked");
+        clickablePartSingleFence[i].children[1].innerHTML = "-";
+        clickablePartSingleFence[i].nextElementSibling.style.height = "auto";
+      } else if (
+        clickablePartSingleFence[i].className ==
+        "set-part-click-title-single clicked"
+      ) {
+        clickablePartSingleFence[i].className = clickablePartSingleFence[
+          i
+        ].className.replace(" clicked", " not-clicked");
+        clickablePartSingleFence[i].children[1].innerHTML = "+";
+        clickablePartSingleFence[i].nextElementSibling.style.height = 0;
+      }
+    };
+  }
+  //inlays single fence
+  let designleistensMatSingle = document.getElementsByClassName(
+    "set-part-designleisten-aus-aluminium-act-col-single"
+  );
+  setPartsAndconf(designleistensMatSingle, laisneMat, fencePartsColors);
+  setActivnes(designleistensMatSingle, 0, "active-text-color-single");
+
+  //add lisnes to single fence
+  let createLaisneSingle = (laisnePos) => {
+    if (fencesArr[activeFence].type != "easyFenceHalf" || laisnePos < 3) {
+      laisnes[activeFence][laisnePos].isVisible = true;
+      startParts[activeFence].position.y += 0.01;
+    }
+    laisnes[activeFence][laisnePos].position.y =
+      fenceBoards[activeFence][laisnePos].position.y + 0.22 / 2 + 0.005;
+    if (laisnePos < 6) {
+      inlays[activeFence][0].position.y += 0.01;
+      inlays[activeFence][2].position.y += 0.01;
+    }
+    for (let i = laisnePos; i < 7; i++) {
+      fenceBoards[activeFence][i + 1].position.y += 0.01;
+      if (i < 6) {
+        if (fencesArr[activeFence].laisnes[i + 1]) {
+          laisnes[activeFence][i + 1].position.y += 0.01;
+        }
+      }
+    }
+  };
+
+  //remove lisnes to single fence
+  let disposeLaisneSingle = (laisnePos) => {
+    if (fencesArr[activeFence].type != "easyFenceHalf" || laisnePos < 3) {
+      laisnes[activeFence][laisnePos].isVisible = false;
+      startParts[activeFence].position.y -= 0.01;
+    }
+    if (laisnePos < 6) {
+      inlays[activeFence][0].position.y -= 0.01;
+      inlays[activeFence][2].position.y -= 0.01;
+    }
+    for (let i = laisnePos; i < 7; i++) {
+      fenceBoards[activeFence][i + 1].position.y -= 0.01;
+      if (i < 6) {
+        if (fencesArr[activeFence].laisnes[i + 1]) {
+          laisnes[activeFence][i + 1].position.y -= 0.01;
+        }
+      }
+    }
+  };
+
+  //desingnelisnes check box to active single
+  let designleistensSingle = document.getElementsByClassName(
+    "set-part-designleisten-aus-aluminium-single"
+  );
+  if (designleistensSingle.length > 0) {
+    let actColSin = "#3967ff";
+    let transperentSin = "transparent";
+    let emptySin = "";
+    function addLaisnesSingle(a, b, c, d, i) {
+      designleistensSingle[i].children[0].children[0].style.backgroundColor = a;
+      designleistensSingle[i].children[0].children[0].innerHTML = b;
+      fencesArr[activeFence].laisnes[i] = c;
+      d;
+    }
+
+    for (let i = 0; i < designleistensSingle.length; i++) {
+      designleistensSingle[i].addEventListener("click", () => {
+        if (!fencesArr[activeFence].laisnes[i]) {
+          addLaisnesSingle(
+            actColSin,
+            checkMark,
+            true,
+            createLaisneSingle(i),
+            i
+          );
+        } else {
+          addLaisnesSingle(
+            transperentSin,
+            emptySin,
+            false,
+            disposeLaisneSingle(i),
+            i
+          );
+        }
+      });
+    }
+  }
+
   //close side
   accCloseButFun(changeFence);
 
@@ -4133,6 +4908,23 @@ var createScene = function () {
     }
     fencesArr[a].parent = undefined;
     setGround();
+    //visibility because of cart counting
+    rightPosts[a].isVisible = false;
+    fenceBoards[a].forEach((elm) => {
+      elm.isVisible = false;
+    });
+    roots[a * 2 + 2].isVisible = roots[a * 2 + 3].isVisible = false;
+    directeHauswandMeshesRight[a].isVisible = false;
+    sturmankersRuckseite[a + 1].isVisible = sturmankersVorderseite[
+      a + 1
+    ].isVisible = false;
+    smallBoardsArr[a].isVisible = false;
+    inlays[a][0].isVisible = false;
+    laisnes[a].forEach((elm) => {
+      elm.isVisible = false;
+    });
+    ledsRight[a].isVisible = false;
+    startParts[a].isVisible = endParts[a].isVisible = false;
   }
   function recursiveToChildrenDelete(b) {
     if (fencesArr[b].children.length > 0) {
@@ -4187,7 +4979,1406 @@ var createScene = function () {
   screenshotBtn.onclick = () => {
     BABYLON.Tools.CreateScreenshot(engine, camera, 1024);
   };
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  //END OF SCENE
+
+  ////////////////////////////
+  //LINK
+
+  var link = document.getElementById("link");
+  link.onclick = () => {
+    var a = document.getElementsByClassName("scCartList")[0].children;
+    var prodIds = [];
+    var prodValues = [];
+    var linkParts = [];
+    for (let i = 0; i < a.length; i++) {
+      prodIds.push(
+        a[i].children[0].children[1].children[0].innerHTML.split("/ ")[2]
+      );
+      prodValues.push(a[i].children[2].children[1].value);
+
+      linkParts.push(prodIds[i] + ":" + prodValues[i] + ",");
+    }
+    linkParts = linkParts.join("");
+    link.href += "?add-to-cart=" + linkParts;
+  };
+  //parent.imgPDF();
+
+  ///////////////////////////////////////////////////////////////////SMART CART
+  /*
+   * SmartCart 2.0 plugin
+   * jQuery Shopping Cart Plugin
+   * by Dipu
+   */
+  (function ($) {
+    $.fn.smartCart = function (options) {
+      var options = $.extend({}, $.fn.smartCart.defaults, options);
+
+      return this.each(function () {
+        var obj = $(this);
+        var products = $("input[type=hidden]", obj);
+        var resultName = options.resultName;
+        var cartItemCount = 0;
+        var cartProductCount = 0;
+        var subTotal = 0;
+        var toolMaxImageHeight = 80;
+        var attrProductId = "pid";
+        var attrProductName = "pname";
+        var attrProductPrice = "pprice";
+        var attrProductImage = "pimage";
+        var attrCategoryName = "pcategory";
+
+        var labelCartMenuName = "Warenkorb (_COUNT_)";
+        var labelCartMenuNameTooltip =
+          "Warenkorb | Art. _PRODUCTCOUNT_ | Menge _ITEMCOUNT_";
+        var labelProductMenuName = "Elemente hinzufügen";
+        var labelSearchButton = "Search";
+        var labelSearchText = "Search";
+        var labelCategoryText = "Kategorien";
+        var labelClearButton = "Clear";
+        var labelAddToCartButton = "In den Warenkorb";
+        var labelQuantityText = "Menge";
+        var labelProducts = "Artikel";
+        var labelPrice = "Preis / Stk.";
+        var labelSubtotal = "Endpreis";
+        var labelTotal = "Gesamtpreis";
+        var labelRemove = "Löschen";
+        var labelCheckout = "Weiter";
+
+        var messageConfirmRemove =
+          'Sind Sie wirklich sicher, dass Sie "_PRODUCTNAME_" aus dem Warenkorb entfernen möchten?';
+        var messageCartEmpty = "Ihr Warenkorb ist leer";
+        var messageProductEmpty = "---";
+        var messageProductAddError = "Hinzufügen zum Warenkorb nicht möglich.";
+        var messageItemAdded = "Zum Warenkorb hinzugefügt";
+        var messageItemRemoved = "Artikel gelöscht";
+        var messageQuantityUpdated = "aktualisiert";
+        var messageQuantityErrorAdd =
+          "Fehlmenge. Hinzufügen zum Warenkorb nicht möglich.";
+        var messageQuantityErrorUpdate = "Fehlmenge.";
+
+        var txtvat = "Alle Preise inkl. gesetzl. MwSt.";
+
+        //Create Main Menu
+        cartMenu = labelCartMenuName.replace("_COUNT_", "0"); // display default
+        var btShowCart = $("<a>" + cartMenu + "</a>")
+          .attr("href", "#scart")
+          .addClass("button secondary");
+        var btShowProductList = $("<a>" + labelProductMenuName + "</a>")
+          .attr("href", "#sproducts")
+          .addClass("button secondary");
+        var msgBox2 = $("<div></div>")
+          .attr("id", "messBar")
+          .addClass("scMessageBar2")
+          .hide();
+
+        var elmProductMenu = $("<div></div>")
+          .addClass("cell medium-3 small-6")
+          .append(btShowProductList);
+        var elmCartMenu = $("<div></div>")
+          .addClass("cell medium-3 small-6")
+          .append(btShowCart);
+        var elmMsgBox = $("<div></div>").addClass("").append(msgBox2);
+        var elmMenuBar = $("<div></div>")
+          .addClass("scMenuBar button-group")
+          .append(btShowCart)
+          .append(btShowProductList)
+          .append(elmMsgBox);
+        obj.prepend(elmMenuBar);
+
+        // Create Search Elements
+        var elmPLSearchPanel = $("<div></div>").addClass(
+          "scSearchPanel grid-x grid-padding-x align-center-middle addmt"
+        );
+
+        // Create Category filter
+        if (options.enableCategoryFilter) {
+          var lblCategory = $(
+            "<div><p>" + labelCategoryText + ":</p></div>"
+          ).addClass("scLabelCategory cell shrink");
+          var elmCategory = $("<select></select>").addClass("scSelCategory");
+          var divC = $("<div></div>").addClass("cell shrink");
+          divC.append(elmCategory);
+          elmPLSearchPanel.append(lblCategory).append(divC);
+          fillCategory();
+        }
+
+        // Create Product List
+        var elmPLContainer = $("<div></div>").addClass("scTabs").hide();
+        elmPLContainer.prepend(elmPLSearchPanel);
+
+        var elmPLProducts = $("<div></div>").addClass("scProductList");
+        elmPLContainer.append(elmPLProducts);
+
+        // Create Cart
+        var elmCartContainer = $("<div></div>").addClass("scTabs").hide();
+        var elmCartHeader = $("<div></div>").addClass(
+          "grid-x grid-padding-x show-for-large align-middle cartngl"
+        );
+        var elmCartHeaderTitle1 = $(
+          "<div>" + labelProducts + "</div>"
+        ).addClass("cell large-5");
+        var elmCartHeaderTitle2 = $("<div>" + labelPrice + "</div>").addClass(
+          "cell large-2  text-center"
+        );
+        var elmCartHeaderTitle3 = $(
+          "<div>" + labelQuantityText + "</div>"
+        ).addClass("cell large-2 text-center");
+        var elmCartHeaderTitle4 = $(
+          "<div>" + labelSubtotal + "</div>"
+        ).addClass("cell large-2 text-center");
+        var elmCartHeaderTitle5 = $("<div></div>").addClass("cell large-1");
+        elmCartHeader
+          .append(elmCartHeaderTitle1)
+          .append(elmCartHeaderTitle2)
+          .append(elmCartHeaderTitle3)
+          .append(elmCartHeaderTitle4)
+          .append(elmCartHeaderTitle5);
+
+        var elmCartList = $("<div></div>").addClass("scCartList");
+        elmCartContainer.append(elmCartHeader).append(elmCartList);
+
+        obj.append(elmPLContainer).append(elmCartContainer);
+
+        // Create Bottom bar
+        var elmBottomBar = $("<div></div>").addClass(
+          "scBottomBar grid-x grid-padding-x grid-padding-y align-middle"
+        );
+
+        var elmW1 = $("<div></div>").addClass("cell large-8");
+        var elmBottomSubtotalText = $(
+          "<label>" + labelTotal + ":</label>"
+        ).addClass("scLabelSubtotalText");
+        var elWaluta = $("<label>EUR</label>").addClass("scWalutaText");
+        var elmBottomSubtotalValue = $(
+          "<label>" + getMoneyFormatted(subTotal) + "</label>"
+        ).addClass("scLabelSubtotalValue");
+
+        var elmW2 = $("<div></div>").addClass("cell large-1 text-right");
+        var btCheckout = $("<a>" + labelCheckout + "</a>")
+          .attr("href", "#")
+          .addClass("scCheckoutButton button");
+        $(btCheckout).click(function () {
+          // $(this).parents("form").submit();
+
+          parent.linkshare();
+          $(this).hide();
+          return false;
+        });
+
+        var elmW3 = $("<div></div>").addClass("cell large-3");
+        // var oproznij = $("<a>Warenkorb leeren</a>")
+        //   .attr("href", "#")
+        //   .addClass("button secondary oproznij");
+        // $(oproznij).click(function () {
+        //   $(".scCartList").empty();
+        //   elmProductSelected.empty();
+        //   refreshCartValues();
+        //   var url = "../common/s_koszyk.php"; //klaus
+        //   $.post(url, { dane: "clear" });
+        //   return false;
+        // });
+        // elmW3.append(oproznij);
+
+        elmW1
+          .append(elWaluta)
+          .append(elmBottomSubtotalValue)
+          .append(elmBottomSubtotalText)
+          .append('<p class="vat">' + txtvat + "</p>");
+        elmW2.append(btCheckout);
+        elmBottomBar.append(elmW3).append(elmW1).append(elmW2);
+        obj.append(elmBottomBar);
+
+        // Create Tooltip
+        var tooltip = $("<div></div>").addClass("tooltip").hide();
+        obj.append(tooltip);
+        obj.bind("mousemove", function () {
+          tooltip.hide();
+          return true;
+        });
+
+        // Create SelectList
+        var elmProductSelected = $('select[name="' + resultName + '"]', obj);
+        if (elmProductSelected.length <= 0) {
+          elmProductSelected = $("<select></select>")
+            .attr("name", resultName)
+            .attr("multiple", "multiple")
+            .hide();
+          refreshCartValues();
+        } else {
+          elmProductSelected.attr("multiple", "multiple").hide();
+          populateCart(); // pre-populate cart if there are selected items
+        }
+        obj.append(elmProductSelected);
+
+        // prepare the product list
+        populateProducts();
+
+        if (options.selected == "1") {
+          showCart();
+        } else {
+          showProductList();
+        }
+
+        $(btShowProductList).bind("click", function (e) {
+          showProductList();
+          return false;
+        });
+        $(btShowCart).bind("click", function (e) {
+          showCart();
+          return false;
+        });
+
+        function showCart() {
+          $(btShowProductList).removeClass("sel");
+          $(btShowCart).addClass("sel");
+          $(elmPLContainer).hide();
+          $(elmCartContainer).show();
+        }
+        function showProductList() {
+          $(btShowProductList).addClass("sel");
+          $(btShowCart).removeClass("sel");
+          $(elmCartContainer).hide();
+          $(elmPLContainer).show();
+        }
+
+        function addToCart(i, qty) {
+          var addProduct = products.eq(i);
+          // console.log(addProduct.length);
+          if (addProduct.length > 0) {
+            if ($.isFunction(options.onAdd)) {
+              // calling onAdd event; expecting a return value
+              // will start add if returned true and cancel add if returned false
+              if (!options.onAdd.call(this, $(addProduct), qty)) {
+                return false;
+              }
+            }
+            var pId = $(addProduct).attr(attrProductId);
+            var pName = $(addProduct).attr(attrProductName);
+            var pPrice = $(addProduct).attr(attrProductPrice);
+            var uid = $(addProduct).attr("uid"); //klaus
+            var pabm = $(addProduct).attr("pabm"); //klaus
+
+            // Check wheater the item is already added
+            var productItem = elmProductSelected.children(
+              "option[rel=" + i + "]"
+            );
+            if (productItem.length > 0) {
+              // Item already added, update the quantity and total
+              var curPValue = productItem.attr("value");
+              var valueArray = curPValue.split("|");
+              var prdId = valueArray[0];
+              var prdQty = valueArray[1];
+              prdQty = prdQty - 0 + (qty - 0);
+              var newPValue =
+                prdId +
+                "|" +
+                prdQty +
+                "|" +
+                pName +
+                "|" +
+                pPrice +
+                "|" +
+                uid +
+                "|" +
+                pabm; //klaus
+              productItem.attr("value", newPValue).attr("selected", true);
+              var prdTotal = getMoneyFormatted(pPrice * prdQty);
+              // Now go for updating the design
+              var lalQuantity = $("#lblQuantity" + i).val(prdQty);
+
+              var wBrutto =
+                '<label class="hide-for-large">' +
+                labelSubtotal +
+                ": </label>" +
+                prdTotal +
+                '<label class="hide-for-large"> EUR</label>';
+
+              var lblTotal = $("#lblTotal" + i).html(wBrutto);
+              // show product quantity updated message
+              showHighlightMessage(messageQuantityUpdated);
+            } else {
+              // This is a new item so create the list
+              var prodStr =
+                pId +
+                "|" +
+                qty +
+                "|" +
+                pName +
+                "|" +
+                pPrice +
+                "|" +
+                uid +
+                "|" +
+                pabm; //klaus
+              productItem = $("<option></option>")
+                .attr("rel", i)
+                .attr("value", prodStr)
+                .attr("selected", true)
+                .html(pName);
+              elmProductSelected.append(productItem);
+              addCartItemDisplay(addProduct, qty);
+              // show product added message
+              showHighlightMessage(messageItemAdded);
+            }
+            // refresh the cart
+            refreshCartValues();
+            // calling onAdded event; not expecting a return value
+            if ($.isFunction(options.onAdded)) {
+              options.onAdded.call(this, $(addProduct), qty);
+            }
+          } else {
+            showHighlightMessage(messageProductAddError);
+          }
+        }
+
+        function addCartItemDisplay(objProd, Quantity) {
+          var pId = $(objProd).attr(attrProductId);
+          var pIndex = products.index(objProd);
+          var pName = $(objProd).attr(attrProductName);
+          var pPrice = $(objProd).attr(attrProductPrice);
+          var prodImgSrc = $(objProd).attr(attrProductImage);
+          var pTotal = (pPrice - 0) * (Quantity - 0);
+          pTotal = getMoneyFormatted(pTotal);
+
+          pTotal =
+            '<label class="hide-for-large">' +
+            labelSubtotal +
+            ": </label>" +
+            pTotal +
+            '<label class="hide-for-large"> EUR</label>';
+
+          var pCena = getMoneyFormatted(pPrice - 0);
+          pCena =
+            '<label class="hide-for-large">Preis: </label>' +
+            pCena +
+            '<label class="hide-for-large"> </label>';
+
+          $(".scMessageBar", elmCartList).remove();
+
+          var elmCPTitle1 = $("<div></div>").addClass(
+            "cell large-5 no-left-pad"
+          );
+          if (prodImgSrc && options.enableImage && prodImgSrc.length > 0) {
+            var prodImg = $("<img alt=''></img>")
+              .attr("src", prodImgSrc)
+              .addClass("scProductImageSmall");
+            var scImg = $("<div></div>").addClass("scPDiv1");
+            scImg.append(prodImg);
+            elmCPTitle1.append(scImg);
+          }
+          var elmCP = $("<div></div>")
+            .attr("id", "divCartItem" + pIndex)
+            .addClass("grid-x grid-padding-x align-middle cartpad");
+
+          var pTitle = pName;
+          var phtml = formatTemplate(options.cartItemTemplate, $(objProd));
+          var elmCPContent = $("<div></div>").html(phtml).attr("title", pTitle);
+          elmCPTitle1.append(elmCPContent);
+
+          var elmCPTitle2 = $("<div>" + pCena + "</div>").addClass(
+            "cell large-2  medium-6 text-right"
+          );
+          var inputQty = $('<input type="text" value="' + Quantity + '" />')
+            .attr("id", "lblQuantity" + pIndex)
+            .attr("rel", pIndex)
+            .addClass("scTxtQuantity2");
+          $(inputQty).bind("change", function (e) {
+            var newQty = $(this).val();
+            var prodIdx = $(this).attr("rel");
+            newQty = newQty - 0;
+            if (validateNumber(newQty)) {
+              updateCartQuantity(prodIdx, newQty);
+            } else {
+              var productItem = elmProductSelected.children(
+                "option[rel=" + prodIdx + "]"
+              );
+              var pValue = $(productItem).attr("value");
+              var valueArray = pValue.split("|");
+              var pQty = valueArray[1];
+              $(this).val(pQty);
+              showHighlightMessage(messageQuantityErrorUpdate);
+            }
+            return true;
+          });
+
+          var elmCPTitle3 = $("<div></div>")
+            .append('<label class="hide-for-large">Menge: </label>')
+            .append(inputQty)
+            .addClass("cell large-2 medium-6   text-right medium-text-center");
+
+          var elmCPTitle4 = $("<div>" + pTotal + "</div>")
+            .attr("id", "lblTotal" + pIndex)
+            .addClass("cell large-2 medium-6  text-right");
+          var btRemove = $('<a><img src="img/deleteCart.svg"></a>')
+            .attr("rel", pIndex)
+            .attr("href", "#")
+            .addClass("scRemove button")
+            .attr("title", labelRemove);
+          $(btRemove).bind("click", function (e) {
+            var idx = $(this).attr("rel");
+            removeFromCart(idx);
+            return false;
+          });
+          var elmCPTitle5 = $("<div></div>").addClass(
+            "cell large-1 medium-6 text-right large-text-center noborder"
+          );
+          elmCPTitle5.append(btRemove);
+
+          elmCPTitle1.append(elmCPContent);
+          elmCP
+            .append(elmCPTitle1)
+            .append(elmCPTitle2)
+            .append(elmCPTitle3)
+            .append(elmCPTitle4)
+            .append(elmCPTitle5);
+          elmCartList.append(elmCP);
+        }
+
+        function ConfirmD(title, message, callback) {
+          // create your modal template
+          var modal =
+            '<div class="reveal tiny" id="confirmation">' +
+            '<h3 style="text-align:center; background-color:#ddd; color:#f47920;">' +
+            title +
+            "</h3>" +
+            '<p class="lead">' +
+            message +
+            "</p>" +
+            '<button class="button yes">OK</button>' +
+            '<button class="button secondary float-right" data-close>abbrechen</button>' +
+            "</div>";
+          // appending new reveal modal to the page
+          $("body").append(modal);
+          // registergin this modal DOM as Foundation reveal
+          var confirmation = new Foundation.Reveal($("#confirmation"));
+          // open
+          confirmation.open();
+          // listening for yes click
+
+          $("#confirmation")
+            .children(".yes")
+            .on("click", function () {
+              confirmation.close();
+              $("#confirmation").remove();
+              // calling the function to process
+              callback.call();
+            });
+          $(document).on("closed.zf.reveal", "#confirmation", function () {
+            $("#confirmation").remove();
+          });
+        }
+
+        function removeFromCart(idx) {
+          var pObj = products.eq(idx);
+          var pName = $(pObj).attr(attrProductName);
+          var removeMsg = messageConfirmRemove.replace("_PRODUCTNAME_", pName); // display default
+          //if(confirm(removeMsg)){
+
+          ConfirmD("?", removeMsg, function () {
+            if ($.isFunction(options.onRemove)) {
+              // calling onRemove event; expecting a return value
+              // will start remove if returned true and cancel remove if returned false
+              if (!options.onRemove.call(this, $(pObj))) {
+                return false;
+              }
+            }
+            var productItem = elmProductSelected.children(
+              "option[rel=" + idx + "]"
+            );
+            var pValue = $(productItem).attr("value");
+            var valueArray = pValue.split("|");
+            var pQty = valueArray[1];
+            productItem.remove();
+            $("#divCartItem" + idx, elmCartList).slideUp("slow", function () {
+              $(this).remove();
+              showHighlightMessage(messageItemRemoved);
+              //Refresh the cart
+              refreshCartValues();
+            });
+            if ($.isFunction(options.onRemoved)) {
+              // calling onRemoved event; not expecting a return value
+              options.onRemoved.call(this, $(pObj));
+            }
+          });
+          //}
+        }
+
+        function updateCartQuantity(idx, qty) {
+          var pObj = products.eq(idx);
+          var productItem = elmProductSelected.children(
+            "option[rel=" + idx + "]"
+          );
+          var pPrice = $(pObj).attr(attrProductPrice);
+          var pName = $(pObj).attr(attrProductName);
+          var uid = $(pObj).attr("uid"); //klaus
+          var pValue = $(productItem).attr("value");
+          var valueArray = pValue.split("|");
+          var prdId = valueArray[0];
+          var curQty = valueArray[1];
+          if ($.isFunction(options.onUpdate)) {
+            // calling onUpdate event; expecting a return value
+            // will start Update if returned true and cancel Update if returned false
+            if (!options.onUpdate.call(this, $(pObj), qty)) {
+              $("#lblQuantity" + idx).val(curQty);
+              return false;
+            }
+          }
+
+          var newPValue =
+            prdId + "|" + qty + "|" + pName + "|" + pPrice + "|" + uid; //klaus
+          $(productItem).attr("value", newPValue).attr("selected", true);
+          var prdTotal = getMoneyFormatted(pPrice * qty);
+          // Now go for updating the design
+          var wBrutto =
+            '<label class="hide-for-large">' +
+            labelSubtotal +
+            ": </label>" +
+            prdTotal +
+            '<label class="hide-for-large"> EUR</label>';
+
+          var lblTotal = $("#lblTotal" + idx).html(wBrutto);
+          showHighlightMessage(messageQuantityUpdated);
+          //Refresh the cart
+          refreshCartValues();
+          if ($.isFunction(options.onUpdated)) {
+            // calling onUpdated event; not expecting a return value
+            options.onUpdated.call(this, $(pObj), qty);
+          }
+        }
+
+        function refreshCartValues() {
+          var sTotal = 0;
+          var cProductCount = 0;
+          var cItemCount = 0;
+          elmProductSelected.children("option").each(function (n) {
+            var pIdx = $(this).attr("rel");
+            var pObj = products.eq(pIdx);
+            var pValue = $(this).attr("value");
+            var valueArray = pValue.split("|");
+            var prdId = valueArray[0];
+            var pQty = valueArray[1];
+            var pPrice = $(pObj).attr(attrProductPrice);
+            sTotal = sTotal + (pPrice - 0) * (pQty - 0);
+            cProductCount++;
+            cItemCount = cItemCount + (pQty - 0);
+          });
+          subTotal = sTotal;
+          cartProductCount = cProductCount;
+          cartItemCount = cItemCount;
+          elmBottomSubtotalValue.html(getMoneyFormatted(subTotal));
+          cartMenu = labelCartMenuName.replace("_COUNT_", cartItemCount);
+          cartMenuTooltip = labelCartMenuNameTooltip
+            .replace("_PRODUCTCOUNT_", cartProductCount)
+            .replace("_ITEMCOUNT_", cartItemCount);
+          btShowCart.html(cartMenu).attr("title", cartMenuTooltip);
+          $("#bcart span").text(cartItemCount);
+          $("#curPage span").text(cartItemCount);
+
+          $(".scCheckoutButton").hide();
+          $(".oproznij").show();
+          if (cProductCount <= 0) {
+            showMessage(messageCartEmpty, elmCartList);
+            // $(".scCheckoutButton").hide();
+            // $(".oproznij").hide();
+          } else {
+            $(".scMessageBar", elmCartList).remove();
+            // $(".scCheckoutButton").show();
+            // $(".oproznij").show();
+          }
+          // var url = "../common/s_koszyk.php";
+          // var zakup = $('select[name="products_selected[]"]').serialize(); //KLAUS
+
+          // if (zakup.length > 0) {
+          //   $.post(url, zakup);
+          // } else $.post(url, { dane: "clear" });
+        }
+
+        function populateCart() {
+          elmProductSelected.children("option").each(function (n) {
+            var curPValue = $(this).attr("value");
+            var valueArray = curPValue.split("|");
+            var prdId = valueArray[0];
+            var prdQty = valueArray[1];
+            if (!prdQty) {
+              prdQty = 1; // if product quantity is not present default to 1
+            }
+            var objProd = jQuery.grep(products, function (n, i) {
+              return $(n).attr(attrProductId) == prdId;
+            });
+            var prodIndex = products.index(objProd[0]);
+            var prodName = $(objProd[0]).attr(attrProductName);
+            $(this).attr("selected", true);
+            $(this).attr("rel", prodIndex);
+            $(this).html(prodName);
+            cartItemCount++;
+            addCartItemDisplay(objProd[0], prdQty);
+          });
+          // Reresh the cart
+          refreshCartValues();
+        }
+
+        function fillCategory() {
+          var catCount = 0;
+          var catItem = $("<option></option>")
+            .attr("value", "")
+            .attr("selected", true)
+            .html("Alle");
+          elmCategory.prepend(catItem);
+          $(products).each(function (i, n) {
+            var pCategory = $(this).attr(attrCategoryName);
+            if (pCategory && pCategory.length > 0) {
+              var objProd = jQuery.grep(
+                elmCategory.children("option"),
+                function (n, i) {
+                  return $(n).val() == pCategory;
+                }
+              );
+              if (objProd.length <= 0) {
+                catCount++;
+                var catItem = $("<option></option>")
+                  .attr("value", pCategory)
+                  .html(pCategory);
+                elmCategory.append(catItem);
+              }
+            }
+          });
+          if (catCount > 0) {
+            $(elmCategory).bind("change", function (e) {
+              // $(txtSearch).val('');
+              populateProducts();
+              return true;
+            });
+          } else {
+            elmCategory.hide();
+            lblCategory.hide();
+          }
+        }
+
+        function populateProducts(searchString) {
+          var isSearch = false;
+          var productCount = 0;
+          var selectedCategory = $(elmCategory).children(":selected").val();
+          // validate and prepare search string
+          if (searchString) {
+            searchString = trim(searchString);
+            if (searchString.length > 0) {
+              isSearch = true;
+              searchString = searchString.toLowerCase();
+            }
+          }
+          // Clear the current items on product list
+          elmPLProducts.html("");
+          // Lets go for dispalying the products
+          $(products).each(function (i, n) {
+            var productName = $(this).attr(attrProductName);
+            var productCategory = $(this).attr(attrCategoryName);
+            var isValid = true;
+            var isCategoryValid = true;
+
+            var lic = $(this).attr("lic");
+
+            if (lic > 0) {
+              addToCart(i, lic);
+            }
+
+            if (isSearch) {
+              if (productName.toLowerCase().indexOf(searchString) == -1) {
+                isValid = false;
+              } else {
+                isValid = true;
+              }
+            }
+            // Category filter
+            if (selectedCategory && selectedCategory.length > 0) {
+              selectedCategory = selectedCategory.toLowerCase();
+              if (
+                productCategory.toLowerCase().indexOf(selectedCategory) == -1
+              ) {
+                isCategoryValid = false;
+              } else {
+                isCategoryValid = true;
+              }
+            }
+
+            if (isValid && isCategoryValid) {
+              productCount++;
+              var productPrice = $(this).attr(attrProductPrice);
+              var prodImgSrc = $(this).attr(attrProductImage);
+
+              var elmProdDiv1 = $("<div></div>").addClass("scImg");
+              if (prodImgSrc && options.enableImage && prodImgSrc.length > 0) {
+                var prodImg = $("<img alt=''></img>")
+                  .attr("src", prodImgSrc)
+                  .addClass("scProductImage");
+                elmProdDiv1.append(prodImg);
+              }
+
+              var elmProdDiv2 = $("<div></div>").addClass(
+                "scPDiv2 cell small-8 medium-6"
+              ); // for product name, desc & price
+              var productHtml = formatTemplate(
+                options.productItemTemplate,
+                $(this)
+              );
+              elmProdDiv2.html(productHtml);
+
+              var elmProdDiv3 = $("<div></div>").addClass(
+                "scPDiv3 cell small-3 medium-1 text-center align-self-bottom"
+              ); // for button & qty
+              var btAddToCart = $("<a>" + labelAddToCartButton + "</a>")
+                .attr("href", "#")
+                .attr("rel", i)
+                .attr("title", labelAddToCartButton)
+                .addClass("scAddToCart button");
+              $(btAddToCart).bind("click", function (e) {
+                var idx = $(this).attr("rel");
+                var qty = $(this).parent().parent().find("input").val();
+                if (validateNumber(qty)) {
+                  addToCart(idx, qty);
+                } else {
+                  $(this).siblings("input").val(1);
+                  showHighlightMessage(messageQuantityErrorAdd);
+                }
+                return false;
+              });
+
+              var inputQty = $('<input type="text" value="1" />').addClass(
+                "scTxtQuantity"
+              );
+              var labelQty = $(
+                "<label>" + labelQuantityText + ":</label>"
+              ).addClass("scLabelQuantity");
+              elmProdDiv3.append(labelQty).append(inputQty);
+
+              var butKontener = $("<div></div").addClass(
+                "cell small-8 medium-shrink align-self-bottom"
+              );
+              butKontener.append(btAddToCart);
+
+              var elmProds = $("<div></div>").addClass(
+                "scProducts grid-x grid-padding-y grid-padding-x"
+              );
+
+              elmProds
+                .append(
+                  '<div class=" cell small-4 medium-shrink">' +
+                    elmProdDiv1.wrap("<p/>").parent().html() +
+                    "</div>"
+                )
+                .append(elmProdDiv2)
+                .append(elmProdDiv3)
+                .append(butKontener);
+              elmPLProducts.append(elmProds);
+            }
+          });
+
+          if (productCount <= 0) {
+            showMessage(messageProductEmpty, elmPLProducts);
+          }
+        }
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //ADD TO CART
+        let cartItems = [];
+        var mrk = () => {
+          $(".scCartList").empty();
+          elmProductSelected.empty();
+          refreshCartValues();
+          for (let i = 0; i < cartItems.length; i++) {
+            if (cartItems[i] > 0) {
+              addToCart(i, cartItems[i]);
+            }
+          }
+        };
+        //CART
+        let priceBut = document.getElementById("price-but");
+        let cartFade = document.getElementById("cart-fade");
+        let cartMainSection = document.getElementById("cart-main-section");
+        let cartCloseBtn = document.getElementById("cart-close-btn");
+        //populate cart
+        priceBut.onclick = () => {
+          removeSideAccesories(
+            sideAccesories,
+            deleteAccesorie,
+            addFenceAcc,
+            editPost,
+            addNewFenceToSide
+          );
+          addDefaultMaterial(
+            fenceBoards,
+            sturmankersVorderseite,
+            rightPosts,
+            leftPosts,
+            directeHauswandMeshes,
+            fenceBoardMat,
+            fencePostMat,
+            concreteMat,
+            smallBoardsArr,
+            smallBoardsMat,
+            smallBoardsMatDark,
+            fencesArr,
+            addFenceSings
+          );
+          //open cart sections
+          cartFade.style.display = "block";
+          cartMainSection.style.display = "block";
+          //populate start - end part
+          let startEndCartSilb = 0;
+          let startEndCartAnth = 0;
+          startParts.forEach((elm) => {
+            if (elm.isVisible) {
+              if (elm.material.diffuseColor.r > 0.3) {
+                startEndCartSilb += 1;
+              } else {
+                startEndCartAnth += 1;
+              }
+            }
+          });
+          // populate main boards
+          let fenceBoardsCartAnth = 0;
+          let fenceBoardsCartGrau = 0;
+          let fenceBoardsCartSand = 0;
+          let fenceBoardsCartBraun = 0;
+          for (let i = 0; i < smallBoardsArr.length; i++) {
+            for (let j = 0; j < fenceBoards[i].length; j++) {
+              if (fenceBoards[i][j].isVisible) {
+                if (fenceBoards[i][j].material.diffuseColor.b < 0.3) {
+                  fenceBoardsCartAnth += 1;
+                } else if (
+                  fenceBoards[i][j].material.diffuseColor.b > 0.5 &&
+                  fenceBoards[i][j].material.diffuseColor.b < 0.8
+                ) {
+                  fenceBoardsCartGrau += 1;
+                } else if (fenceBoards[i][j].material.diffuseColor.b > 0.8) {
+                  fenceBoardsCartSand += 1;
+                } else if (
+                  fenceBoards[i][j].material.diffuseColor.b > 0.3 &&
+                  fenceBoards[i][j].material.diffuseColor.b < 0.5
+                ) {
+                  fenceBoardsCartBraun += 1;
+                }
+              }
+            }
+          }
+          fenceBoardsCartAnth = Math.ceil(fenceBoardsCartAnth / 4);
+          fenceBoardsCartGrau = Math.ceil(fenceBoardsCartGrau / 4);
+          fenceBoardsCartSand = Math.ceil(fenceBoardsCartSand / 4);
+          fenceBoardsCartBraun = Math.ceil(fenceBoardsCartBraun / 4);
+          //populate posts
+          let post295SilberCart = 0;
+          let post235SilberCart = 0;
+          let post190SilberCart = 0;
+          let post295AnthCart = 0;
+          let post235AnthCart = 0;
+          let post190AnthCart = 0;
+          if (allPosts[0].scaling.x == 1) {
+            if (allPosts[0].material.diffuseColor.r > 0.3) {
+              if (allPosts[0].scaling.y > 1.4) {
+                post295SilberCart += 1;
+              } else if (
+                allPosts[0].scaling.y > 1 &&
+                allPosts[0].scaling.y < 1.4
+              ) {
+                post235SilberCart += 1;
+              } else if (allPosts[0].scaling.y < 1.1) {
+                post190SilberCart += 1;
+              }
+            } else {
+              if (allPosts[0].scaling.y > 1.4) {
+                post295AnthCart += 1;
+              } else if (
+                allPosts[0].scaling.y > 1 &&
+                allPosts[0].scaling.y < 1.4
+              ) {
+                post235AnthCart += 1;
+              } else if (allPosts[0].scaling.y < 1.1) {
+                post190AnthCart += 1;
+              }
+            }
+          }
+          for (let i = 1; i < allPosts.length; i++) {
+            if (allPosts[i].isVisible) {
+              if (allPosts[i].scaling.x == 1) {
+                if (allPosts[i].material.diffuseColor.r > 0.3) {
+                  if (allPosts[i].scaling.z > 1.4) {
+                    post295SilberCart += 1;
+                  } else if (
+                    allPosts[i].scaling.z > 1 &&
+                    allPosts[i].scaling.z < 1.4
+                  ) {
+                    post235SilberCart += 1;
+                  } else if (allPosts[i].scaling.z < 1.1) {
+                    post190SilberCart += 1;
+                  }
+                } else {
+                  if (allPosts[i].scaling.z > 1.4) {
+                    post295AnthCart += 1;
+                  } else if (
+                    allPosts[i].scaling.z > 1 &&
+                    allPosts[i].scaling.z < 1.4
+                  ) {
+                    post235AnthCart += 1;
+                  } else if (allPosts[i].scaling.z < 1.1) {
+                    post190AnthCart += 1;
+                  }
+                }
+              }
+            }
+          }
+          //poulate roots
+          let rootsCart = 0;
+          if (roots[0].isVisible) rootsCart += 1;
+          if (roots[2].isVisible) rootsCart += 1;
+          for (let i = 4; i < roots.length; i++) {
+            if (roots[i].isVisible) rootsCart += 0.5;
+          }
+          //populate hauswand
+          let hauswandSilberCart = 0;
+          let hauswandAnthCart = 0;
+          for (let i = 0; i < directeHauswandMeshes.length; i++) {
+            if (directeHauswandMeshes[i].isVisible) {
+              if (allPosts[i].material.diffuseColor.r > 0.3) {
+                hauswandSilberCart += 1;
+              } else {
+                hauswandAnthCart += 1;
+              }
+            }
+          }
+          //populate sturmanker
+          let sturmankerSilberCart = 0;
+          let sturmankerAnthCart = 0;
+          for (let i = 0; i < sturmankersRuckseite.length; i++) {
+            if (
+              sturmankersRuckseite[i].isVisible ||
+              sturmankersVorderseite[i].isVisible
+            ) {
+              if (allPosts[i].material.diffuseColor.r > 0.3) {
+                sturmankerSilberCart += 1;
+              } else {
+                sturmankerAnthCart += 1;
+              }
+            }
+          }
+          //populate small boards
+          let smallBoardLongAnthCart = 0;
+          let smallBoardShortAnthCart = 0;
+          let smallBoardLongSilberCart = 0;
+          let smallBoardShortSilberCart = 0;
+          for (let i = 0; i < smallBoardsArr.length; i++) {
+            if (smallBoardsArr[i].isVisible) {
+              if (smallBoardsArr[i].material.diffuseColor.r > 0.3) {
+                if (fencesArr[i].size > 60) {
+                  smallBoardLongSilberCart += 1;
+                } else {
+                  smallBoardShortSilberCart += 1;
+                }
+              } else {
+                if (fencesArr[i].size > 60) {
+                  smallBoardLongAnthCart += 1;
+                } else {
+                  smallBoardShortAnthCart += 1;
+                }
+              }
+            }
+          }
+          //populate desighn inlays
+          let inlaysSilberCart = 0;
+          let inlaysAnthCart = 0;
+          for (let i = 0; i < inlays.length; i++) {
+            if (inlays[i][0].isVisible) {
+              // console.log(inlays[i][2].material.diffuseColor.r);
+              if (inlays[i][2].material.diffuseColor.r > 0.3) {
+                inlaysSilberCart += 1;
+              } else {
+                inlaysAnthCart += 1;
+              }
+            }
+          }
+          //populate laisne
+          let laisneSilberCart = 0;
+          let laisnesSevenSilberCart = 0;
+          let laisnesOneSilberCart = 0;
+          let laisneAnthCart = 0;
+          let laisnesSevenAnthCart = 0;
+          let laisnesOneAnthCart = 0;
+          // console.log(laisnes[0]);
+          for (let i = 0; i < laisnes.length; i++) {
+            laisnes[i].forEach((elm) => {
+              if (elm.isVisible) {
+                if (elm.material.diffuseColor.r > 0.3) {
+                  laisneSilberCart += 1;
+                } else {
+                  laisneAnthCart += 1;
+                }
+              }
+            });
+          }
+          laisnesSevenSilberCart =
+            (laisneSilberCart - (laisneSilberCart % 7)) / 7;
+          laisnesOneSilberCart = laisneSilberCart % 7;
+
+          laisnesSevenAnthCart = (laisneAnthCart - (laisneAnthCart % 7)) / 7;
+          laisnesOneAnthCart = laisneAnthCart % 7;
+          //populate led
+          let ledsCart = 0;
+          let ledsColorCart = 0;
+          let ledsCabelCart = 0;
+          let ledsConectorCart = 0;
+          let ledConector = [];
+          for (let i = 0; i < leds.length; i++) {
+            if (leds[i].isVisible) {
+              ledsCart += 1;
+            }
+          }
+          if (ledsCart < 6) {
+            ledsCabelCart = 1;
+          }
+          if (ledsCart % 6 == 0) {
+            ledsCabelCart = ledsCart / 6;
+          }
+          if (ledsCart % 6 > 0) {
+            ledsCabelCart = Math.floor(ledsCart / 6) + 1;
+          }
+
+          for (let i = 0; i < ledsRight.length; i++) {
+            if (ledsRight[i].isVisible) {
+              if (
+                typeof ledsRight[fencesArr[i].parent] != "undefined" &&
+                !ledsRight[fencesArr[i].parent].isVisible
+              ) {
+                if (!ledConector.includes(fencesArr[i].parent)) {
+                  ledsConectorCart += 1;
+                }
+                ledConector.push(fencesArr[i].parent);
+              }
+            }
+          }
+          if (ledParts[1].children[2].innerHTML != "") {
+            ledsColorCart = ledsCabelCart;
+          }
+          //cart items
+          cartItems = [];
+          cartItems.push(
+            startEndCartSilb,
+            startEndCartAnth,
+            fenceBoardsCartAnth,
+            fenceBoardsCartGrau,
+            fenceBoardsCartSand,
+            fenceBoardsCartBraun,
+            post295SilberCart,
+            post235SilberCart,
+            post190SilberCart,
+            post295AnthCart,
+            post235AnthCart,
+            post190AnthCart,
+            rootsCart,
+            hauswandSilberCart,
+            hauswandAnthCart,
+            sturmankerSilberCart,
+            sturmankerAnthCart,
+            smallBoardLongAnthCart,
+            smallBoardShortAnthCart,
+            smallBoardLongSilberCart,
+            smallBoardShortSilberCart,
+            inlaysSilberCart,
+            inlaysAnthCart,
+            laisnesSevenSilberCart,
+            laisnesOneSilberCart,
+            laisnesSevenAnthCart,
+            laisnesOneAnthCart,
+            ledsCart,
+            ledsColorCart,
+            ledsCabelCart,
+            ledsConectorCart
+          );
+          mrk();
+        };
+
+        //CLOSE CART
+        cartCloseBtn.onclick = () => {
+          cartFade.style.display = "none";
+          cartMainSection.style.display = "none";
+        };
+        cartFade.onclick = () => {
+          cartMainSection.style.display = "none";
+          cartFade.style.display = "none";
+        };
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // Display message
+        function showMessage(msg, elm) {
+          var elmMessage = $("<div></div>").addClass("scMessageBar").hide();
+          elmMessage.html(msg);
+          if (elm) {
+            elm.append(elmMessage);
+            elmMessage.show();
+          }
+        }
+
+        function showHighlightMessage(msg) {
+          msgBox2.html(msg);
+          msgBox2.fadeIn("fast", function () {
+            setTimeout(function () {
+              msgBox2.fadeOut("fast");
+            }, 1000);
+          });
+        }
+
+        // Show Image tooltip
+        function showTooltip(img) {
+          var height = img.height();
+          var width = img.height();
+          var imgOffsetTop = img.offset().top;
+          jQuery.log(img.offset());
+          jQuery.log(img.position());
+          jQuery.log("--------------");
+          tooltip.html("");
+          var tImage = $("<img alt=''></img>").attr("src", $(img).attr("src"));
+          tImage.height(toolMaxImageHeight);
+          tooltip.append(tImage);
+          var top = imgOffsetTop - height;
+          var left = width + 10;
+          tooltip.css({ top: top, left: left });
+          tooltip.show("fast");
+        }
+
+        function validateNumber(num) {
+          var ret = false;
+          if (num) {
+            num = num - 0;
+            if (num && num > 0) {
+              ret = true;
+            }
+          }
+          return ret;
+        }
+
+        // Get the money formatted for display
+        function getMoneyFormatted(val) {
+          var cena = val.toFixed(2);
+
+          if (cena > 1000) {
+            var tmp = cena / 1000;
+            tmp = Math.floor(tmp);
+            cena = cena - tmp * 1000;
+            cena = cena.toFixed(2);
+
+            if (cena < 10) {
+              cena = "00" + String(cena);
+            } else if (cena < 100) {
+              cena = "0" + String(cena);
+            }
+
+            cena = String(tmp) + ";" + String(cena);
+          }
+
+          cena = cena.replace(".", ",");
+          cena = cena.replace(";", ".");
+          return cena;
+        }
+
+        // Trims the blankspace
+        function trim(s) {
+          var l = 0;
+          var r = s.length - 1;
+          while (l < s.length && s[l] == " ") {
+            l++;
+          }
+          while (r > l && s[r] == " ") {
+            r -= 1;
+          }
+          return s.substring(l, r + 1);
+        }
+        // format the product template
+        function formatTemplate(str, objItem) {
+          resStr = str.split("<%=");
+          var finalStr = "";
+          for (i = 0; i < resStr.length; i++) {
+            var tmpStr = resStr[i];
+            valRef = tmpStr.substring(0, tmpStr.indexOf("%>"));
+            if (valRef != "" || valRef != null) {
+              var valRep = objItem.attr(valRef); //n[valRef];
+              if (valRep == null || valRep == "undefined") {
+                valRep = "";
+              }
+              tmpStr = tmpStr.replace(valRef + "%>", valRep);
+              finalStr += tmpStr;
+            } else {
+              finalStr += tmpStr;
+            }
+          }
+          return finalStr;
+        }
+      });
+    };
+
+    // Default options
+    $.fn.smartCart.defaults = {
+      selected: 1, // 0 = produts list, 1 = cart
+      resultName: "products_selected[]",
+      enableImage: true,
+      enableImageTooltip: false,
+      enableSearch: false,
+      enableCategoryFilter: true,
+      productItemTemplate:
+        "<small>Art. <%=pid%></small><br /><strong><%=pname%></strong><br /><small><%=pabm%></small><br /><small>Preis: <strong><%=fprice%> </strong></small>",
+      cartItemTemplate:
+        "<small>Art. <%=pid%></small><br /><strong><%=pname%></strong><br /><small><%=pabm%></small>",
+      // Events
+      onAdd: null, // function(pObj,quantity){ return true; }
+      onAdded: null, // function(pObj,quantity){ }
+      onRemove: null, // function(pObj){return true;}
+      onRemoved: null, // function(pObj){ }
+      onUpdate: null, // function(pObj,quantity){ return true; }
+      onUpdated: null, // function(pObj,quantity){ }
+      onCheckout: null, // function(Obj){ }
+    };
+
+    jQuery.log = function (message) {
+      if (window.console) {
+        console.debug(message);
+      }
+    };
+  })(jQuery, this);
+  //initiate smart cart
+  $("#SmartCart").smartCart();
+  $("#SmartCart").css("visibility", "visible");
+  $(document).foundation();
+  // setInterval(() => {
+  //   allPosts.forEach((elm) => {
+  //     console.log(Math.round(getAbsPosX(elm) * 100));
+  //   });
+  // }, 1000);
+  ///////////////////////////////////////////////////////////////CANVAS PLAN///////////////////////////////////////////////////////////////////
+  // const canvasPlan = document.getElementById("canvas-plan");
+  // const ctx = canvasPlan.getContext("2d");
+  // let plan = document.getElementById("plan");
+  // let downloadPlan = document.getElementById("download-canvas");
+  // // outlined square X: 50, Y: 35, width/height 50
+  // // ctx.beginPath();
+  // //function to draw ground
+  // function drawGround(x, y, width, height) {
+  //   ctx.setLineDash([10]);
+  //   ctx.strokeRect(x, y, width, height);
+  // }
+  // //function to draw foundations
+  // function drawFoundation(x, y, width, height) {
+  //   ctx.setLineDash([]);
+  //   //draw rect
+  //   ctx.fillStyle = "#A8A8A8";
+  //   ctx.fillRect(x, y, width, height);
+  //   ctx.strokeRect(x, y, width, height);
+  //   ctx.strokeRect(x + 5, y + 5, width - 10, height - 10);
+  //   //draw cross
+  //   ctx.moveTo(x + 5, y + 5);
+  //   ctx.lineTo(x + 15, y + 15);
+  //   ctx.moveTo(x + 15, y + 5);
+  //   ctx.lineTo(x + 5, y + 15);
+  //   ctx.moveTo(x + 10, y + 20);
+  //   ctx.lineTo(x + 10, y + 40);
+  //   ctx.stroke();
+  // }
+  // //create 2d plan
+  // plan.onclick = () => {
+  //   canvasPlan.style.display = "block";
+  //   downloadPlan.style.display = "block";
+  //   plan.style.display = "none";
+  //   // draw ground
+  //   let groundPosX = 500 - (displayGroundSizeX + 50) / 2;
+  //   let groundPosZ = 500 - (displayGroundSizeZ + 50) / 2;
+  //   let groundSizeX = displayGroundSizeX + 50;
+  //   let groundSizeZ = displayGroundSizeZ + 50;
+  //   // drawGround(groundPosX, groundPosZ, groundSizeX, groundSizeZ);
+  //   //get postions of all posts
+  //   let allPostsPos = [];
+  //   let allXpos = [0];
+  //   let allZpos = [];
+  //   for (let i = 1; i < allPosts.length; i++) {
+  //     if (allPosts[i].isVisible) {
+  //       let allPostPosX = Math.round(getAbsPosX(allPosts[i]) * 100);
+  //       let allPostPosZ;
+  //       if (Math.round(getAbsPosZ(allPosts[i]) * 100) > 0) {
+  //         allPostPosZ = -Math.abs(Math.round(getAbsPosZ(allPosts[i]) * 100));
+  //       } else {
+  //         allPostPosZ = Math.abs(Math.round(getAbsPosZ(allPosts[i]) * 100));
+  //       }
+  //       let postPosArr = [allPostPosX, allPostPosZ];
+  //       allPostsPos.push(postPosArr);
+  //       allXpos.push(allPostPosX);
+  //       allZpos.push(allPostPosZ);
+  //     }
+  //   }
+  //   //draw main post
+  //   allXpos.sort(function (a, b) {
+  //     return a - b;
+  //   });
+  //   allZpos.sort(function (a, b) {
+  //     return a - b;
+  //   });
+  //   let mainPostPosX = 490 - (allXpos[0] + allXpos[allXpos.length - 1]) / 2;
+  //   let mainPostPosZ = 490 - (allZpos[0] + allZpos[allZpos.length - 1]) / 2;
+  //   drawFoundation(mainPostPosX, mainPostPosZ, 20, 20);
+  //   //draw all posts
+  //   let linesX = [mainPostPosX + 10];
+  //   let linesY = [mainPostPosZ + 10];
+  //   allPostsPos.forEach((elm) => {
+  //     linesX.push(mainPostPosX + elm[0] + 10);
+  //     linesY.push(mainPostPosZ + elm[1] + 10);
+  //     drawFoundation(mainPostPosX + elm[0], mainPostPosZ + elm[1], 20, 20);
+  //   });
+
+  //   for (let i = 0; i < fencesArr.length; i++) {
+  //     console.log(fencesArr[i].size);
+  //   }
+
+  //   //draw lines betwen foundations
+  //   // for (let i = 1; i < linesX.length; i++) {
+  //   // ctx.setLineDash([10]);
+  //   ctx.moveTo(linesX[0], linesY[0]);
+  //   ctx.lineTo(linesX[1], linesY[1]);
+  //   ctx.stroke();
+  //   // }
+  //   // mainFencePosX = mainPostPosX + 20;
+  //   // mainFencePosZ = mainPostPosZ + 20;
+  //   // ctx.strokeRect(mainFencePosX, mainFencePosZ, 160, 0.5);
+
+  //   // for (let i = 1; i < smallBoardsArr.length; i++) {
+  //   //   if (smallBoardsArr[i].isVisible) {
+  //   //     ctx.strokeRect(
+  //   //       mainFencePosX + Math.round(getAbsPosX(smallBoardsArr[i]) * 100),
+  //   //       mainFencePosZ + Math.round(getAbsPosZ(smallBoardsArr[i]) * 100),
+  //   //       160,
+  //   //       0.5
+  //   //     );
+  //   //   }
+  //   // }
+
+  //   // console.log(
+  //   //   mainFencePosX,
+  //   //   mainFencePosZ,
+  //   //   mainFencePosX + Math.round(getAbsPosX(smallBoardsArr[0]) * 100),
+  //   //   mainFencePosZ + Math.round(getAbsPosZ(smallBoardsArr[0]) * 100)
+  //   // );
+  // };
+
+  // //download 3d
+  // var formats = {
+  //   a4: [210, 297],
+  //   a3: [400, 200],
+  // };
+  // downloadPlan.onclick = () => {
+  //   html2canvas(canvasPlan, {
+  //     onrendered: function (canvasPlan) {
+  //       var img = canvasPlan.toDataURL("image/jpeg,0.5");
+  //       // pdf.output("datauri");
+  //       // var imgData = new Image();
+  //       // imgData.src = "./img/Maska_linije.png";
+  //       var pdf = new jsPDF("p", "mm", formats.a4);
+  //       pdf.addImage(img, "PNG", 0, 87, 210, 210);
+  //       // pdf.addImage(imgData, "PNG", 0, 0, 300, 150);
+  //       pdf.save("Mega Holz 2D Plan For Fundaments.pdf");
+  //     },
+  //   });
+  // };
+  //end of scene
   return scene;
 };
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//END OF SCENE
