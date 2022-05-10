@@ -567,9 +567,11 @@ var createScene = function () {
 
   //FUNCTONS TO GET AND SET ABSOLUTE POSTIOIONS
   var getAbsPosX = (mesh) => {
+    mesh.computeWorldMatrix(true);
     return mesh.getAbsolutePosition().x;
   };
   var getAbsPosZ = (mesh) => {
+    mesh.computeWorldMatrix(true);
     return mesh.getAbsolutePosition().z;
   };
   var setAbsPosX = (mesh, newXPos) => {
@@ -805,21 +807,30 @@ var createScene = function () {
               });
               sideAccesories.style.display = "block";
               editPost.style.display = "block";
-              if (leftPost.scaling.y < 1.1) {
+              if (
+                (leftPost.scaling.y > 0.999 && leftPost.scaling.y < 1.1) ||
+                leftPost.scaling.y < 0.55
+              ) {
                 setActivnesStyle(
                   pfostensSingle,
                   1,
                   0,
                   "active-text-color-single"
                 );
-              } else if (leftPost.scaling.y > 1.1 && leftPost.scaling.y < 1.4) {
+              } else if (
+                (leftPost.scaling.y > 1.1 && leftPost.scaling.y < 1.4) ||
+                (leftPost.scaling.y > 0.7 && leftPost.scaling.y < 0.8)
+              ) {
                 setActivnesStyle(
                   pfostensSingle,
                   1,
                   1,
                   "active-text-color-single"
                 );
-              } else if (leftPost.scaling.y > 1.4) {
+              } else if (
+                leftPost.scaling.y > 1.4 ||
+                (leftPost.scaling.y < 1 && leftPost.scaling.y > 0.9)
+              ) {
                 setActivnesStyle(
                   pfostensSingle,
                   1,
@@ -1582,9 +1593,9 @@ var createScene = function () {
         scene
       );
       foundationRightStart.position = new BABYLON.Vector3(
-        result.meshes[3].getAbsolutePosition().x,
+        getAbsPosX(result.meshes[3]),
         0.0001,
-        result.meshes[3].getAbsolutePosition().z
+        getAbsPosZ(result.meshes[3])
       );
       foundationRightStart.material = concreteMat;
 
@@ -1598,9 +1609,9 @@ var createScene = function () {
         scene
       );
       foundationRight.position = new BABYLON.Vector3(
-        result.meshes[3].getAbsolutePosition().x,
+        getAbsPosX(result.meshes[3]),
         -0.5 / 2,
-        result.meshes[3].getAbsolutePosition().z
+        getAbsPosZ(result.meshes[3])
       );
       foundationRight.material = foundationMat;
 
@@ -2133,13 +2144,21 @@ var createScene = function () {
         ledsRight[fencesArr[fenceId].parent].scaling.z = 1;
         ledsRight[fencesArr[fenceId].parent].position.z = 0;
         ledsRight[fencesArr[fenceId].parent].position.y = 0.001;
-        rightPosts[fencesArr[fenceId].parent].scaling.z = 1;
-        rightPosts[fencesArr[fenceId].parent].position.y = 0.962;
-        if (befePfostenSize == 1) {
+        if (rightPosts[fencesArr[fenceId].parent].scaling.z < 0.55) {
+          rightPosts[fencesArr[fenceId].parent].scaling.z = 1;
+          rightPosts[fencesArr[fenceId].parent].position.y = 0.962;
+        }
+        if (
+          rightPosts[fencesArr[fenceId].parent].scaling.z > 0.7 &&
+          rightPosts[fencesArr[fenceId].parent].scaling.z < 0.8
+        ) {
           rightPosts[fencesArr[fenceId].parent].scaling.z = 1.2;
           rightPosts[fencesArr[fenceId].parent].position.y = 0.7717;
         }
-        if (befePfostenSize == 2) {
+        if (
+          rightPosts[fencesArr[fenceId].parent].scaling.z > 0.9 &&
+          rightPosts[fencesArr[fenceId].parent].scaling.z < 1
+        ) {
           rightPosts[fencesArr[fenceId].parent].scaling.z = 1.475;
           rightPosts[fencesArr[fenceId].parent].position.y = 0.511;
         }
@@ -2147,9 +2166,6 @@ var createScene = function () {
         rightPostCapClones[fencesArr[fenceId].parent].isVisible = false;
       }
 
-      // fencesArr.forEach((elm) => {
-      //   console.log(elm);
-      // });
       //set Ground
       setGround();
       // }, 0);
@@ -2173,9 +2189,9 @@ var createScene = function () {
 
     for (let i = 0; i < allPosts.length; i++) {
       if (allPosts[i].isVisible) {
-        arrX.push(Math.round(allPosts[i].getAbsolutePosition().x * 100) / 100);
+        arrX.push(Math.round(getAbsPosX(allPosts[i]) * 100) / 100);
 
-        arrZ.push(Math.round(allPosts[i].getAbsolutePosition().z * 100) / 100);
+        arrZ.push(Math.round(getAbsPosZ(allPosts[i]) * 100) / 100);
       }
     }
     arrX.sort(function (a, b) {
@@ -2184,11 +2200,11 @@ var createScene = function () {
     arrZ.sort(function (a, b) {
       return a - b;
     });
+
     arrXFirst = Math.abs(arrX[0]);
     arrXSecond = arrX[arrX.length - 1];
     arrZFirst = Math.abs(arrZ[0]);
     arrZSecond = arrZ[arrZ.length - 1];
-
     groundSizeX = arrXFirst + arrXSecond + 1.1;
     groundSizeZ = arrZFirst + arrZSecond + 1.1;
 
@@ -2580,9 +2596,9 @@ var createScene = function () {
     );
     addNewFenceMesh.material = addNewFenceMeshMat;
     addNewFenceMesh.position = new BABYLON.Vector3(
-      rightPosts[rightPosts.length - 1].getAbsolutePosition().x + 0.3,
+      getAbsPosX(rightPosts[rightPosts.length - 1]) + 0.3,
       1,
-      rightPosts[rightPosts.length - 1].getAbsolutePosition().z
+      getAbsPosZ(rightPosts[rightPosts.length - 1])
     );
     addNewFenceMesh.addRotation(Math.PI / 2, 0, 0);
 
@@ -2638,9 +2654,9 @@ var createScene = function () {
     //RIGHT SIGHN
     var addNewFenceMeshRight = addNewFenceMesh.clone("addNewFenceMeshRight");
     addNewFenceMeshRight.position = new BABYLON.Vector3(
-      rightPosts[rightPosts.length - 1].getAbsolutePosition().x,
+      getAbsPosX(rightPosts[rightPosts.length - 1]),
       1,
-      rightPosts[rightPosts.length - 1].getAbsolutePosition().z - 0.3
+      getAbsPosZ(rightPosts[rightPosts.length - 1]) - 0.3
     );
     addNewFenceMeshRight.addRotation(0, 0, -Math.PI / 2);
     newFenceRightSigns.push(addNewFenceMeshRight);
@@ -2695,9 +2711,9 @@ var createScene = function () {
     //LEFT SIGHN
     var addNewFenceMeshLeft = addNewFenceMesh.clone("addNewFenceMeshLeft");
     addNewFenceMeshLeft.position = new BABYLON.Vector3(
-      rightPosts[rightPosts.length - 1].getAbsolutePosition().x,
+      getAbsPosX(rightPosts[rightPosts.length - 1]),
       1,
-      rightPosts[rightPosts.length - 1].getAbsolutePosition().z + 0.3
+      getAbsPosZ(rightPosts[rightPosts.length - 1]) + 0.3
     );
     addNewFenceMeshLeft.addRotation(0, 0, Math.PI / 2);
     newFenceLeftSigns.push(addNewFenceMeshLeft);
@@ -2752,9 +2768,9 @@ var createScene = function () {
     //BACK SIGHN
     var addNewFenceMeshBack = addNewFenceMesh.clone("addNewFenceMeshBack");
     addNewFenceMeshBack.position = new BABYLON.Vector3(
-      rightPosts[rightPosts.length - 1].getAbsolutePosition().x - 0.3,
+      getAbsPosX(rightPosts[rightPosts.length - 1]) - 0.3,
       1,
-      rightPosts[rightPosts.length - 1].getAbsolutePosition().z
+      getAbsPosZ(rightPosts[rightPosts.length - 1])
     );
     addNewFenceMeshBack.addRotation(0, Math.PI, 0);
     newFenceBackSigns.push(addNewFenceMeshBack);
@@ -2830,9 +2846,9 @@ var createScene = function () {
     );
     addNewFenceMeshRightMain.material = addNewFenceMeshMat;
     addNewFenceMeshRightMain.position = new BABYLON.Vector3(
-      leftPosts[0].getAbsolutePosition().x,
+      getAbsPosX(leftPosts[0]),
       1,
-      leftPosts[0].getAbsolutePosition().z - 0.3
+      getAbsPosZ(leftPosts[0]) - 0.3
     );
     addNewFenceMeshRightMain.addRotation(Math.PI / 2, 0, -Math.PI / 2);
     // newFenceRightSigns.push(addNewFenceMeshRightMain);
@@ -2893,9 +2909,9 @@ var createScene = function () {
     );
     addNewFenceMeshLeftMain.material = addNewFenceMeshMat;
     addNewFenceMeshLeftMain.position = new BABYLON.Vector3(
-      leftPosts[0].getAbsolutePosition().x,
+      getAbsPosX(leftPosts[0]),
       1,
-      leftPosts[0].getAbsolutePosition().z + 0.3
+      getAbsPosZ(leftPosts[0]) + 0.3
     );
     addNewFenceMeshLeftMain.addRotation(Math.PI / 2, 0, Math.PI / 2);
     // newFenceRightSigns.push(addNewFenceMeshLeftMain);
@@ -3673,7 +3689,6 @@ var createScene = function () {
     // });
     if (!directeHauswandMesh.isVisible) {
       if (fencesArr[0].type == "easyFenceHalf") {
-        // console.log(fencesArr[0].type);
         leftPosts[0].scaling.y = f;
         leftPosts[0].position.y = g;
       } else {
@@ -5242,7 +5257,6 @@ var createScene = function () {
 
         function addToCart(i, qty) {
           var addProduct = products.eq(i);
-          // console.log(addProduct.length);
           if (addProduct.length > 0) {
             if ($.isFunction(options.onAdd)) {
               // calling onAdd event; expecting a return value
@@ -5984,7 +5998,6 @@ var createScene = function () {
           let inlaysAnthCart = 0;
           for (let i = 0; i < inlays.length; i++) {
             if (inlays[i][0].isVisible) {
-              // console.log(inlays[i][2].material.diffuseColor.r);
               if (inlays[i][2].material.diffuseColor.r > 0.3) {
                 inlaysSilberCart += 1;
               } else {
@@ -5999,7 +6012,6 @@ var createScene = function () {
           let laisneAnthCart = 0;
           let laisnesSevenAnthCart = 0;
           let laisnesOneAnthCart = 0;
-          // console.log(laisnes[0]);
           for (let i = 0; i < laisnes.length; i++) {
             laisnes[i].forEach((elm) => {
               if (elm.isVisible) {
@@ -6252,59 +6264,174 @@ var createScene = function () {
   // let plan = document.getElementById("plan");
   // let downloadPlan = document.getElementById("download-canvas");
   // // outlined square X: 50, Y: 35, width/height 50
-  // // ctx.beginPath();
-  // //function to draw ground
-  // function drawGround(x, y, width, height) {
-  //   ctx.setLineDash([10]);
-  //   ctx.strokeRect(x, y, width, height);
-  // }
+
   // //function to draw foundations
   // function drawFoundation(x, y, width, height) {
-  //   ctx.setLineDash([]);
+  //   ctx.setLineDash([0]);
   //   //draw rect
   //   ctx.fillStyle = "#A8A8A8";
   //   ctx.fillRect(x, y, width, height);
   //   ctx.strokeRect(x, y, width, height);
-  //   ctx.strokeRect(x + 5, y + 5, width - 10, height - 10);
-  //   //draw cross
-  //   ctx.moveTo(x + 5, y + 5);
-  //   ctx.lineTo(x + 15, y + 15);
-  //   ctx.moveTo(x + 15, y + 5);
-  //   ctx.lineTo(x + 5, y + 15);
-  //   ctx.moveTo(x + 10, y + 20);
-  //   ctx.lineTo(x + 10, y + 40);
+  //   ctx.strokeRect(x + 7.5, y + 7.5, width - 15, height - 15);
+  //   // //draw cross
+  //   ctx.beginPath();
+  //   ctx.moveTo(x + 7.5, y + 7.5);
+  //   ctx.lineTo(x + 22.5, y + 22.5);
+  //   ctx.moveTo(x + 22.5, y + 7.5);
+  //   ctx.lineTo(x + 7.5, y + 22.5);
+  //   ctx.closePath();
+  //   //line down of foundation
+  //   // ctx.moveTo(x + 10, y + 20);
+  //   // ctx.lineTo(x + 10, y + 40);
   //   ctx.stroke();
   // }
+  // function drawText2d(text, x, y) {
+  //   ctx.save();
+  //   ctx.font = "15px Arial";
+  //   ctx.textAlign = "center";
+  //   ctx.fillText(text, x, y);
+  //   ctx.restore();
+  // }
+  // function drawLine(lineWid, startX, startY, endX, endY, arrowHeads) {
+  //   //draw line
+  //   ctx.lineWidth = lineWid;
+  //   ctx.beginPath();
+  //   ctx.moveTo(startX, startY);
+  //   ctx.lineTo(endX, endY);
+  //   ctx.closePath();
+  //   ctx.stroke();
+
+  //   if (arrowHeads) {
+  //     if (startY == endY) {
+  //       if (startX < endX) {
+  //         //draw left arrow
+  //         drawArrowhead(
+  //           startX,
+  //           startY,
+  //           startX + 10,
+  //           startY - 5,
+  //           startX + 10,
+  //           startY + 5
+  //         );
+  //         //draw right arrow
+  //         drawArrowhead(endX, endY, endX - 10, endY - 5, endX - 10, endY + 5);
+  //       } else {
+  //         //draw left arrow
+  //         drawArrowhead(
+  //           startX,
+  //           startY,
+  //           startX - 10,
+  //           startY - 5,
+  //           startX - 10,
+  //           startY + 5
+  //         );
+  //         //draw right arrow
+  //         drawArrowhead(endX, endY, endX + 10, endY - 5, endX + 10, endY + 5);
+  //       }
+  //       //side lines
+  //       //side line left
+  //       ctx.beginPath();
+  //       ctx.moveTo(startX, startY - 10);
+  //       ctx.lineTo(startX, startY + 10);
+  //       ctx.closePath();
+  //       ctx.stroke();
+  //       // //side line right
+  //       ctx.beginPath();
+  //       ctx.moveTo(endX, endY - 10);
+  //       ctx.lineTo(endX, endY + 10);
+  //       ctx.closePath();
+  //       ctx.stroke();
+  //     } else {
+  //       if (startY < endY) {
+  //         //draw left arrow
+  //         drawArrowhead(
+  //           startX,
+  //           startY,
+  //           startX - 5,
+  //           startY + 10,
+  //           startX + 5,
+  //           startY + 10
+  //         );
+  //         //draw right arrow
+  //         drawArrowhead(endX, endY, endX - 5, endY - 10, endX + 5, endY - 10);
+  //       } else {
+  //         drawArrowhead(
+  //           startX,
+  //           startY,
+  //           startX - 5,
+  //           startY - 10,
+  //           startX + 5,
+  //           startY - 10
+  //         );
+  //         //draw right arrow
+  //         drawArrowhead(endX, endY, endX - 5, endY + 10, endX + 5, endY + 10);
+  //       }
+  //       //side lines
+  //       //side line left
+  //       ctx.beginPath();
+  //       ctx.moveTo(startX - 10, startY);
+  //       ctx.lineTo(startX + 10, startY);
+  //       ctx.closePath();
+  //       ctx.stroke();
+  //       // //side line right
+  //       ctx.beginPath();
+  //       ctx.moveTo(endX - 10, endY);
+  //       ctx.lineTo(endX + 10, endY);
+  //       ctx.closePath();
+  //       ctx.stroke();
+  //     }
+  //   }
+  // }
+  // function drawArrowhead(pointX, pointY, upX, upY, downX, downY) {
+  //   ctx.beginPath();
+  //   ctx.moveTo(pointX, pointY);
+  //   ctx.lineTo(upX, upY);
+  //   ctx.lineTo(downX, downY);
+  //   ctx.fill();
+  // }
+
   // //create 2d plan
   // plan.onclick = () => {
   //   canvasPlan.style.display = "block";
   //   downloadPlan.style.display = "block";
   //   plan.style.display = "none";
   //   // draw ground
-  //   let groundPosX = 500 - (displayGroundSizeX + 50) / 2;
-  //   let groundPosZ = 500 - (displayGroundSizeZ + 50) / 2;
-  //   let groundSizeX = displayGroundSizeX + 50;
-  //   let groundSizeZ = displayGroundSizeZ + 50;
+  //   // let groundPosX = 500 - displayGroundSizeX / 2;
+  //   // let groundPosZ = 500 - displayGroundSizeZ / 2;
+  //   // let groundSizeX = displayGroundSizeX;
+  //   // let groundSizeZ = displayGroundSizeZ;
   //   // drawGround(groundPosX, groundPosZ, groundSizeX, groundSizeZ);
+  //   console.log(displayGroundSizeX, displayGroundSizeZ);
+  //   // if(displayGroundSizeX)
   //   //get postions of all posts
   //   let allPostsPos = [];
   //   let allXpos = [0];
   //   let allZpos = [];
   //   for (let i = 1; i < allPosts.length; i++) {
-  //     if (allPosts[i].isVisible) {
-  //       let allPostPosX = Math.round(getAbsPosX(allPosts[i]) * 100);
-  //       let allPostPosZ;
-  //       if (Math.round(getAbsPosZ(allPosts[i]) * 100) > 0) {
-  //         allPostPosZ = -Math.abs(Math.round(getAbsPosZ(allPosts[i]) * 100));
-  //       } else {
-  //         allPostPosZ = Math.abs(Math.round(getAbsPosZ(allPosts[i]) * 100));
-  //       }
-  //       let postPosArr = [allPostPosX, allPostPosZ];
-  //       allPostsPos.push(postPosArr);
-  //       allXpos.push(allPostPosX);
-  //       allZpos.push(allPostPosZ);
+  //     let postsChildren = [];
+
+  //     fencesArr[i - 1].children.forEach((elm) => {
+  //       postsChildren.push(elm);
+  //     });
+
+  //     let allPostPosX = Math.round(getAbsPosX(allPosts[i]) * 100);
+  //     let allPostPosZ;
+  //     if (Math.round(getAbsPosZ(allPosts[i]) * 100) > 0) {
+  //       allPostPosZ = -Math.abs(Math.round(getAbsPosZ(allPosts[i]) * 100));
+  //     } else {
+  //       allPostPosZ = Math.abs(Math.round(getAbsPosZ(allPosts[i]) * 100));
   //     }
+  //     let postPosArr = [allPostPosX, allPostPosZ, i, postsChildren];
+  //     allPostsPos.push(postPosArr);
+  //     allXpos.push(allPostPosX);
+  //     allZpos.push(allPostPosZ);
   //   }
+  //   //get sizes for kotas
+  //   let fencesSize = [];
+  //   fencesArr.forEach((elm) => {
+  //     fencesSize.push(elm.size + 11);
+  //   });
+
   //   //draw main post
   //   allXpos.sort(function (a, b) {
   //     return a - b;
@@ -6312,50 +6439,178 @@ var createScene = function () {
   //   allZpos.sort(function (a, b) {
   //     return a - b;
   //   });
-  //   let mainPostPosX = 490 - (allXpos[0] + allXpos[allXpos.length - 1]) / 2;
-  //   let mainPostPosZ = 490 - (allZpos[0] + allZpos[allZpos.length - 1]) / 2;
-  //   drawFoundation(mainPostPosX, mainPostPosZ, 20, 20);
-  //   //draw all posts
-  //   let linesX = [mainPostPosX + 10];
-  //   let linesY = [mainPostPosZ + 10];
+  //   let mainPostPosX = 485 - (allXpos[0] + allXpos[allXpos.length - 1]) / 2;
+  //   let mainPostPosZ = 485 - (allZpos[0] + allZpos[allZpos.length - 1]) / 2;
+
+  //   //get all posts positions
+  //   let linesX = [];
+  //   let linesY = [];
   //   allPostsPos.forEach((elm) => {
-  //     linesX.push(mainPostPosX + elm[0] + 10);
-  //     linesY.push(mainPostPosZ + elm[1] + 10);
-  //     drawFoundation(mainPostPosX + elm[0], mainPostPosZ + elm[1], 20, 20);
+  //     linesX.push(mainPostPosX + elm[0] + 15);
+  //     linesY.push(mainPostPosZ + elm[1] + 15);
   //   });
 
-  //   for (let i = 0; i < fencesArr.length; i++) {
-  //     console.log(fencesArr[i].size);
+  //   //draw line betwen first and second foundations
+  //   for (let i = 0; i < rightPosts.length; i++) {
+  //     if (typeof fencesArr[i].parent == "undefined") {
+  //       if (mainPostPosZ + 15 == linesY[i]) {
+  //         //draw line betwen first and second foundations
+  //         drawLine(
+  //           3,
+  //           mainPostPosX + 15,
+  //           mainPostPosZ + 15,
+  //           linesX[i],
+  //           linesY[i],
+  //           false
+  //         );
+  //         //draw text kotas for first fence
+  //         drawText2d(
+  //           fencesSize[i] + "cm",
+  //           (mainPostPosX + 15 + linesX[i]) / 2,
+  //           mainPostPosZ + 30
+  //         );
+  //         //
+  //         //middle line to present size between foundation
+  //         drawLine(
+  //           1,
+  //           mainPostPosX + 15,
+  //           mainPostPosZ + 40,
+  //           linesX[i],
+  //           linesY[i] + 25,
+  //           true
+  //         );
+  //       } else {
+  //         //draw line betwen first and second foundations
+  //         drawLine(
+  //           3,
+  //           mainPostPosX + 15,
+  //           mainPostPosZ + 15,
+  //           linesX[i],
+  //           linesY[i],
+  //           false
+  //         );
+  //         //draw text kotas for first fence
+  //         drawText2d(
+  //           fencesSize[i] + "cm",
+  //           mainPostPosX + 65,
+  //           (mainPostPosZ + 15 + linesY[i]) / 2
+  //         );
+  //         //
+  //         //middle line to present size between foundation
+  //         drawLine(
+  //           1,
+  //           mainPostPosX + 40,
+  //           mainPostPosZ + 15,
+  //           linesX[i] + 25,
+  //           linesY[i],
+  //           true
+  //         );
+  //       }
+  //     }
+  //   }
+  //   //draw lines betwen foundations
+  //   for (let i = 0; i < allPostsPos.length; i++) {
+  //     allPostsPos[i][3].forEach((elm) => {
+  //       if (rightPosts[i].isVisible && rightPosts[elm].isVisible) {
+  //         drawLine(3, linesX[i], linesY[i], linesX[elm], linesY[elm], false);
+  //         //draw text kotas
+  //         if (linesY[i] == linesY[elm]) {
+  //           //size of small line text
+  //           drawText2d(
+  //             fencesSize[i + 1] + "cm",
+  //             (linesX[i] + linesX[elm]) / 2,
+  //             linesY[i] + 20
+  //           );
+  //           //middle line to present size between foundation
+  //           drawLine(
+  //             1,
+  //             linesX[i],
+  //             linesY[i] + 25,
+  //             linesX[elm],
+  //             linesY[elm] + 25,
+  //             true
+  //           );
+  //         } else {
+  //           //size of small line text
+  //           drawText2d(
+  //             fencesSize[i + 1] + "cm",
+  //             linesX[i] + 55,
+  //             (linesY[i] + linesY[elm]) / 2
+  //           );
+  //           //middle line to present size between foundation
+  //           drawLine(
+  //             1,
+  //             linesX[i] + 25,
+  //             linesY[i],
+  //             linesX[elm] + 25,
+  //             linesY[elm],
+  //             true
+  //           );
+  //         }
+  //       }
+  //     });
   //   }
 
-  //   //draw lines betwen foundations
-  //   // for (let i = 1; i < linesX.length; i++) {
-  //   // ctx.setLineDash([10]);
-  //   ctx.moveTo(linesX[0], linesY[0]);
-  //   ctx.lineTo(linesX[1], linesY[1]);
-  //   ctx.stroke();
-  //   // }
-  //   // mainFencePosX = mainPostPosX + 20;
-  //   // mainFencePosZ = mainPostPosZ + 20;
-  //   // ctx.strokeRect(mainFencePosX, mainFencePosZ, 160, 0.5);
+  //   //for whole sizees
+  //   linesX.push(mainPostPosX + 15);
+  //   linesY.push(mainPostPosZ + 15);
+  //   linesX.sort(function (a, b) {
+  //     return a - b;
+  //   });
+  //   linesY.sort(function (a, b) {
+  //     return a - b;
+  //   });
 
-  //   // for (let i = 1; i < smallBoardsArr.length; i++) {
-  //   //   if (smallBoardsArr[i].isVisible) {
-  //   //     ctx.strokeRect(
-  //   //       mainFencePosX + Math.round(getAbsPosX(smallBoardsArr[i]) * 100),
-  //   //       mainFencePosZ + Math.round(getAbsPosZ(smallBoardsArr[i]) * 100),
-  //   //       160,
-  //   //       0.5
-  //   //     );
-  //   //   }
-  //   // }
+  //   //main line //vertical size
+  //   drawLine(
+  //     1,
+  //     linesX[0],
+  //     linesY[linesY.length - 1] + 70,
+  //     linesX[linesX.length - 1],
+  //     linesY[linesY.length - 1] + 70,
+  //     true
+  //   );
+  //   //size of small line text //veritical size
+  //   drawText2d(
+  //     displayGroundSizeX + "cm",
+  //     (linesX[0] + linesX[linesX.length - 1]) / 2,
+  //     linesY[linesY.length - 1] + 90
+  //   );
 
-  //   // console.log(
-  //   //   mainFencePosX,
-  //   //   mainFencePosZ,
-  //   //   mainFencePosX + Math.round(getAbsPosX(smallBoardsArr[0]) * 100),
-  //   //   mainFencePosZ + Math.round(getAbsPosZ(smallBoardsArr[0]) * 100)
-  //   // );
+  //   //main line //horizontal size
+  //   if (displayGroundSizeZ > 20) {
+  //     drawLine(
+  //       1,
+  //       linesX[linesX.length - 1] + 90,
+  //       linesY[0],
+  //       linesX[linesX.length - 1] + 90,
+  //       linesY[linesY.length - 1],
+  //       true
+  //     );
+  //     //size of small line text //horizontal size
+  //     drawText2d(
+  //       displayGroundSizeZ + "cm",
+  //       linesX[linesX.length - 1] + 125,
+  //       (linesY[0] + linesY[linesY.length - 1]) / 2
+  //     );
+  //   }
+
+  //   //draw foundarion
+  //   //draw first foundation
+  //   drawFoundation(mainPostPosX, mainPostPosZ, 30, 30);
+  //   //draw all foundaions
+  //   for (let i = 0; i < allPostsPos.length; i++) {
+  //     if (rightPosts[i].isVisible) {
+  //       drawFoundation(
+  //         mainPostPosX + allPostsPos[i][0],
+  //         mainPostPosZ + allPostsPos[i][1],
+  //         30,
+  //         30
+  //       );
+  //     }
+  //   }
+  //   ////////////////////////////////////
+  //   //end create 2d function
   // };
 
   // //download 3d
@@ -6370,8 +6625,9 @@ var createScene = function () {
   //       // pdf.output("datauri");
   //       // var imgData = new Image();
   //       // imgData.src = "./img/Maska_linije.png";
-  //       var pdf = new jsPDF("p", "mm", formats.a4);
-  //       pdf.addImage(img, "PNG", 0, 87, 210, 210);
+  //       var pdf = new jsPDF("l", "mm", formats.a4);
+  //       pdf.addImage(img, "PNG", 43.5, 0, 210, 210);
+  //       pdf.text("Mega Holz 2D Plan", 35, 25);
   //       // pdf.addImage(imgData, "PNG", 0, 0, 300, 150);
   //       pdf.save("Mega Holz 2D Plan For Fundaments.pdf");
   //     },
