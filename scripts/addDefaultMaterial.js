@@ -1,41 +1,69 @@
 function addDefaultMaterial(
-  a,
-  b,
-  c,
-  d,
-  e,
-  f,
-  g,
-  h,
-  m,
-  n,
-  o,
+  fenceBoards,
+  sturmankersVorderseite,
+  rightPosts,
+  leftPosts,
+  directeHauswandMeshes,
+  fenceBoardMat,
+  fencePostMat,
+  concreteMat,
+  smallBoardsArr,
+  silberMat,
+  anthrazitMat,
   fencesArr,
-  addFenceSings
+  addFenceSings,
+  grauMat,
+  braunMat,
+  sandMat
 ) {
-  a.forEach((elm) => {
-    elm.forEach((elmInside) => {
-      elmInside.material = f;
-    });
+  //boards materials
+  // fenceBoards.forEach((elm) => {
+  //   elm.forEach((elmInside) => {
+  //     elmInside.material = fenceBoardMat;
+  //   });
+  // });
+  //sturmankers material
+  sturmankersVorderseite.forEach((elm) => {
+    elm.material = fencePostMat;
   });
-  b.forEach((elm) => {
-    elm.material = g;
+  //posts material
+  rightPosts.forEach((elm) => {
+    elm.material = fencePostMat;
   });
-  c.forEach((elm) => {
-    elm.material = g;
+  leftPosts.forEach((elm) => {
+    elm.material = fencePostMat;
   });
-  d.forEach((elm) => {
-    elm.material = g;
+  //hauswand material
+  directeHauswandMeshes.forEach((elm) => {
+    elm.material = concreteMat;
   });
-  e.forEach((elm) => {
-    elm.material = h;
-  });
+  //boards material single
+  for (let i = 0; i < fencesArr.length; i++) {
+    if (fencesArr[i].boardCol == "grau") {
+      fenceBoards[i].forEach((elm) => {
+        elm.material = grauMat;
+      });
+    } else if (fencesArr[i].boardCol == "anthrazit") {
+      fenceBoards[i].forEach((elm) => {
+        elm.material = anthrazitMat;
+      });
+    } else if (fencesArr[i].boardCol == "braun") {
+      fenceBoards[i].forEach((elm) => {
+        elm.material = braunMat;
+      });
+    } else if (fencesArr[i].boardCol == "sand") {
+      fenceBoards[i].forEach((elm) => {
+        elm.material = sandMat;
+      });
+    }
+  }
 
-  for (let i = 0; i < m.length; i++) {
+  //small fence material
+  for (let i = 0; i < smallBoardsArr.length; i++) {
     if (fencesArr[i].smBoaCol == "silber") {
-      m[i].material = n;
+      smallBoardsArr[i].material = silberMat;
     } else {
-      m[i].material = o;
+      smallBoardsArr[i].material = anthrazitMat;
     }
   }
   addFenceSings.forEach((elm) => {

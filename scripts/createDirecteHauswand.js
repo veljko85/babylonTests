@@ -10,8 +10,8 @@ function createDirecteHauswand(
   fencePostMat,
   concreteMat,
   smallBoardsArr,
-  smallBoardsMat,
-  smallBoardsMatDark,
+  silberMat,
+  anthrazitMat,
   fencesArr,
   addFenceSings,
   selectedMat,
@@ -22,7 +22,10 @@ function createDirecteHauswand(
   singsDel,
   leds,
   ledParts,
-  setActivnesStyle
+  setActivnesStyle,
+  grauMat,
+  braunMat,
+  sandMat
 ) {
   var directeHauswandMeshRight = BABYLON.MeshBuilder.CreateBox(
     "directeHauswandMeshRight",
@@ -66,10 +69,13 @@ function createDirecteHauswand(
             fencePostMat,
             concreteMat,
             smallBoardsArr,
-            smallBoardsMat,
-            smallBoardsMatDark,
+            silberMat,
+            anthrazitMat,
             fencesArr,
-            addFenceSings
+            addFenceSings,
+            grauMat,
+            braunMat,
+            sandMat
           );
           directeHauswandMeshRight.material = selectedMat;
           sideAccesories.style.display = "block";

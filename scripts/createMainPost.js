@@ -32,8 +32,8 @@ var createMainPost = (
   fenceBoardMat,
   selectedMat,
   smallBoardsArr,
-  smallBoardsMat,
-  smallBoardsMatDark,
+  silberMat,
+  anthrazitMat,
   fencesArr,
   addFenceSings,
   allPosts,
@@ -96,10 +96,13 @@ var createMainPost = (
                 fencePostMat,
                 concreteMat,
                 smallBoardsArr,
-                smallBoardsMat,
-                smallBoardsMatDark,
+                silberMat,
+                anthrazitMat,
                 fencesArr,
-                addFenceSings
+                addFenceSings,
+                grauMat,
+                braunMat,
+                sandMat
               );
               leftPost.material = selectedMat;
               addFenceSings[0].isVisible = true;

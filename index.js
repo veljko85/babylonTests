@@ -404,6 +404,31 @@ var createScene = function () {
   fenceBoardsColors = ["#8c8c8c", "#474747", "#836953", "#ece6d6"];
   fencePartsColors = ["#e6e6e6", "#474747"];
 
+  //ALL MATERIALS COLORS
+  var grauMat = new BABYLON.StandardMaterial("grauMat", scene);
+  grauMat.diffuseColor = BABYLON.Color3.FromHexString(fenceBoardsColors[0]);
+
+  var anthrazitMat = new BABYLON.StandardMaterial("anthrazitMat", scene);
+  anthrazitMat.diffuseColor = BABYLON.Color3.FromHexString(
+    fenceBoardsColors[1]
+  );
+
+  var braunMat = new BABYLON.StandardMaterial("braunMat", scene);
+  braunMat.diffuseColor = BABYLON.Color3.FromHexString(fenceBoardsColors[2]);
+
+  var sandMat = new BABYLON.StandardMaterial("sandMat", scene);
+  sandMat.diffuseColor = BABYLON.Color3.FromHexString(fenceBoardsColors[3]);
+
+  var silberMat = new BABYLON.StandardMaterial("silberMat", scene);
+  silberMat.diffuseColor = BABYLON.Color3.FromHexString(fencePartsColors[0]);
+
+  grauMat.specularColor =
+    anthrazitMat.specularColor =
+    braunMat.specularColor =
+    sandMat.specularColor =
+      // silberMat.specularColor =
+      new BABYLON.Color3(0.1, 0.1, 0.1);
+
   //FENCE BORDS MATERIAL
   var fenceBoardMat = new BABYLON.StandardMaterial("fenceBoardMat", scene);
   fenceBoardMat.diffuseColor = BABYLON.Color3.FromHexString(
@@ -412,20 +437,20 @@ var createScene = function () {
   fenceBoardMat.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
 
   //SMALL BOARDS MATERIAL
-  var smallBoardsMat = new BABYLON.StandardMaterial("smallBoardsMat", scene);
-  smallBoardsMat.diffuseColor = BABYLON.Color3.FromHexString(
-    fencePartsColors[0]
-  );
-  smallBoardsMat.specularColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+  // var smallBoardsMat = new BABYLON.StandardMaterial("smallBoardsMat", scene);
+  // smallBoardsMat.diffuseColor = BABYLON.Color3.FromHexString(
+  //   fencePartsColors[0]
+  // );
+  // smallBoardsMat.specularColor = new BABYLON.Color3(0.5, 0.5, 0.5);
 
-  var smallBoardsMatDark = new BABYLON.StandardMaterial(
-    "smallBoardsMatDark",
-    scene
-  );
-  smallBoardsMatDark.diffuseColor = BABYLON.Color3.FromHexString(
-    fencePartsColors[1]
-  );
-  smallBoardsMatDark.specularColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+  // var smallBoardsMatDark = new BABYLON.StandardMaterial(
+  //   "smallBoardsMatDark",
+  //   scene
+  // );
+  // smallBoardsMatDark.diffuseColor = BABYLON.Color3.FromHexString(
+  //   fencePartsColors[1]
+  // );
+  // smallBoardsMatDark.specularColor = new BABYLON.Color3(0.5, 0.5, 0.5);
 
   // //FENCE POSTS MATERIAL
   var fencePostMat = new BABYLON.StandardMaterial("fencePostMat", scene);
@@ -525,10 +550,14 @@ var createScene = function () {
   var startParts = [];
   var endParts = [];
   var laisnes = [];
+  var inlaysMaterials = [];
   var inlays = [];
   var leftPosts = [];
   var rightPosts = [];
   var allPosts = [];
+  var fakePosts = [];
+  var intersectedPosts = [];
+  var intersectedPostsMain = [];
   var roots = [];
   var rightRoots = [];
   var singsDel = [];
@@ -672,7 +701,15 @@ var createScene = function () {
   //confirm change on slider
   confirmSliderSize.onclick = () => {
     changePosAndScaleFence(valueOfSlider, activeFence);
-    positionChildrenOnParentSizeChange();
+    positionChildrenOnParentSizeChange(activeFence);
+    checkPostIntersecting(
+      fakePosts,
+      allPosts,
+      rightRoots,
+      intersectedPosts,
+      intersectedPostsMain,
+      fencesArr
+    );
     setGround();
   };
 
@@ -706,7 +743,7 @@ var createScene = function () {
       newFenceBackSigns[i].position.z - (firstZ - secondZ);
   }
 
-  function positionChildrenOnParentSizeChange() {
+  function positionChildrenOnParentSizeChange(activeFence) {
     for (let i = 0; i < fencesArr[activeFence].children.length; i++) {
       a = fencesArr[activeFence].children[i];
       scaleToOtherFencesToDo(a);
@@ -745,9 +782,21 @@ var createScene = function () {
 
       //POSTS
       let leftPost = scene.getMeshByName("post-left");
+      leftPost.addRotation(0, Math.PI, 0);
       leftPosts.push(leftPost);
       allPosts.push(leftPost);
       leftPost.material = fencePostMat;
+
+      //cerate fake rigth post
+      let fakePost = new BABYLON.MeshBuilder.CreateBox(
+        "fakePost",
+        { width: 0.05, height: 2.1, depth: 0.05 },
+        scene
+      );
+      fakePost.parent = leftPost;
+      fakePosts.push(fakePost);
+      fakePost.isVisible = false;
+
       createMainPostSigns();
       //add selected to mesh
       leftPost.actionManager = new BABYLON.ActionManager(scene);
@@ -777,10 +826,13 @@ var createScene = function () {
                 fencePostMat,
                 concreteMat,
                 smallBoardsArr,
-                smallBoardsMat,
-                smallBoardsMatDark,
+                silberMat,
+                anthrazitMat,
                 fencesArr,
-                addFenceSings
+                addFenceSings,
+                grauMat,
+                braunMat,
+                sandMat
               );
               activeFence = false;
               leftPost.material = selectedMat;
@@ -813,9 +865,9 @@ var createScene = function () {
               ) {
                 setActivnesStyle(
                   pfostensSingle,
-                  1,
                   0,
-                  "active-text-color-single"
+                  0,
+                  "active-text-color-single-pfosten"
                 );
               } else if (
                 (leftPost.scaling.y > 1.1 && leftPost.scaling.y < 1.4) ||
@@ -823,9 +875,9 @@ var createScene = function () {
               ) {
                 setActivnesStyle(
                   pfostensSingle,
+                  0,
                   1,
-                  1,
-                  "active-text-color-single"
+                  "active-text-color-single-pfosten"
                 );
               } else if (
                 leftPost.scaling.y > 1.4 ||
@@ -833,9 +885,9 @@ var createScene = function () {
               ) {
                 setActivnesStyle(
                   pfostensSingle,
-                  1,
+                  0,
                   2,
-                  "active-text-color-single"
+                  "active-text-color-single-pfosten"
                 );
               }
               document.getElementsByClassName("accTitle")[0].innerHTML =
@@ -1048,16 +1100,31 @@ var createScene = function () {
     //END OF MAIN POST
   );
 
-  function NewFence(id, type, smBoaCol, size, inlays, children, laisnes) {
+  function NewFence(
+    id,
+    type,
+    boardCol,
+    startUndAbschCol,
+    smBoaCol,
+    size,
+    inlays,
+    children,
+    laisnes,
+    laisnesCol,
+    numOfBoards
+  ) {
     this.id = id;
     this.type = type;
+    this.boardCol = boardCol;
+    this.startUndAbschCol = startUndAbschCol;
     this.smBoaCol = smBoaCol;
     this.size = size;
     this.inlays = inlays;
     this.children = children;
     this.laisnes = laisnes;
+    this.laisnesCol = laisnesCol;
+    this.numOfBoards = numOfBoards;
   }
-
   // fencesArr.push(new NewFence(1, "easyFence", 180, false));
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //LOAD FENCE MESH
@@ -1075,6 +1142,7 @@ var createScene = function () {
       fence.position.x = posX;
       fence.position.z = posZ;
       fence.rotation.y = rotY;
+      wholeFences.push(fence);
 
       //function to active fence
       function toActiveFence() {
@@ -1094,6 +1162,14 @@ var createScene = function () {
           if (activeFence > 0) {
             delFenFun(activeFence);
             deleteFence(activeFence);
+            checkPostIntersecting(
+              fakePosts,
+              allPosts,
+              rightRoots,
+              intersectedPosts,
+              intersectedPostsMain,
+              fencesArr
+            );
             //set inlays to ohne
             aaa = 0;
             inlays.forEach((elm) => {
@@ -1147,21 +1223,28 @@ var createScene = function () {
         };
 
         //set inlays activnces style and fence obj inleys
-        if (inlaysOn == 1) {
-          changeFence[1].style.display = "flex";
-          if (fencesArr[activeFence].inlays == 1) {
-            setActivnesStyle(changeFence, 0, 1, "active-text-color");
-          }
-        } else {
-          changeFence[1].style.display = "none";
-        }
+        // if (inlaysOn > 0) {
+        // changeFence[1].style.display = "flex";
+        // if (fencesArr[activeFence].inlays > 0) {
+        //   setActivnesStyle(changeFence, 0, 1, "active-text-color");
+        // }
+        // } else {
+        // changeFence[1].style.display = "none";
+        // }
 
         //set value of slider and slider to this fence
-        if (fencesArr[activeFence].type == "easyRomBig")
+        if (
+          fencesArr[activeFence].type == "easyRomBig" ||
+          fencesArr[activeFence].type == "easyFenceInlaysAnth" ||
+          fencesArr[activeFence].type == "easyFenceInlaysSilber"
+        )
           pipsSlider.noUiSlider.updateOptions(bigRomSliderOpt);
         if (fencesArr[activeFence].type == "easyRomSmall")
           pipsSlider.noUiSlider.updateOptions(smallRomSliderOpt);
-        if (fencesArr[activeFence].type == "easyFence")
+        if (
+          fencesArr[activeFence].type == "easyFence" ||
+          fencesArr[activeFence].type == "easyFenceHalf"
+        )
           pipsSlider.noUiSlider.updateOptions(easyFenceSliderOpt);
         pipsSlider.noUiSlider.set(fencesArr[activeFence].size);
         closeSliderContainer();
@@ -1190,36 +1273,38 @@ var createScene = function () {
 
         //set activnes of active fence settings
 
-        if (
-          fencesArr[activeFence].type == "easyFence" &&
-          fencesArr[activeFence].inlays == 0
-        )
+        if (fencesArr[activeFence].type == "easyFence")
           setActivnesStyle(changeFence, 0, 0, "active-text-color");
+        if (fencesArr[activeFence].type == "easyFenceInlaysSilber")
+          setActivnesStyle(changeFence, 0, 1, "active-text-color");
+        if (fencesArr[activeFence].type == "easyFenceInlaysAnth")
+          setActivnesStyle(changeFence, 0, 2, "active-text-color");
+
         if (
           fencesArr[activeFence].type == "easyRomBig" &&
           fencesArr[activeFence].smBoaCol == "silber"
-        )
-          setActivnesStyle(changeFence, 0, 2, "active-text-color");
-        if (
-          fencesArr[activeFence].type == "easyRomBig" &&
-          fencesArr[activeFence].smBoaCol == "anthrazit"
         )
           setActivnesStyle(changeFence, 0, 3, "active-text-color");
         if (
-          fencesArr[activeFence].type == "easyRomSmall" &&
-          fencesArr[activeFence].smBoaCol == "silber"
+          fencesArr[activeFence].type == "easyRomBig" &&
+          fencesArr[activeFence].smBoaCol == "anthrazit"
         )
           setActivnesStyle(changeFence, 0, 4, "active-text-color");
         if (
           fencesArr[activeFence].type == "easyRomSmall" &&
-          fencesArr[activeFence].smBoaCol == "anthrazit"
+          fencesArr[activeFence].smBoaCol == "silber"
         )
           setActivnesStyle(changeFence, 0, 5, "active-text-color");
         if (
-          fencesArr[activeFence].type == "easyFenceHalf" &&
-          fencesArr[activeFence].inlays == 0
+          fencesArr[activeFence].type == "easyRomSmall" &&
+          fencesArr[activeFence].smBoaCol == "anthrazit"
         )
           setActivnesStyle(changeFence, 0, 6, "active-text-color");
+        if (fencesArr[activeFence].type == "easyFenceHalf")
+          setActivnesStyle(changeFence, 0, 7, "active-text-color");
+
+        //set number of boards single fence
+        numOfBordsSing.innerHTML = fencesArr[activeFence].numOfBoards;
 
         //deactivate arrows
         activeArrow = false;
@@ -1228,7 +1313,7 @@ var createScene = function () {
           elm.material = addNewFenceMeshMat;
         });
         addNewFenceToSide.style.display = "none";
-
+        //set day night
         setDayNight(0.6, 0, 0.7);
         setLightColor(4);
         glow.intensity = 0;
@@ -1253,7 +1338,49 @@ var createScene = function () {
             clickablePartSingleFence[i].nextElementSibling.style.height = 0;
           }
         }
+        //boards colors single
+        if (fencesArr[activeFence].boardCol == "grau") {
+          setActivnesStyle(boardsMatSingle, 0, 0, "active-text-color-single");
+        } else if (fencesArr[activeFence].boardCol == "anthrazit") {
+          setActivnesStyle(boardsMatSingle, 0, 1, "active-text-color-single");
+        } else if (fencesArr[activeFence].boardCol == "braun") {
+          setActivnesStyle(boardsMatSingle, 0, 2, "active-text-color-single");
+        } else if (fencesArr[activeFence].boardCol == "sand") {
+          setActivnesStyle(boardsMatSingle, 0, 3, "active-text-color-single");
+        }
+        //start un absch single edit
+        if (fencesArr[activeFence].startUndAbschCol == "silber") {
+          setActivnesStyle(
+            startUndAbschSingle,
+            1,
+            0,
+            "active-text-color-single"
+          );
+        } else if (fencesArr[activeFence].startUndAbschCol == "anthrazit") {
+          setActivnesStyle(
+            startUndAbschSingle,
+            1,
+            1,
+            "active-text-color-single"
+          );
+        }
         //laines single edit
+        if (fencesArr[activeFence].laisnesCol == "silber") {
+          setActivnesStyle(
+            designleistensMatSingle,
+            2,
+            0,
+            "active-text-color-single"
+          );
+        } else if (fencesArr[activeFence].laisnesCol == "anthrazit") {
+          setActivnesStyle(
+            designleistensMatSingle,
+            2,
+            1,
+            "active-text-color-single"
+          );
+        }
+
         for (let i = 0; i < fencesArr[activeFence].laisnes.length; i++) {
           if (fencesArr[activeFence].laisnes[i]) {
             designleistensSingle[
@@ -1268,6 +1395,7 @@ var createScene = function () {
             designleistensSingle[i].children[0].children[0].innerHTML = "";
           }
         }
+        cameraTargetMesh(cameraTarget, wholeFences[activeFence]);
         console.log(fencesArr[activeFence]);
       }
 
@@ -1296,10 +1424,13 @@ var createScene = function () {
                   fencePostMat,
                   concreteMat,
                   smallBoardsArr,
-                  smallBoardsMat,
-                  smallBoardsMatDark,
+                  silberMat,
+                  anthrazitMat,
                   fencesArr,
-                  addFenceSings
+                  addFenceSings,
+                  grauMat,
+                  braunMat,
+                  sandMat
                 );
                 result.meshes[1].material =
                   result.meshes[2].material =
@@ -1328,10 +1459,13 @@ var createScene = function () {
                   fencePostMat,
                   concreteMat,
                   smallBoardsArr,
-                  smallBoardsMat,
-                  smallBoardsMatDark,
+                  silberMat,
+                  anthrazitMat,
                   fencesArr,
-                  addFenceSings
+                  addFenceSings,
+                  grauMat,
+                  braunMat,
+                  sandMat
                 );
 
                 singsDel.forEach((elm) => {
@@ -1342,7 +1476,7 @@ var createScene = function () {
                 newFenceRightSigns[activeFence].isVisible = false;
                 newFenceLeftSigns[activeFence].isVisible = false;
                 newFenceBackSigns[activeFence].isVisible = false;
-
+                cameraTargetMesh(cameraTarget, ground);
                 //turn of active fence
                 setTimeout(() => {
                   activeFence = false;
@@ -1352,7 +1486,6 @@ var createScene = function () {
           )
         );
       }
-
       //POST CAP
       let rightPostCap = result.meshes[8];
       rightPostCap.material = capMat;
@@ -1373,9 +1506,26 @@ var createScene = function () {
         result.meshes[14],
         result.meshes[15]
       );
+      let boardColObj;
       newBoarsdArr.forEach((elm) => {
         elm.position.x -= 0.01;
         elm.material = fenceBoardMat;
+        if (allBoardsCol == 0) {
+          elm.material = grauMat;
+          boardColObj = "grau";
+        }
+        if (allBoardsCol == 1) {
+          elm.material = anthrazitMat;
+          boardColObj = "anthrazit";
+        }
+        if (allBoardsCol == 2) {
+          elm.material = braunMat;
+          boardColObj = "braun";
+        }
+        if (allBoardsCol == 3) {
+          elm.material = sandMat;
+          boardColObj = "sand";
+        }
       });
 
       fenceBoards.push(newBoarsdArr);
@@ -1384,7 +1534,7 @@ var createScene = function () {
       let smallBoards = result.meshes[1];
       smallBoards.position.x -= 0.01;
       smallBoards.isVisible = false;
-      smallBoards.material = smallBoardsMat;
+      smallBoards.material = silberMat;
       smallBoardsArr.push(smallBoards);
 
       //fake fence for intersection
@@ -1400,6 +1550,7 @@ var createScene = function () {
       );
       fakeFence.addRotation(0, rotY, 0);
       fakeFences.push(fakeFence);
+
       fakeFence.isVisible = false;
       smallBoards.addChild(fakeFence);
 
@@ -1410,13 +1561,23 @@ var createScene = function () {
       let endPart = result.meshes[6];
       endPart.position.x -= 0.01;
       endParts.push(endPart);
-      startPart.material = endPart.material = fenceStartEndMat;
+      // startPart.material = endPart.material = fenceStartEndMat;
+      if (startUndAbschMat == 0) {
+        startPart.material = endPart.material = silberMat;
+        startUndAbschColObj = "silber";
+      }
+      if (startUndAbschMat == 1) {
+        startPart.material = endPart.material = anthrazitMat;
+        startUndAbschColObj = "anthrazit";
+      }
 
       //INLAYS
       // fenceBoards[6].isVisible = false;
       let inlaysViero = result.meshes[24];
       inlaysViero.position.x -= 0.02;
       inlaysViero.isVisible = false;
+
+      inlaysMaterials.push(inlaysViero.material);
 
       let inlaysAstro = result.meshes[23];
       inlaysAstro.position.x -= 0.02;
@@ -1430,7 +1591,7 @@ var createScene = function () {
       var newInlaysArr = new Array(inlaysViero, inlaysAstro, inlaysSnow);
       inlays.push(newInlaysArr);
 
-      if (inlaysOnOff == 1) {
+      if (inlaysOnOff > 1) {
         newBoarsdArr[6].isVisible = false;
         inlaysViero.isVisible = true;
         inlaysSnow.isVisible = true;
@@ -1440,12 +1601,20 @@ var createScene = function () {
       let laisneOrg = result.meshes[16];
       laisneOrg.position.x -= 0.01;
       laisneOrg.isVisible = false;
-      laisneOrg.material = laisneMat;
+      // laisneOrg.material = laisneMat;
+      if (laisnesMat == 1) {
+        laisneOrg.material = anthrazitMat;
+        laisnesColObj = "anthrazit";
+      }
+      if (laisnesMat == 0) {
+        laisneOrg.material = silberMat;
+        laisnesColObj = "silber";
+      }
       var newLaisnesArr = new Array();
       setTimeout(() => {
         for (let i = 0; i < 7; i++) {
           var laisne = laisneOrg.clone("laisne");
-          laisne.material = laisneMat;
+          // laisne.material = laisneMat;
           laisne.isVisible = false;
           //check if laisnes are active to show them
           if (checkboxActive[i]) {
@@ -1469,14 +1638,54 @@ var createScene = function () {
           newLaisnesArr.push(laisne);
         }
       }, 0);
-
       laisnes.push(newLaisnesArr);
+
       var editPost = document.getElementById("editPost");
       //POSTS
       let rightPost = result.meshes[3];
 
       rightPosts.push(rightPost);
       allPosts.push(rightPost);
+
+      //cerate fake rigth post
+      let fakePost = new BABYLON.MeshBuilder.CreateBox(
+        "fakePost",
+        { width: 0.05, height: 0.05, depth: 2.1 },
+        scene
+      );
+      fakePost.parent = rightPost;
+      fakePosts.push(fakePost);
+      fakePost.isVisible = false;
+
+      //CHECK IF POSTS ARE INTESECTING
+      // setTimeout(() => {
+      //   for (let i = 0; i < fakePosts.length; i++) {
+      //     for (let j = i; j < fakePosts.length; j++) {
+      //       if (i != j) {
+      //         if (
+      //           fakePosts[i].intersectsMesh(fakePosts[j], true) &&
+      //           allPosts[i].isVisible &&
+      //           llPosts[j].isVisible
+      //         ) {
+      //           allPosts[j].isVisible = false;
+      //           rightRoots[j - 1].forEach((elm) => {
+      //             elm.isVisible = false;
+      //           });
+      //         }
+      //       }
+      //     }
+      //   }
+      // }, 1000);
+
+      checkPostIntersecting(
+        fakePosts,
+        allPosts,
+        rightRoots,
+        intersectedPosts,
+        intersectedPostsMain,
+        fencesArr
+      );
+
       rightPost.material = fencePostMat;
 
       rightPost.actionManager = new BABYLON.ActionManager(scene);
@@ -1505,10 +1714,13 @@ var createScene = function () {
                 fencePostMat,
                 concreteMat,
                 smallBoardsArr,
-                smallBoardsMat,
-                smallBoardsMatDark,
+                silberMat,
+                anthrazitMat,
                 fencesArr,
-                addFenceSings
+                addFenceSings,
+                grauMat,
+                braunMat,
+                sandMat
               );
               rightPost.material = selectedMat;
               sideAccesories.style.display = "block";
@@ -1519,9 +1731,9 @@ var createScene = function () {
               ) {
                 setActivnesStyle(
                   pfostensSingle,
-                  1,
                   0,
-                  "active-text-color-single"
+                  0,
+                  "active-text-color-single-pfosten"
                 );
               } else if (
                 (rightPost.scaling.z > 1.1 && rightPost.scaling.z < 1.4) ||
@@ -1529,9 +1741,9 @@ var createScene = function () {
               ) {
                 setActivnesStyle(
                   pfostensSingle,
+                  0,
                   1,
-                  1,
-                  "active-text-color-single"
+                  "active-text-color-single-pfosten"
                 );
               } else if (
                 rightPost.scaling.z > 1.4 ||
@@ -1539,9 +1751,9 @@ var createScene = function () {
               ) {
                 setActivnesStyle(
                   pfostensSingle,
-                  1,
+                  0,
                   2,
-                  "active-text-color-single"
+                  "active-text-color-single-pfosten"
                 );
               }
               document.getElementsByClassName("accTitle")[0].innerHTML =
@@ -1564,10 +1776,13 @@ var createScene = function () {
                 fencePostMat,
                 concreteMat,
                 smallBoardsArr,
-                smallBoardsMat,
-                smallBoardsMatDark,
+                silberMat,
+                anthrazitMat,
                 fencesArr,
-                addFenceSings
+                addFenceSings,
+                grauMat,
+                braunMat,
+                sandMat
               );
             }
           }
@@ -1861,6 +2076,7 @@ var createScene = function () {
       fakeFront.parent = rightStrVord;
       fakeFronts.push(fakeFront);
       fakeFront.isVisible = false;
+
       let fakeBack = new BABYLON.MeshBuilder.CreateBox(
         "fakeBack",
         { width: 0.01, height: 0.3, depth: 0.3 },
@@ -1871,7 +2087,6 @@ var createScene = function () {
       fakeBack.isVisible = false;
 
       //SET NEW FENCE SAME POST SIZE AS THE OTHER
-      // setTimeout(() => {
       if (befePfostenSize == 1) {
         rightPost.scaling.z = 1.2;
         rightPost.position.y = 0.7717;
@@ -1902,7 +2117,6 @@ var createScene = function () {
         foundationRuck.position.z = 0.45;
       }
       // setbefePfosten(1.475, 0.511, false, 1.8, -0.9 / 2);
-      // }, 0);
 
       //CREATE DIRECTE HAUSWAND
       createDirecteHauswand(
@@ -1917,8 +2131,8 @@ var createScene = function () {
         fencePostMat,
         concreteMat,
         smallBoardsArr,
-        smallBoardsMat,
-        smallBoardsMatDark,
+        silberMat,
+        anthrazitMat,
         fencesArr,
         addFenceSings,
         selectedMat,
@@ -1929,7 +2143,10 @@ var createScene = function () {
         singsDel,
         leds,
         ledParts,
-        setActivnesStyle
+        setActivnesStyle,
+        grauMat,
+        braunMat,
+        sandMat
       );
       directeHauswandMeshesRight[directeHauswandMeshesRight.length - 1].parent =
         rightPostCap;
@@ -1976,7 +2193,7 @@ var createScene = function () {
 
       if (type == "easyRomBig" && smCol == "silber") {
         smallBoards.isVisible = true;
-        smallBoards.material = smallBoardsMat;
+        smallBoards.material = silberMat;
         newBoarsdArr.forEach((elm) => {
           elm.isVisible = false;
         });
@@ -1984,7 +2201,7 @@ var createScene = function () {
       }
       if (type == "easyRomSmall" && smCol == "silber") {
         smallBoards.isVisible = true;
-        smallBoards.material = smallBoardsMat;
+        smallBoards.material = silberMat;
         newBoarsdArr.forEach((elm) => {
           elm.isVisible = false;
         });
@@ -2041,7 +2258,7 @@ var createScene = function () {
 
       if (type == "easyRomBig" && smCol == "anthrazit") {
         smallBoards.isVisible = true;
-        smallBoards.material = smallBoardsMatDark;
+        smallBoards.material = anthrazitMat;
         newBoarsdArr.forEach((elm) => {
           elm.isVisible = false;
         });
@@ -2049,7 +2266,7 @@ var createScene = function () {
       }
       if (type == "easyRomSmall" && smCol == "anthrazit") {
         smallBoards.isVisible = true;
-        smallBoards.material = smallBoardsMatDark;
+        smallBoards.material = anthrazitMat;
         newBoarsdArr.forEach((elm) => {
           elm.isVisible = false;
         });
@@ -2110,32 +2327,47 @@ var createScene = function () {
 
       fenceType = type;
 
+      boardCol = boardColObj;
+
+      startUndAbschCol = startUndAbschColObj;
+
       smallBoardsDefaultCol = smCol;
       if (type == "easyRomSmall") {
         fenceSizeObj = 60;
       } else {
         fenceSizeObj = 180;
       }
+
       fenceInlays = inlaysOnOff;
+
       childrenThis = [];
+
       laisnesThis = [];
+
+      laisnesCol = laisnesColObj;
+
       for (let i = 0; i < checkboxActive.length; i++) {
         laisnesThis.push(checkboxActive[i]);
       }
-
+      numOfBoards = 8;
       fencesArr.push(
         new NewFence(
           fenceId,
           fenceType,
+          boardCol,
+          startUndAbschCol,
           smallBoardsDefaultCol,
           fenceSizeObj,
           fenceInlays,
           childrenThis,
-          laisnesThis
+          laisnesThis,
+          laisnesCol,
+          numOfBoards
         )
       );
 
-      wholeFences.push(fence);
+      fencesArr[fenceId].status = "activeFence";
+
       if (fenceId > 0 && typeof activeFence != "boolean") {
         fencesArr[activeFence].children.push(fenceId);
         fencesArr[fenceId].parent = fencesArr[activeFence].id;
@@ -2165,16 +2397,13 @@ var createScene = function () {
         rightPostCaps[fencesArr[fenceId].parent].isVisible = true;
         rightPostCapClones[fencesArr[fenceId].parent].isVisible = false;
       }
-
       //set Ground
       setGround();
-      // }, 0);
       // //
       //for loading
       setTimeout(() => {
         engine.hideLoadingUI();
       }, 3000);
-
       //END OF MESH
       /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     });
@@ -2309,10 +2538,19 @@ var createScene = function () {
     textureContextZ.fillText(textZ, 256, 140);
     textureGroundZ.update();
   }
-
   //CREATE DEFAULT FENCE
-  createRightFence(0.94, 0, 0, "easyFence", "silber", 0);
-
+  function handleTabActivnes() {
+    if (!document.hidden) {
+      createRightFence(0.94, 0, 0, "easyFence", "silber", 0);
+      clearInterval(refreshIntervalId);
+    }
+  }
+  if (document.hidden) {
+    var refreshIntervalId = setInterval(handleTabActivnes, 100);
+  } else {
+    createRightFence(0.94, 0, 0, "easyFence", "silber", 0);
+  }
+  //ADD NEW FENCES
   let addNewFenceNormal = document.getElementById("new-fence-normal");
   addNewFenceNormal.onclick = () => {
     createNewFence(
@@ -2332,7 +2570,9 @@ var createScene = function () {
       singsDel,
       "easyFence",
       "silber",
-      0
+      0,
+      getAbsPosX,
+      getAbsPosZ
     );
   };
   let newFenceInlays = document.getElementById("newFenceInlays");
@@ -2354,7 +2594,9 @@ var createScene = function () {
       singsDel,
       "easyFence",
       "silber",
-      inlaysOn
+      inlaysOn,
+      getAbsPosX,
+      getAbsPosZ
     );
   };
 
@@ -2377,7 +2619,9 @@ var createScene = function () {
       singsDel,
       "easyRomBig",
       "silber",
-      0
+      0,
+      getAbsPosX,
+      getAbsPosZ
     );
   };
 
@@ -2402,7 +2646,9 @@ var createScene = function () {
       singsDel,
       "easyRomBig",
       "anthrazit",
-      0
+      0,
+      getAbsPosX,
+      getAbsPosZ
     );
   };
 
@@ -2427,7 +2673,9 @@ var createScene = function () {
       singsDel,
       "easyRomSmall",
       "silber",
-      0
+      0,
+      getAbsPosX,
+      getAbsPosZ
     );
   };
 
@@ -2452,7 +2700,9 @@ var createScene = function () {
       singsDel,
       "easyRomSmall",
       "anthrazit",
-      0
+      0,
+      getAbsPosX,
+      getAbsPosZ
     );
   };
 
@@ -2505,7 +2755,7 @@ var createScene = function () {
     addNewFenceToSide.style.display = "none";
     newFenceInlays.style.display = "none";
     newStub.style.display = "none";
-    unselect();
+    unselect(true);
     singsDel.forEach((elm) => {
       elm.isVisible = false;
     });
@@ -2520,14 +2770,13 @@ var createScene = function () {
       editPost,
       addNewFenceToSide
     );
-    // unselect();
     sideAccesories.style.display = "block";
     addNewFenceToSide.style.display = "block";
-    if (inlaysOn == 1) {
-      newFenceInlays.style.display = "block";
-    } else {
-      newFenceInlays.style.display = "none";
-    }
+    // if (inlaysOn > 1) {
+    // newFenceInlays.style.display = "block";
+    // } else {
+    newFenceInlays.style.display = "none";
+    // }
     if (
       !sturmankersVorderseite[activeFence + 1].isVisible &&
       !leds[activeFence + 1].isVisible
@@ -2537,7 +2786,9 @@ var createScene = function () {
           if (fencesArr[activeFence].children > 0) {
             newStub.style.display = "none";
           } else {
-            newStub.style.display = "block";
+            rightPosts[activeFence].scaling.z > 0.99
+              ? (newStub.style.display = "block")
+              : (newStub.style.display = "none");
           }
         } else {
           newStub.style.display = "none";
@@ -2548,7 +2799,9 @@ var createScene = function () {
           if (fencesArr[activeFence].children > 0) {
             newStub.style.display = "none";
           } else {
-            newStub.style.display = "block";
+            rightPosts[activeFence].scaling.z > 0.99
+              ? (newStub.style.display = "block")
+              : (newStub.style.display = "none");
           }
         } else {
           newStub.style.display = "none";
@@ -2559,7 +2812,9 @@ var createScene = function () {
           if (fencesArr[activeFence].children > 0) {
             newStub.style.display = "none";
           } else {
-            newStub.style.display = "block";
+            rightPosts[activeFence].scaling.z > 0.99
+              ? (newStub.style.display = "block")
+              : (newStub.style.display = "none");
           }
         } else {
           newStub.style.display = "none";
@@ -2570,7 +2825,9 @@ var createScene = function () {
           if (fencesArr[activeFence].children > 0) {
             newStub.style.display = "none";
           } else {
-            newStub.style.display = "block";
+            rightPosts[activeFence].scaling.z > 0.99
+              ? (newStub.style.display = "block")
+              : (newStub.style.display = "none");
           }
         } else {
           newStub.style.display = "none";
@@ -2627,10 +2884,13 @@ var createScene = function () {
               fencePostMat,
               concreteMat,
               smallBoardsArr,
-              smallBoardsMat,
-              smallBoardsMatDark,
+              silberMat,
+              anthrazitMat,
               fencesArr,
-              addFenceSings
+              addFenceSings,
+              grauMat,
+              braunMat,
+              sandMat
             );
             newFenceForwardSigns[i].isVisible = true;
             newFenceRightSigns[i].isVisible = true;
@@ -2684,10 +2944,13 @@ var createScene = function () {
               fencePostMat,
               concreteMat,
               smallBoardsArr,
-              smallBoardsMat,
-              smallBoardsMatDark,
+              silberMat,
+              anthrazitMat,
               fencesArr,
-              addFenceSings
+              addFenceSings,
+              grauMat,
+              braunMat,
+              sandMat
             );
             newFenceForwardSigns[i].isVisible = true;
             newFenceRightSigns[i].isVisible = true;
@@ -2741,10 +3004,13 @@ var createScene = function () {
               fencePostMat,
               concreteMat,
               smallBoardsArr,
-              smallBoardsMat,
-              smallBoardsMatDark,
+              silberMat,
+              anthrazitMat,
               fencesArr,
-              addFenceSings
+              addFenceSings,
+              grauMat,
+              braunMat,
+              sandMat
             );
             newFenceForwardSigns[i].isVisible = true;
             newFenceRightSigns[i].isVisible = true;
@@ -2798,10 +3064,13 @@ var createScene = function () {
               fencePostMat,
               concreteMat,
               smallBoardsArr,
-              smallBoardsMat,
-              smallBoardsMatDark,
+              silberMat,
+              anthrazitMat,
               fencesArr,
-              addFenceSings
+              addFenceSings,
+              grauMat,
+              braunMat,
+              sandMat
             );
             newFenceForwardSigns[i].isVisible = true;
             newFenceRightSigns[i].isVisible = true;
@@ -2874,10 +3143,13 @@ var createScene = function () {
             fencePostMat,
             concreteMat,
             smallBoardsArr,
-            smallBoardsMat,
-            smallBoardsMatDark,
+            silberMat,
+            anthrazitMat,
             fencesArr,
-            addFenceSings
+            addFenceSings,
+            grauMat,
+            braunMat,
+            sandMat
           );
           addNewFenceMeshRightMain.isVisible = true;
           addNewFenceMeshLeftMain.isVisible = true;
@@ -2937,10 +3209,13 @@ var createScene = function () {
             fencePostMat,
             concreteMat,
             smallBoardsArr,
-            smallBoardsMat,
-            smallBoardsMatDark,
+            silberMat,
+            anthrazitMat,
             fencesArr,
-            addFenceSings
+            addFenceSings,
+            grauMat,
+            braunMat,
+            sandMat
           );
           addNewFenceMeshRightMain.isVisible = true;
           addNewFenceMeshLeftMain.isVisible = true;
@@ -3151,7 +3426,9 @@ var createScene = function () {
       parts[i].children[0].children[0].style.backgroundColor = matCol[i];
       parts[i].addEventListener("click", () => {
         //change fence color
-        changable.diffuseColor = BABYLON.Color3.FromHexString(matCol[i]);
+        if (changable != false) {
+          changable.diffuseColor = BABYLON.Color3.FromHexString(matCol[i]);
+        }
       });
     }
   }
@@ -3206,29 +3483,90 @@ var createScene = function () {
 
   //1 SET MAIN FARBE FUNCIONALITY
   let mainFarbeParts = document.getElementsByClassName("set-part-main-farbe");
-  setPartsAndconf(mainFarbeParts, fenceBoardMat, fenceBoardsColors);
+  setPartsAndconf(mainFarbeParts, false, fenceBoardsColors);
   setActivnes(mainFarbeParts, 1, "active-text-color");
+
+  function allFenceBoardsChange(a, b) {
+    for (let i = 0; i < fencesArr.length; i++) {
+      fencesArr[i].boardCol = a;
+      fenceBoards[i].forEach((elm) => {
+        elm.material = b;
+      });
+    }
+  }
+  let allBoardsCol = 0;
+  mainFarbeParts[0].addEventListener("click", () => {
+    allFenceBoardsChange("grau", grauMat);
+    allBoardsCol = 0;
+  });
+  mainFarbeParts[1].addEventListener("click", () => {
+    allFenceBoardsChange("anthrazit", anthrazitMat);
+    allBoardsCol = 1;
+  });
+  mainFarbeParts[2].addEventListener("click", () => {
+    allFenceBoardsChange("braun", braunMat);
+    allBoardsCol = 2;
+  });
+  mainFarbeParts[3].addEventListener("click", () => {
+    allFenceBoardsChange("sand", sandMat);
+    allBoardsCol = 3;
+  });
 
   //2 SET START UND AVBSCH
   let startUndAbschParts = document.getElementsByClassName(
     "set-part-start-und-absch"
   );
-  setPartsAndconf(startUndAbschParts, fenceStartEndMat, fencePartsColors);
+  setPartsAndconf(startUndAbschParts, false, fencePartsColors);
   setActivnes(startUndAbschParts, 2, "active-text-color");
+
+  let startUndAbschMat = 1;
+  startUndAbschParts[0].addEventListener("click", () => {
+    for (let i = 0; i < startParts.length; i++) {
+      fencesArr[i].startUndAbschCol = "silber";
+      startParts[i].material = endParts[i].material = silberMat;
+    }
+    startUndAbschMat = 0;
+  });
+  startUndAbschParts[1].addEventListener("click", () => {
+    for (let i = 0; i < startParts.length; i++) {
+      fencesArr[i].startUndAbschCol = "anthrazit";
+      startParts[i].material = endParts[i].material = anthrazitMat;
+    }
+    startUndAbschMat = 1;
+  });
 
   //3 DESIGNlLEISTEN AUS ALUMINIUM
   let designleistensMat = document.getElementsByClassName(
     "set-part-designleisten-aus-aluminium-act-col"
   );
-  setPartsAndconf(designleistensMat, laisneMat, fencePartsColors);
+  setPartsAndconf(designleistensMat, false, fencePartsColors);
   setActivnes(designleistensMat, 3, "active-text-color");
+  let laisnesMat = 0;
+  designleistensMat[1].addEventListener("click", () => {
+    for (let i = 0; i < laisnes.length; i++) {
+      fencesArr[i].laisnesCol = "anthrazit";
+      laisnes[i].forEach((elm) => {
+        elm.material = anthrazitMat;
+      });
+    }
+    laisnesMat = 1;
+  });
+  designleistensMat[0].addEventListener("click", () => {
+    for (let i = 0; i < laisnes.length; i++) {
+      fencesArr[i].laisnesCol = "silber";
+      laisnes[i].forEach((elm) => {
+        elm.material = silberMat;
+      });
+    }
+    laisnesMat = 0;
+  });
   //DESIGNELEISTEN CHECH BOX TO ACTIVE
   let designleistens = document.getElementsByClassName(
     "set-part-designleisten-aus-aluminium"
   );
   if (designleistens.length > 0) {
     let actCol = "#3967ff";
-    let transperent = "transparent";
+    let transparent = "transparent";
     let empty = "";
     function addLaisnes(a, b, c, i) {
       designleistens[i].children[0].children[0].style.backgroundColor = a;
@@ -3253,7 +3591,7 @@ var createScene = function () {
               fencesArr[j].laisnes[i] = false;
             }
           }
-          addLaisnes(transperent, empty, false, i);
+          addLaisnes(transparent, empty, false, i);
         }
       });
     }
@@ -3268,7 +3606,7 @@ var createScene = function () {
   let designInlaysFirst = document.getElementsByClassName(
     "first-set-design-inlays-color"
   );
-  setPartsAndconf(designInlaysFirst, inlaysMat, fencePartsColors);
+  setPartsAndconf(designInlaysFirst, false, fencePartsColors);
   // //second inlay setings
   // let designInlaysSecond = document.getElementsByClassName(
   //   "second-set-design-inlays-color"
@@ -3279,62 +3617,47 @@ var createScene = function () {
   //   "third-set-design-inlays-color"
   // );
   // setPartsAndconf(designInlaysThird, inlaysMat, fencePartsColors);
+
   //inlays show or not
-  function inlaysFunction(a, b) {
-    if (!activeFence) {
-      for (let i = 0; i < rightPosts.length; i++) {
-        if (rightPosts[i].isVisible) {
-          inlays[i][0].isVisible = b;
-          inlays[i][2].isVisible = b;
-        }
+  function inlaysFunction(a, b, c, d) {
+    for (let i = 0; i < rightPosts.length; i++) {
+      if (rightPosts[i].isVisible) {
+        inlays[i][0].isVisible = b;
+        inlays[i][2].isVisible = b;
       }
-      // inlays.forEach((elmI) => {
-      //   elmI[0].isVisible = b;
-      //   elmI[2].isVisible = b;
-      // });
-      fenceBoards.forEach((elmF) => {
-        elmF[6].isVisible = a;
-      });
-      for (let i = 0; i < inlays.length; i++) {
-        inlays[i][0].material.albedoColor = inlays[i][2].material.diffuseColor;
-      }
-      for (let i = 0; i < fenceBoards.length; i++) {
-        if (
-          smallBoardsArr[i].isVisible ||
-          fencesArr[i].type == "easyFenceHalf"
-        ) {
-          fenceBoards[i][6].isVisible = false;
-          inlays[i][0].isVisible = false;
-          inlays[i][2].isVisible = false;
-        } else {
-          fencesArr[i].inlays = 1;
-        }
-      }
-    } else {
-      fenceBoards[activeFence].forEach((elm) => {
-        elm.isVisible = a;
-      });
-      inlays[activeFence].forEach((elm) => {
-        elm.isVisible = b;
-      });
     }
-    // inlays[1].isVisible = c;
-    // inlays[2].isVisible = d;
+    fenceBoards.forEach((elmF) => {
+      elmF[6].isVisible = a;
+    });
+    for (let i = 0; i < inlays.length; i++) {
+      inlays[i][2].material = c;
+      inlays[i][0].material.albedoColor = inlays[i][2].material.diffuseColor;
+    }
+    for (let i = 0; i < fenceBoards.length; i++) {
+      if (smallBoardsArr[i].isVisible || fencesArr[i].type == "easyFenceHalf") {
+        fenceBoards[i][6].isVisible = false;
+        inlays[i][0].isVisible = false;
+        inlays[i][2].isVisible = false;
+        fencesArr[i].inlays = 0;
+      } else {
+        fencesArr[i].type = d;
+      }
+    }
   }
   var inlaysOn = 0;
   if (designInlays.length > 0) {
     for (let i = 0; i < designInlays.length; i++) {
       designInlays[i].addEventListener("click", () => {
+        inlaysOn = i;
+        fencesArr.forEach((elm) => {
+          elm.inlays = i;
+        });
         if (i == 0) {
-          inlaysFunction(true, false);
-          inlaysOn = 0;
-        } else if (i == 1 || i == 2) {
-          inlaysFunction(false, true);
-          inlaysOn = 1;
-          // } else if (i == 3 || i == 4) {
-          //   inlaysFunction(false, false, true, false);
-          // } else if (i == 5 || i == 6) {
-          //   inlaysFunction(false, false, false, true);
+          inlaysFunction(true, false, silberMat, "easyFence");
+        } else if (i == 1) {
+          inlaysFunction(false, true, silberMat, "easyFenceInlaysSilber");
+        } else if (i == 2) {
+          inlaysFunction(false, true, anthrazitMat, "easyFenceInlaysAnth");
         }
       });
     }
@@ -3904,15 +4227,15 @@ var createScene = function () {
   }
   pfostensSingle[0].addEventListener("click", () => {
     changeSinglePostSize(1, 0.962, true, 1, 0.25, 0.524, 0.504);
-    setActivnesStyle(pfostensSingle, 1, 0, "active-text-color-single");
+    setActivnesStyle(pfostensSingle, 0, 0, "active-text-color-single-pfosten");
   });
   pfostensSingle[1].addEventListener("click", () => {
     changeSinglePostSize(1.2, 0.7717, false, 1, 0.25, 0.724, 0.3119);
-    setActivnesStyle(pfostensSingle, 1, 1, "active-text-color-single");
+    setActivnesStyle(pfostensSingle, 0, 1, "active-text-color-single-pfosten");
   });
   pfostensSingle[2].addEventListener("click", () => {
     changeSinglePostSize(1.475, 0.511, false, 1.8, 0.45, 0.999, 0.053);
-    setActivnesStyle(pfostensSingle, 1, 2, "active-text-color-single");
+    setActivnesStyle(pfostensSingle, 0, 2, "active-text-color-single-pfosten");
   });
   //8 STURMANKER
   let sturmankerCon = document.getElementsByClassName("sturmanker-con");
@@ -4125,10 +4448,13 @@ var createScene = function () {
                 fencePostMat,
                 concreteMat,
                 smallBoardsArr,
-                smallBoardsMat,
-                smallBoardsMatDark,
+                silberMat,
+                anthrazitMat,
                 fencesArr,
-                addFenceSings
+                addFenceSings,
+                grauMat,
+                braunMat,
+                sandMat
               );
               a.forEach((elm) => {
                 elm.material = fencePostMat;
@@ -4300,10 +4626,13 @@ var createScene = function () {
             fencePostMat,
             concreteMat,
             smallBoardsArr,
-            smallBoardsMat,
-            smallBoardsMatDark,
+            silberMat,
+            anthrazitMat,
             fencesArr,
-            addFenceSings
+            addFenceSings,
+            grauMat,
+            braunMat,
+            sandMat
           );
           directeHauswandMesh.material = selectedMat;
           sideAccesories.style.display = "block";
@@ -4348,18 +4677,12 @@ var createScene = function () {
       addRemoveHauswand();
       directeHauswandMesh.material = concreteMat;
       var currentActCol = document.getElementsByClassName("active-text-color");
-      if (!togAct) {
-        directeHauswand[0].className += " active-text-color";
-        directeHauswand[0].children[2].innerHTML = checkMark;
-        togAct = true;
-      } else {
-        currentActCol[11].className = currentActCol[11].className.replace(
-          " active-text-color",
-          ""
-        );
-        directeHauswand[0].children[2].innerHTML = "";
-        togAct = false;
-      }
+      currentActCol[11].className = currentActCol[11].className.replace(
+        " active-text-color",
+        ""
+      );
+      directeHauswand[0].children[2].innerHTML = "";
+      togAct = false;
     }
     for (let i = 0; i < directeHauswandMeshesRight.length; i++) {
       if (directeHauswandMeshesRight[i].material.id == "selectedMat") {
@@ -4429,7 +4752,7 @@ var createScene = function () {
   });
 
   function addRemoveHauswand() {
-    if (!directeHauswandMesh.isVisible) {
+    if (!directeHauswandMesh.isVisible && leftPosts[0].scaling.y > 0.99) {
       setHauswand(
         true,
         1,
@@ -4448,7 +4771,7 @@ var createScene = function () {
       sturVorderseiteSrafs[0].isVisible = false;
       leds[0].isVisible = false;
       // lightsLed[0].intensity = 0;
-    } else {
+    } else if (directeHauswandMesh.isVisible && leftPosts[0].scaling.y > 0.99) {
       setHauswand(
         false,
         1,
@@ -4465,6 +4788,15 @@ var createScene = function () {
       foundationStarts[0].position.z = 0;
       foundations[0].position.y = -0.5 / 2;
       directeHauswandMesh.material = concreteMat;
+    } else {
+      if (togAct) {
+        document.getElementsByClassName("active-text-color")[11].className =
+          document
+            .getElementsByClassName("active-text-color")[11]
+            .className.replace(" active-text-color", "");
+        directeHauswand[0].children[2].innerHTML = "";
+        togAct = false;
+      }
     }
   }
 
@@ -4474,13 +4806,73 @@ var createScene = function () {
     });
   }
 
+  //10 DELETE SINGLE FENCE BOARD ALL
+  let delSingBut = document.getElementsByClassName("del-sing-btns");
+  let numOfBords = document.getElementById("numOfBords");
+  let numOfBordsVal = 8;
+  delSingBut[0].onclick = () => {
+    if (numOfBordsVal > 1) {
+      numOfBordsVal -= 1;
+      numOfBords.innerHTML = numOfBordsVal;
+      for (let i = 0; i < fencesArr.length; i++) {
+        if (
+          fencesArr[i].type == "easyFence" &&
+          numOfBordsVal + 1 == fencesArr[i].numOfBoards
+        ) {
+          fenceBoards[i][numOfBordsVal].isVisible = false;
+          startParts[i].position.y =
+            fenceBoards[i][numOfBordsVal - 1].position.y + 0.23 / 2 + 0.005;
+          fencesArr[i].numOfBoards = numOfBordsVal;
+        }
+        if (
+          fencesArr[i].type == "easyFenceHalf" &&
+          numOfBordsVal < 4 &&
+          numOfBordsVal + 1 == fencesArr[i].numOfBoards
+        ) {
+          fenceBoards[i][numOfBordsVal].isVisible = false;
+          startParts[i].position.y =
+            fenceBoards[i][numOfBordsVal - 1].position.y + 0.23 / 2 + 0.005;
+          fencesArr[i].numOfBoards = numOfBordsVal;
+        }
+      }
+    }
+  };
+
+  delSingBut[1].onclick = () => {
+    if (numOfBordsVal < 8) {
+      for (let i = 0; i < fencesArr.length; i++) {
+        if (
+          fencesArr[i].type == "easyFence" &&
+          fenceBoards[i][numOfBordsVal].isVisible == false
+        ) {
+          fenceBoards[i][numOfBordsVal].isVisible = true;
+          startParts[i].position.y =
+            fenceBoards[i][numOfBordsVal].position.y + 0.23 / 2 + 0.005;
+          fencesArr[i].numOfBoards = numOfBordsVal + 1;
+        }
+        if (
+          fencesArr[i].type == "easyFenceHalf" &&
+          numOfBordsVal < 4 &&
+          numOfBordsVal == fencesArr[i].numOfBoards
+        ) {
+          fenceBoards[i][numOfBordsVal].isVisible = true;
+          startParts[i].position.y =
+            fenceBoards[i][numOfBordsVal].position.y + 0.23 / 2 + 0.005;
+          fencesArr[i].numOfBoards = numOfBordsVal + 1;
+        }
+      }
+      numOfBordsVal += 1;
+      numOfBords.innerHTML = numOfBordsVal;
+    }
+  };
+
   //SET MATERIALS TO RECIVE MORE THEN 4 LIGHTS
   scene.materials.forEach(function (mtl) {
     mtl.maxSimultaneousLights = 100;
   });
 
   // ACCESORIES SECTION FUNCTIONS*****************************************************************************************
-  function unselect() {
+  function unselect(activnesToFalse) {
     // sideAccesories.style.width = 0;
     sideAccesories.style.display = "none";
     for (let j = 0; j < deleteAccesorie.length; j++) {
@@ -4498,26 +4890,31 @@ var createScene = function () {
       fencePostMat,
       concreteMat,
       smallBoardsArr,
-      smallBoardsMat,
-      smallBoardsMatDark,
+      silberMat,
+      anthrazitMat,
       fencesArr,
-      addFenceSings
+      addFenceSings,
+      grauMat,
+      braunMat,
+      sandMat
     );
     addFenceSings;
-    setTimeout(() => {
-      activeFence = false;
-    }, 100);
+    if (activnesToFalse) {
+      setTimeout(() => {
+        activeFence = false;
+      }, 100);
+    }
   }
   function accCloseButFun(clickable) {
     if (typeof clickable.length == "number") {
       for (let i = 0; i < clickable.length; i++) {
         clickable[i].addEventListener("click", () => {
-          unselect();
+          unselect(true);
         });
       }
     } else {
       clickable.addEventListener("click", () => {
-        unselect();
+        unselect(true);
       });
     }
   }
@@ -4531,42 +4928,34 @@ var createScene = function () {
   //close add new fence accesoire when close button
   accCloseButFun(sideAccCloseBtn);
 
-  //first small board fence colors setings
-  let smallBoardsFirst = document.getElementsByClassName(
-    "first-set-add-fence-color"
-  );
-
-  //second small board fence colors setings
-  let smallBoardsSecond = document.getElementsByClassName(
-    "second-set-add-fence-color"
-  );
-
-  //function to change fence
-  function changeFenceFunction(a, b, c, d, e, f, g) {
-    fenceBoards[activeFence].forEach((elm) => {
+  //fFUNCTION  TO CHANGE FENCES
+  function changeFenceFunction(a, b, c, d, e, f, g, h, k) {
+    fenceBoards[h].forEach((elm) => {
       elm.isVisible = a;
     });
-    startParts[activeFence].isVisible = endParts[activeFence].isVisible = a;
+    startParts[h].isVisible = endParts[h].isVisible = a;
 
-    smallBoardsArr[activeFence].isVisible = b;
+    smallBoardsArr[h].isVisible = b;
 
-    changePosAndScaleFence(c, activeFence);
-    positionChildrenOnParentSizeChange();
-    fencesArr[activeFence].type = d;
-    fencesArr[activeFence].smBoaCol = e;
-    fencesArr[activeFence].size = c;
-    fencesArr[activeFence].inlays = g;
-    if (fencesArr[activeFence].inlays == 0) {
-      inlays[activeFence][0].isVisible = false;
-      inlays[activeFence][2].isVisible = false;
+    changePosAndScaleFence(c, h);
+    positionChildrenOnParentSizeChange(h);
+    fencesArr[h].type = d;
+    fencesArr[h].smBoaCol = e;
+    fencesArr[h].size = c;
+    fencesArr[h].inlays = g;
+    fencesArr[h].numOfBoards = k;
+    if (fencesArr[h].inlays == 0) {
+      inlays[h][0].isVisible = false;
+      inlays[h][2].isVisible = false;
     }
-    // }
-    if (fencesArr[activeFence].inlays == 1) {
-      inlays[activeFence][0].isVisible = true;
-      inlays[activeFence][2].isVisible = true;
-      fenceBoards[activeFence][6].isVisible = false;
+    if (fencesArr[h].inlays > 0) {
+      if (fencesArr[h].inlays == 1) inlays[h][2].material = silberMat;
+      if (fencesArr[h].inlays == 2) inlays[h][2].material = anthrazitMat;
+      inlays[h][0].material.albedoColor = inlays[h][2].material.diffuseColor;
+      inlays[h][0].isVisible = true;
+      inlays[h][2].isVisible = true;
+      fenceBoards[h][6].isVisible = false;
     }
-
     //set inlays to ohne
     aaa = 0;
     inlays.forEach((elm) => {
@@ -4579,169 +4968,265 @@ var createScene = function () {
       inlaysOn = 0;
     }
     //set laisnes
-    for (let i = 0; i < fencesArr[activeFence].laisnes.length; i++) {
-      if (fencesArr[activeFence].laisnes[i]) {
-        laisnes[activeFence][i].isVisible = f;
+    for (let i = 0; i < fencesArr[h].laisnes.length; i++) {
+      if (fencesArr[h].laisnes[i]) {
+        laisnes[h][i].isVisible = f;
       }
     }
-    //set fence height
+    //set fence height///////////////////////////
     if (d == "easyFenceHalf") {
-      for (let i = 4; i < fenceBoards[activeFence].length; i++) {
-        fenceBoards[activeFence][i].isVisible = false;
+      // del hauswand when half fence activated
+      if (directeHauswandMesh.isVisible) {
+        addRemoveHauswand();
+        directeHauswandMesh.material = concreteMat;
+        var currentActCol =
+          document.getElementsByClassName("active-text-color");
+        currentActCol[11].className = currentActCol[11].className.replace(
+          " active-text-color",
+          ""
+        );
+        directeHauswand[0].children[2].innerHTML = "";
+        togAct = false;
       }
-      laisnes[activeFence].forEach((elm) => {
+      //right hauswands
+      if (directeHauswandMeshesRight[h].isVisible) {
+        directeHauswandMeshesRight[h].material = concreteMat;
+        directeHauswandMeshesRight[h].isVisible = false;
+        directeHauswandMeshesRight[h].scaling.z = directeHauswandMeshesRight[
+          h
+        ].scaling.x = 1;
+        directeHauswandMeshesRight[h].position.z =
+          directeHauswandMeshesRight[h].position.z + 0.05;
+        directeHauswandMeshesRight[h].position.x =
+          directeHauswandMeshesRight[h].position.x - 0.05;
+        foundationStartsRight[h].isVisible = true;
+        foundationVisibilty(
+          foundationStarts,
+          foundations,
+          true,
+          foundationStartsVord,
+          foundationsVord,
+          false,
+          foundationStartsRuck,
+          foundationsRuck,
+          false,
+          h + 1
+        );
+        if (befePfostenSize == 0) {
+          rightPosts[h].scaling.z =
+            rightPosts[h].scaling.y =
+            rightPosts[h].scaling.x =
+            rightPostCaps[h].scaling.x =
+            rightPostCaps[h].scaling.y =
+              1;
+          rightPostCaps[h].position.y = rightPostCaps[h].position.y + 0.01;
+          rightPosts[h].position.y = 0.962;
+          rightRoots[h].forEach((elm) => {
+            elm.isVisible = true;
+          });
+          foundations[h + 1].scaling.y = 1;
+          foundations[h + 1].position.y = -0.5 / 2;
+        }
+        if (befePfostenSize == 1) {
+          rightPosts[h].scaling.z = 1.2;
+          rightPosts[h].scaling.y =
+            rightPosts[h].scaling.x =
+            rightPostCaps[h].scaling.x =
+            rightPostCaps[h].scaling.y =
+              1;
+          rightPostCaps[h].position.y = rightPostCaps[h].position.y + 0.01;
+          rightPosts[h].position.y = 0.7717;
+          foundations[h + 1].scaling.y = 1;
+          foundations[h + 1].position.y = -0.5 / 2;
+        }
+        if (befePfostenSize == 2) {
+          rightPosts[h].scaling.z = 1.475;
+          rightPosts[h].scaling.y =
+            rightPosts[h].scaling.x =
+            rightPostCaps[h].scaling.x =
+            rightPostCaps[h].scaling.y =
+              1;
+          rightPostCaps[h].position.y = rightPostCaps[h].position.y + 0.01;
+          rightPosts[h].position.y = 0.511;
+          foundations[h + 1].scaling.y = 1.8;
+          foundations[h + 1].position.y = -0.9 / 2;
+        }
+      }
+      ///////////// end of deleting hauswand when half size
+      for (let i = 4; i < fenceBoards[h].length; i++) {
+        fenceBoards[h][i].isVisible = false;
+      }
+      laisnes[h].forEach((elm) => {
         elm.isVisible = false;
       });
       for (let i = 0; i < 3; i++) {
-        if (fencesArr[activeFence].laisnes[i]) {
-          laisnes[activeFence][i].isVisible = true;
+        if (fencesArr[h].laisnes[i]) {
+          laisnes[h][i].isVisible = true;
         }
       }
 
       //children
       let childType = 0;
-      for (let i = 0; i < fencesArr[activeFence].children.length; i++) {
-        if (
-          fencesArr[fencesArr[activeFence].children[i]].type != "easyFenceHalf"
-        ) {
+      for (let i = 0; i < fencesArr[h].children.length; i++) {
+        if (fencesArr[fencesArr[h].children[i]].type != "easyFenceHalf") {
           childType += 1;
         }
       }
       if (childType == 0) {
-        ledsRight[activeFence].scaling.z = 0.524;
-        ledsRight[activeFence].position.z = 0.46;
-        ledsRight[activeFence].position.y = 0.001;
-        rightPosts[activeFence].scaling.z = 0.524;
-        rightPosts[activeFence].position.y = 0.504;
-        if (befePfostenSize == 1) {
-          rightPosts[activeFence].scaling.z = 0.724;
-          rightPosts[activeFence].position.y = 0.3119;
+        if (rightPosts[h].scaling.z < 1.1) {
+          rightPosts[h].scaling.z = 0.524;
+          rightPosts[h].position.y = 0.504;
         }
-        if (befePfostenSize == 2) {
-          rightPosts[activeFence].scaling.z = 0.999;
-          rightPosts[activeFence].position.y = 0.053;
+        if (rightPosts[h].scaling.z > 1 && rightPosts[h].scaling.z < 1.4) {
+          rightPosts[h].scaling.z = 0.724;
+          rightPosts[h].position.y = 0.3119;
         }
-        rightPostCaps[activeFence].isVisible = false;
-        rightPostCapClones[activeFence].isVisible = true;
+        if (rightPosts[h].scaling.z > 1.4) {
+          rightPosts[h].scaling.z = 0.999;
+          rightPosts[h].position.y = 0.053;
+        }
+        rightPostCaps[h].isVisible = false;
+        rightPostCapClones[h].isVisible = true;
+        ledsRight[h].scaling.z = 0.524;
+        ledsRight[h].position.z = 0.46;
+        ledsRight[h].position.y = 0.001;
       }
 
       //parent
-      if (activeFence > 0) {
-        if (fencesArr[fencesArr[activeFence].parent].type == "easyFenceHalf") {
+      if (h > 0) {
+        if (fencesArr[fencesArr[h].parent].type == "easyFenceHalf") {
           let fenceSibling = 0;
           for (
             let i = 0;
-            i < fencesArr[fencesArr[activeFence].parent].children.length;
+            i < fencesArr[fencesArr[h].parent].children.length;
             i++
           ) {
             if (
-              fencesArr[fencesArr[fencesArr[activeFence].parent].children[i]]
-                .type != "easyFenceHalf"
+              fencesArr[fencesArr[fencesArr[h].parent].children[i]].type !=
+              "easyFenceHalf"
             ) {
               fenceSibling += 1;
             }
           }
           if (fenceSibling < 1) {
-            ledsRight[fencesArr[activeFence].parent].scaling.z = 0.524;
-            ledsRight[fencesArr[activeFence].parent].position.z = 0.46;
-            ledsRight[fencesArr[activeFence].parent].position.y = 0.001;
-            rightPosts[fencesArr[activeFence].parent].scaling.z = 0.524;
-            rightPosts[fencesArr[activeFence].parent].position.y = 0.504;
-            if (befePfostenSize == 1) {
-              rightPosts[fencesArr[activeFence].parent].scaling.z = 0.724;
-              rightPosts[fencesArr[activeFence].parent].position.y = 0.3119;
+            if (rightPosts[fencesArr[h].parent].scaling.z < 1.1) {
+              rightPosts[fencesArr[h].parent].scaling.z = 0.524;
+              rightPosts[fencesArr[h].parent].position.y = 0.504;
             }
-            if (befePfostenSize == 2) {
-              rightPosts[fencesArr[activeFence].parent].scaling.z = 0.999;
-              rightPosts[fencesArr[activeFence].parent].position.y = 0.053;
+            if (
+              rightPosts[fencesArr[h].parent].scaling.z > 1 &&
+              rightPosts[fencesArr[h].parent].scaling.z < 1.4
+            ) {
+              rightPosts[fencesArr[h].parent].scaling.z = 0.724;
+              rightPosts[fencesArr[h].parent].position.y = 0.3119;
             }
-            rightPostCaps[fencesArr[activeFence].parent].isVisible = false;
-            rightPostCapClones[fencesArr[activeFence].parent].isVisible = true;
+            if (rightPosts[fencesArr[h].parent].scaling.z > 1.4) {
+              rightPosts[fencesArr[h].parent].scaling.z = 0.999;
+              rightPosts[fencesArr[h].parent].position.y = 0.053;
+            }
+            rightPostCaps[fencesArr[h].parent].isVisible = false;
+            rightPostCapClones[fencesArr[h].parent].isVisible = true;
+            ledsRight[fencesArr[h].parent].scaling.z = 0.524;
+            ledsRight[fencesArr[h].parent].position.z = 0.46;
+            ledsRight[fencesArr[h].parent].position.y = 0.001;
           }
         }
       }
 
-      if (activeFence == 0) {
-        leftPosts[0].scaling.y = 0.524;
-        leftPosts[0].position.y = 0.504;
-        if (befePfostenSize == 1) {
+      if (h == 0) {
+        if (leftPosts[0].scaling.y < 1.1) {
+          leftPosts[0].scaling.y = 0.524;
+          leftPosts[0].position.y = 0.504;
+        }
+        if (leftPosts[0].scaling.y > 1 && leftPosts[0].scaling.y < 1.4) {
           leftPosts[0].scaling.y = 0.724;
           leftPosts[0].position.y = 0.3119;
         }
-        if (befePfostenSize == 2) {
+        if (leftPosts[0].scaling.y > 1.4) {
           leftPosts[0].scaling.y = 0.999;
           leftPosts[0].position.y = 0.053;
         }
         leftPostCaps[0].position.y = 0.052;
-        leds[activeFence].scaling.y = 0.524;
-        leds[activeFence].position.y = 0.5;
-        leds[activeFence].position.z = 0.001;
+        leds[h].scaling.y = 0.524;
+        leds[h].position.y = 0.5;
+        leds[h].position.z = 0.001;
       }
-
-      startParts[activeFence].position.y =
-        fenceBoards[activeFence][3].position.y + 0.23 / 2 + 0.005;
+      startParts[h].position.y =
+        fenceBoards[h][3].position.y + 0.23 / 2 + 0.005;
     } else {
-      for (let i = 4; i < fenceBoards[activeFence].length; i++) {
+      for (let i = 4; i < fenceBoards[h].length; i++) {
         if (d == "easyRomBig" || d == "easyRomSmall") {
-          fenceBoards[activeFence][i].isVisible = false;
+          fenceBoards[h][i].isVisible = false;
         } else {
-          fenceBoards[activeFence][i].isVisible = true;
+          fenceBoards[h][i].isVisible = true;
         }
       }
-      ledsRight[activeFence].scaling.z = 1;
-      ledsRight[activeFence].position.z = 0;
-      ledsRight[activeFence].position.y = 0.001;
-      if (fencesArr[activeFence].inlays == 1) {
-        fenceBoards[activeFence][6].isVisible = false;
+      ledsRight[h].scaling.z = 1;
+      ledsRight[h].position.z = 0;
+      ledsRight[h].position.y = 0.001;
+      if (fencesArr[h].inlays > 0) {
+        fenceBoards[h][6].isVisible = false;
       }
-      startParts[activeFence].position.y =
-        fenceBoards[activeFence][7].position.y + 0.23 / 2 + 0.005;
-      rightPosts[activeFence].scaling.z = 1;
-      rightPosts[activeFence].position.y = 0.962;
-      if (befePfostenSize == 1) {
-        rightPosts[activeFence].scaling.z = 1.2;
-        rightPosts[activeFence].position.y = 0.7717;
+      startParts[h].position.y =
+        fenceBoards[h][7].position.y + 0.23 / 2 + 0.005;
+      if (rightPosts[h].scaling.z < 0.6) {
+        rightPosts[h].scaling.z = 1;
+        rightPosts[h].position.y = 0.962;
       }
-      if (befePfostenSize == 2) {
-        rightPosts[activeFence].scaling.z = 1.475;
-        rightPosts[activeFence].position.y = 0.511;
+      if (rightPosts[h].scaling.z > 0.6 && rightPosts[h].scaling.z < 0.9) {
+        rightPosts[h].scaling.z = 1.2;
+        rightPosts[h].position.y = 0.7717;
       }
-      rightPostCaps[activeFence].isVisible = true;
-      rightPostCapClones[activeFence].isVisible = false;
+      if (rightPosts[h].scaling.z > 0.9 && rightPosts[h].scaling.z < 1) {
+        rightPosts[h].scaling.z = 1.475;
+        rightPosts[h].position.y = 0.511;
+      }
+      rightPostCaps[h].isVisible = true;
+      rightPostCapClones[h].isVisible = false;
 
-      if (activeFence == 0) {
-        leftPosts[0].scaling.y = 1;
-        leftPosts[0].position.y = 0.962;
-        if (befePfostenSize == 1) {
+      if (h == 0) {
+        if (leftPosts[0].scaling.y < 0.6) {
+          leftPosts[0].scaling.y = 1;
+          leftPosts[0].position.y = 0.962;
+        }
+        if (leftPosts[0].scaling.y > 0.6 && leftPosts[0].scaling.y < 0.9) {
           leftPosts[0].scaling.y = 1.2;
           leftPosts[0].position.y = 0.7717;
         }
-        if (befePfostenSize == 2) {
+        if (leftPosts[0].scaling.y > 0.9 && leftPosts[0].scaling.y < 1) {
           leftPosts[0].scaling.y = 1.475;
           leftPosts[0].position.y = 0.511;
         }
         leftPostCaps[0].position.y = 0.962;
-        leds[activeFence].scaling.y = 1;
-        leds[activeFence].position.y = 0.962;
-        leds[activeFence].position.z = 0.001;
+        leds[h].scaling.y = 1;
+        leds[h].position.y = 0.962;
+        leds[h].position.z = 0.001;
       }
       //set parent right post
-      if (activeFence > 0) {
-        ledsRight[fencesArr[activeFence].parent].scaling.z = 1;
-        ledsRight[fencesArr[activeFence].parent].position.z = 0;
-        ledsRight[fencesArr[activeFence].parent].position.y = 0.001;
-        rightPosts[fencesArr[activeFence].parent].scaling.z = 1;
-        rightPosts[fencesArr[activeFence].parent].position.y = 0.962;
-        if (befePfostenSize == 1) {
-          rightPosts[fencesArr[activeFence].parent].scaling.z = 1.2;
-          rightPosts[fencesArr[activeFence].parent].position.y = 0.7717;
+      if (h > 0 && fencesArr[h].parent != undefined) {
+        if (rightPosts[fencesArr[h].parent].scaling.z < 0.6) {
+          rightPosts[fencesArr[h].parent].scaling.z = 1;
+          rightPosts[fencesArr[h].parent].position.y = 0.962;
         }
-        if (befePfostenSize == 2) {
-          rightPosts[fencesArr[activeFence].parent].scaling.z = 1.475;
-          rightPosts[fencesArr[activeFence].parent].position.y = 0.511;
+        if (
+          rightPosts[fencesArr[h].parent].scaling.z > 0.6 &&
+          rightPosts[fencesArr[h].parent].scaling.z < 0.9
+        ) {
+          rightPosts[fencesArr[h].parent].scaling.z = 1.2;
+          rightPosts[fencesArr[h].parent].position.y = 0.7717;
         }
-        rightPostCaps[fencesArr[activeFence].parent].isVisible = true;
-        rightPostCapClones[fencesArr[activeFence].parent].isVisible = false;
+        if (
+          rightPosts[fencesArr[h].parent].scaling.z > 0.9 &&
+          rightPosts[fencesArr[h].parent].scaling.z < 1
+        ) {
+          rightPosts[fencesArr[h].parent].scaling.z = 1.475;
+          rightPosts[fencesArr[h].parent].position.y = 0.511;
+        }
+        rightPostCaps[fencesArr[h].parent].isVisible = true;
+        rightPostCapClones[fencesArr[h].parent].isVisible = false;
+        ledsRight[fencesArr[h].parent].scaling.z = 1;
+        ledsRight[fencesArr[h].parent].position.z = 0;
+        ledsRight[fencesArr[h].parent].position.y = 0.001;
       }
     }
     //set ground size
@@ -4749,25 +5234,108 @@ var createScene = function () {
   }
 
   changeFence[0].addEventListener("click", () => {
-    changeFenceFunction(true, false, 180, "easyFence", "silber", true, 0);
+    changeFenceFunction(
+      true,
+      false,
+      180,
+      "easyFence",
+      "silber",
+      true,
+      0,
+      activeFence,
+      8
+    );
   });
   changeFence[1].addEventListener("click", () => {
-    changeFenceFunction(true, false, 180, "easyFence", "silber", true, 1);
+    changeFenceFunction(
+      true,
+      false,
+      180,
+      "easyFenceInlaysSilber",
+      "silber",
+      true,
+      1,
+      activeFence,
+      8
+    );
   });
   changeFence[2].addEventListener("click", () => {
-    changeFenceFunction(false, true, 180, "easyRomBig", "silber", false, 0);
+    changeFenceFunction(
+      true,
+      false,
+      180,
+      "easyFenceInlaysAnth",
+      "silber",
+      true,
+      2,
+      activeFence,
+      8
+    );
   });
   changeFence[3].addEventListener("click", () => {
-    changeFenceFunction(false, true, 180, "easyRomBig", "anthrazit", false, 0);
+    changeFenceFunction(
+      false,
+      true,
+      180,
+      "easyRomBig",
+      "silber",
+      false,
+      0,
+      activeFence,
+      8
+    );
   });
   changeFence[4].addEventListener("click", () => {
-    changeFenceFunction(false, true, 60, "easyRomSmall", "silber", false, 0);
+    changeFenceFunction(
+      false,
+      true,
+      180,
+      "easyRomBig",
+      "anthrazit",
+      false,
+      0,
+      activeFence,
+      8
+    );
   });
   changeFence[5].addEventListener("click", () => {
-    changeFenceFunction(false, true, 60, "easyRomSmall", "anthrazit", false, 0);
+    changeFenceFunction(
+      false,
+      true,
+      60,
+      "easyRomSmall",
+      "silber",
+      false,
+      0,
+      activeFence,
+      8
+    );
   });
   changeFence[6].addEventListener("click", () => {
-    changeFenceFunction(true, false, 180, "easyFenceHalf", "silber", true, 0);
+    changeFenceFunction(
+      false,
+      true,
+      60,
+      "easyRomSmall",
+      "anthrazit",
+      false,
+      0,
+      activeFence,
+      8
+    );
+  });
+  changeFence[7].addEventListener("click", () => {
+    changeFenceFunction(
+      true,
+      false,
+      180,
+      "easyFenceHalf",
+      "silber",
+      true,
+      0,
+      activeFence,
+      4
+    );
   });
   // SINGLE FENCE EDITING
   //set activnes single fences
@@ -4797,12 +5365,64 @@ var createScene = function () {
       }
     };
   }
-  //inlays single fence
+
+  //BOARDS COLORS SINGLE FENCE 1
+  let boardsMatSingle = document.getElementsByClassName(
+    "set-part-main-farbe-single"
+  );
+  setPartsAndconf(boardsMatSingle, false, fenceBoardsColors);
+  setActivnes(boardsMatSingle, 0, "active-text-color-single");
+
+  boardsMatSingle[0].addEventListener("click", () => {
+    fencesArr[activeFence].boardCol = "grau";
+  });
+  boardsMatSingle[1].addEventListener("click", () => {
+    fencesArr[activeFence].boardCol = "anthrazit";
+  });
+  boardsMatSingle[2].addEventListener("click", () => {
+    fencesArr[activeFence].boardCol = "braun";
+  });
+  boardsMatSingle[3].addEventListener("click", () => {
+    fencesArr[activeFence].boardCol = "sand";
+  });
+
+  //START UND ABSCH SINGLE 2
+  let startUndAbschSingle = document.getElementsByClassName(
+    "set-part-start-und-absch-single"
+  );
+  setPartsAndconf(startUndAbschSingle, false, fencePartsColors);
+  setActivnes(startUndAbschSingle, 1, "active-text-color-single");
+
+  startUndAbschSingle[0].addEventListener("click", () => {
+    fencesArr[activeFence].startUndAbschCol = "silber";
+    startParts[activeFence].material = endParts[activeFence].material =
+      silberMat;
+  });
+  startUndAbschSingle[1].addEventListener("click", () => {
+    fencesArr[activeFence].startUndAbschCol = "anthrazit";
+    startParts[activeFence].material = endParts[activeFence].material =
+      anthrazitMat;
+  });
+
+  //LAISNES SINGLE FENCE 3
   let designleistensMatSingle = document.getElementsByClassName(
     "set-part-designleisten-aus-aluminium-act-col-single"
   );
-  setPartsAndconf(designleistensMatSingle, laisneMat, fencePartsColors);
-  setActivnes(designleistensMatSingle, 0, "active-text-color-single");
+  setPartsAndconf(designleistensMatSingle, false, fencePartsColors);
+  setActivnes(designleistensMatSingle, 2, "active-text-color-single");
+
+  designleistensMatSingle[0].addEventListener("click", () => {
+    fencesArr[activeFence].laisnesCol = "silber";
+    laisnes[activeFence].forEach((elm) => {
+      elm.material = silberMat;
+    });
+  });
+  designleistensMatSingle[1].addEventListener("click", () => {
+    fencesArr[activeFence].laisnesCol = "anthrazit";
+    laisnes[activeFence].forEach((elm) => {
+      elm.material = anthrazitMat;
+    });
+  });
 
   //add lisnes to single fence
   let createLaisneSingle = (laisnePos) => {
@@ -4852,7 +5472,7 @@ var createScene = function () {
   );
   if (designleistensSingle.length > 0) {
     let actColSin = "#3967ff";
-    let transperentSin = "transparent";
+    let transparentSin = "transparent";
     let emptySin = "";
     function addLaisnesSingle(a, b, c, d, i) {
       designleistensSingle[i].children[0].children[0].style.backgroundColor = a;
@@ -4873,7 +5493,7 @@ var createScene = function () {
           );
         } else {
           addLaisnesSingle(
-            transperentSin,
+            transparentSin,
             emptySin,
             false,
             disposeLaisneSingle(i),
@@ -4883,10 +5503,332 @@ var createScene = function () {
       });
     }
   }
+  //4 DELETE SINGLE FENCE BOARD SINGLE
+  let delSingButSingle = document.getElementsByClassName("del-sing-btns-sing");
+  let numOfBordsSing = document.getElementById("numOfBordsSing");
+  // let numOfBordsVal = 8;
+  delSingButSingle[0].onclick = () => {
+    if (fencesArr[activeFence].numOfBoards > 1) {
+      fencesArr[activeFence].numOfBoards -= 1;
+      numOfBordsSing.innerHTML = fencesArr[activeFence].numOfBoards;
+      if (fencesArr[activeFence].type == "easyFence") {
+        fenceBoards[activeFence][
+          fencesArr[activeFence].numOfBoards
+        ].isVisible = false;
+        startParts[activeFence].position.y =
+          fenceBoards[activeFence][fencesArr[activeFence].numOfBoards - 1]
+            .position.y +
+          0.23 / 2 +
+          0.005;
+      }
+      if (
+        fencesArr[activeFence].type == "easyFenceHalf" &&
+        fencesArr[activeFence].numOfBoards < 4
+      ) {
+        fenceBoards[activeFence][
+          fencesArr[activeFence].numOfBoards
+        ].isVisible = false;
+        startParts[activeFence].position.y =
+          fenceBoards[activeFence][fencesArr[activeFence].numOfBoards - 1]
+            .position.y +
+          0.23 / 2 +
+          0.005;
+        fencesArr[activeFence].numOfBoards = fencesArr[activeFence].numOfBoards;
+      }
+    }
+  };
 
+  delSingButSingle[1].onclick = () => {
+    if (fencesArr[activeFence].numOfBoards < 8) {
+      if (fencesArr[activeFence].type == "easyFence") {
+        fenceBoards[activeFence][
+          fencesArr[activeFence].numOfBoards
+        ].isVisible = true;
+        startParts[activeFence].position.y =
+          fenceBoards[activeFence][fencesArr[activeFence].numOfBoards].position
+            .y +
+          0.23 / 2 +
+          0.005;
+        fencesArr[activeFence].numOfBoards += 1;
+        numOfBordsSing.innerHTML = fencesArr[activeFence].numOfBoards;
+      }
+      if (
+        fencesArr[activeFence].type == "easyFenceHalf" &&
+        fencesArr[activeFence].numOfBoards < 4
+      ) {
+        fenceBoards[activeFence][
+          fencesArr[activeFence].numOfBoards
+        ].isVisible = true;
+        startParts[activeFence].position.y =
+          fenceBoards[activeFence][fencesArr[activeFence].numOfBoards].position
+            .y +
+          0.23 / 2 +
+          0.005;
+        fencesArr[activeFence].numOfBoards = fencesArr[activeFence].numOfBoards;
+        fencesArr[activeFence].numOfBoards += 1;
+        numOfBordsSing.innerHTML = fencesArr[activeFence].numOfBoards;
+      }
+    }
+  };
+  //CHANGE ALL FENCES TO BE SAME AS ACTIVE
+  //change all fences same as this
+  let changeAllFences = document.getElementById("changeAllFences");
+  changeAllFences.onclick = () => {
+    if (fencesArr[activeFence].type == "easyFence") {
+      for (let i = 0; i < fencesArr.length; i++) {
+        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+          changeFenceFunction(
+            true,
+            false,
+            180,
+            "easyFence",
+            "silber",
+            true,
+            0,
+            i,
+            8
+          );
+        }
+      }
+      setActivnesStyle(designInlays, 4, 0, "active-text-color");
+    }
+    if (fencesArr[activeFence].type == "easyFenceInlaysSilber") {
+      for (let i = 0; i < fencesArr.length; i++) {
+        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+          changeFenceFunction(
+            true,
+            false,
+            180,
+            "easyFenceInlaysSilber",
+            "silber",
+            true,
+            1,
+            i,
+            8
+          );
+        }
+      }
+      setActivnesStyle(designInlays, 4, 1, "active-text-color");
+    }
+    if (fencesArr[activeFence].type == "easyFenceInlaysAnth") {
+      for (let i = 0; i < fencesArr.length; i++) {
+        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+          changeFenceFunction(
+            true,
+            false,
+            180,
+            "easyFenceInlaysAnth",
+            "silber",
+            true,
+            2,
+            i,
+            8
+          );
+        }
+      }
+      setActivnesStyle(designInlays, 4, 2, "active-text-color");
+    }
+    if (
+      fencesArr[activeFence].type == "easyRomBig" &&
+      fencesArr[activeFence].smBoaCol == "silber"
+    ) {
+      for (let i = 0; i < fencesArr.length; i++) {
+        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+          changeFenceFunction(
+            false,
+            true,
+            180,
+            "easyRomBig",
+            "silber",
+            false,
+            0,
+            i,
+            8
+          );
+        }
+      }
+      setActivnesStyle(designInlays, 4, 0, "active-text-color");
+    }
+    if (
+      fencesArr[activeFence].type == "easyRomBig" &&
+      fencesArr[activeFence].smBoaCol == "anthrazit"
+    ) {
+      for (let i = 0; i < fencesArr.length; i++) {
+        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+          changeFenceFunction(
+            false,
+            true,
+            180,
+            "easyRomBig",
+            "anthrazit",
+            false,
+            0,
+            i,
+            8
+          );
+        }
+      }
+      setActivnesStyle(designInlays, 4, 0, "active-text-color");
+    }
+    if (
+      fencesArr[activeFence].type == "easyRomSmall" &&
+      fencesArr[activeFence].smBoaCol == "silber"
+    ) {
+      for (let i = 0; i < fencesArr.length; i++) {
+        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+          changeFenceFunction(
+            false,
+            true,
+            60,
+            "easyRomSmall",
+            "silber",
+            false,
+            0,
+            i,
+            8
+          );
+        }
+      }
+      setActivnesStyle(designInlays, 4, 0, "active-text-color");
+    }
+    if (
+      fencesArr[activeFence].type == "easyRomSmall" &&
+      fencesArr[activeFence].smBoaCol == "anthrazit"
+    ) {
+      for (let i = 0; i < fencesArr.length; i++) {
+        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+          changeFenceFunction(
+            false,
+            true,
+            60,
+            "easyRomSmall",
+            "anthrazit",
+            false,
+            0,
+            i,
+            8
+          );
+        }
+      }
+      setActivnesStyle(designInlays, 4, 0, "active-text-color");
+    }
+    if (fencesArr[activeFence].type == "easyFenceHalf") {
+      for (let i = 0; i < fencesArr.length; i++) {
+        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+          changeFenceFunction(
+            true,
+            false,
+            180,
+            "easyFenceHalf",
+            "silber",
+            true,
+            0,
+            i,
+            4
+          );
+        }
+      }
+      setActivnesStyle(designInlays, 4, 0, "active-text-color");
+    }
+    //change color of boards on all fences
+    if (fencesArr[activeFence].boardCol == "grau") {
+      allFenceBoardsChange("grau", grauMat);
+      setActivnesStyle(mainFarbeParts, 1, 0, "active-text-color");
+      allBoardsCol = 0;
+    }
+    if (fencesArr[activeFence].boardCol == "anthrazit") {
+      allFenceBoardsChange("anthrazit", anthrazitMat);
+      setActivnesStyle(mainFarbeParts, 1, 1, "active-text-color");
+      allBoardsCol = 1;
+    }
+    if (fencesArr[activeFence].boardCol == "braun") {
+      allFenceBoardsChange("braun", braunMat);
+      setActivnesStyle(mainFarbeParts, 1, 2, "active-text-color");
+      allBoardsCol = 2;
+    }
+    if (fencesArr[activeFence].boardCol == "sand") {
+      allFenceBoardsChange("sand", sandMat);
+      setActivnesStyle(mainFarbeParts, 1, 3, "active-text-color");
+      allBoardsCol = 3;
+    }
+    //change color of start und on all fences
+    if (fencesArr[activeFence].startUndAbschCol == "silber") {
+      for (let i = 0; i < startParts.length; i++) {
+        fencesArr[i].startUndAbschCol = "silber";
+        startParts[i].material = endParts[i].material = silberMat;
+      }
+      setActivnesStyle(startUndAbschParts, 2, 0, "active-text-color");
+      startUndAbschMat = 0;
+    }
+    if (fencesArr[activeFence].startUndAbschCol == "anthrazit") {
+      for (let i = 0; i < startParts.length; i++) {
+        fencesArr[i].startUndAbschCol = "anthrazit";
+        startParts[i].material = endParts[i].material = anthrazitMat;
+      }
+      setActivnesStyle(startUndAbschParts, 2, 1, "active-text-color");
+      startUndAbschMat = 1;
+    }
+    //change all laisnes on all fences
+    for (let i = 0; i < 7; i++) {
+      for (let j = 0; j < fencesArr.length; j++) {
+        if (fencesArr[activeFence].laisnes[i] != fencesArr[j].laisnes[i]) {
+          if (fencesArr[activeFence].laisnes[i]) {
+            createLaisne(i, j);
+            fencesArr[j].laisnes[i] = true;
+            addLaisnes("#3967ff", checkMark, true, i);
+          } else {
+            disposeLaisne(i, j);
+            fencesArr[j].laisnes[i] = false;
+            addLaisnes("transparent", "", false, i);
+          }
+        }
+      }
+    }
+    if (fencesArr[activeFence].laisnesCol == "anthrazit") {
+      for (let i = 0; i < laisnes.length; i++) {
+        fencesArr[i].laisnesCol = "anthrazit";
+        laisnes[i].forEach((elm) => {
+          elm.material = anthrazitMat;
+        });
+      }
+      setActivnesStyle(designleistensMat, 3, 1, "active-text-color");
+      laisnesMat = 1;
+    }
+    if (fencesArr[activeFence].laisnesCol == "silber") {
+      for (let i = 0; i < laisnes.length; i++) {
+        fencesArr[i].laisnesCol = "silber";
+        laisnes[i].forEach((elm) => {
+          elm.material = silberMat;
+        });
+      }
+      setActivnesStyle(designleistensMat, 3, 0, "active-text-color");
+      laisnesMat = 0;
+    }
+    //change all boards delite
+    for (let i = 0; i < fencesArr.length; i++) {
+      if (i != activeFence) {
+        if (
+          fencesArr[i].type == "easyFence" ||
+          fencesArr[i].type == "easyFenceHalf"
+        ) {
+          for (let j = fencesArr[activeFence].numOfBoards; j < 8; j++) {
+            fenceBoards[i][j].isVisible = false;
+            startParts[i].position.y =
+              fenceBoards[i][fencesArr[activeFence].numOfBoards - 1].position
+                .y +
+              0.23 / 2 +
+              0.005;
+          }
+        }
+      }
+    }
+    /////
+  };
+  //close when change all fences
+  accCloseButFun(changeAllFences);
   //close side
   accCloseButFun(changeFence);
-
+  ////////////////////////////////////////////////////////////////////////
   //DELETE FENCE
   let deleteFencePart = document.getElementById("set-part-fence-acc-del");
 
@@ -4905,6 +5847,7 @@ var createScene = function () {
     wholeFences[a].dispose();
     foundationsRight[a].dispose();
     fakeFences[a].name = "disposedFakeFence";
+    fencesArr[a].status = "disposedFence";
     newFenceForwardSigns[a].dispose();
     newFenceRightSigns[a].dispose();
     newFenceLeftSigns[a].dispose();
@@ -4921,7 +5864,7 @@ var createScene = function () {
         1
       );
     }
-    fencesArr[a].parent = undefined;
+
     setGround();
     //visibility because of cart counting
     rightPosts[a].isVisible = false;
@@ -4940,6 +5883,43 @@ var createScene = function () {
     });
     ledsRight[a].isVisible = false;
     startParts[a].isVisible = endParts[a].isVisible = false;
+
+    //set post size for small parent post
+    if (fencesArr[fencesArr[a].parent].type == "easyFenceHalf") {
+      let childTypee = 0;
+      for (let i = 0; i < fencesArr[fencesArr[a].parent].children.length; i++) {
+        if (
+          fencesArr[fencesArr[fencesArr[a].parent].children[i]].type !=
+          "easyFenceHalf"
+        ) {
+          childTypee += 1;
+        }
+      }
+      if (childTypee == 0) {
+        if (rightPosts[fencesArr[a].parent].scaling.z < 1.1) {
+          rightPosts[fencesArr[a].parent].scaling.z = 0.524;
+          rightPosts[fencesArr[a].parent].position.y = 0.504;
+        }
+        if (
+          rightPosts[fencesArr[a].parent].scaling.z > 1 &&
+          rightPosts[fencesArr[a].parent].scaling.z < 1.4
+        ) {
+          rightPosts[fencesArr[a].parent].scaling.z = 0.724;
+          rightPosts[fencesArr[a].parent].position.y = 0.3119;
+        }
+        if (rightPosts[fencesArr[a].parent].scaling.z > 1.4) {
+          rightPosts[fencesArr[a].parent].scaling.z = 0.999;
+          rightPosts[fencesArr[a].parent].position.y = 0.053;
+        }
+        rightPostCaps[fencesArr[a].parent].isVisible = false;
+        rightPostCapClones[fencesArr[a].parent].isVisible = true;
+        ledsRight[fencesArr[a].parent].scaling.z = 0.524;
+        ledsRight[fencesArr[a].parent].position.z = 0.46;
+        ledsRight[fencesArr[a].parent].position.y = 0.001;
+      }
+    }
+    //
+    fencesArr[a].parent = undefined;
   }
   function recursiveToChildrenDelete(b) {
     if (fencesArr[b].children.length > 0) {
@@ -4988,7 +5968,7 @@ var createScene = function () {
     }
   }
   accCloseButFun(deleteFencePart);
-
+  //////////////////////////////////////////////////////////////
   //TAKE SCREENSHOT
   var screenshotBtn = document.getElementById("screenshot-but");
   screenshotBtn.onclick = () => {
@@ -5180,18 +6160,6 @@ var createScene = function () {
         });
 
         var elmW3 = $("<div></div>").addClass("cell large-3");
-        // var oproznij = $("<a>Warenkorb leeren</a>")
-        //   .attr("href", "#")
-        //   .addClass("button secondary oproznij");
-        // $(oproznij).click(function () {
-        //   $(".scCartList").empty();
-        //   elmProductSelected.empty();
-        //   refreshCartValues();
-        //   var url = "../common/s_koszyk.php"; //klaus
-        //   $.post(url, { dane: "clear" });
-        //   return false;
-        // });
-        // elmW3.append(oproznij);
 
         elmW1
           .append(elWaluta)
@@ -5268,8 +6236,8 @@ var createScene = function () {
             var pId = $(addProduct).attr(attrProductId);
             var pName = $(addProduct).attr(attrProductName);
             var pPrice = $(addProduct).attr(attrProductPrice);
-            var uid = $(addProduct).attr("uid"); //klaus
-            var pabm = $(addProduct).attr("pabm"); //klaus
+            var uid = $(addProduct).attr("uid");
+            var pabm = $(addProduct).attr("pabm");
 
             // Check wheater the item is already added
             var productItem = elmProductSelected.children(
@@ -5293,7 +6261,7 @@ var createScene = function () {
                 "|" +
                 uid +
                 "|" +
-                pabm; //klaus
+                pabm;
               productItem.attr("value", newPValue).attr("selected", true);
               var prdTotal = getMoneyFormatted(pPrice * prdQty);
               // Now go for updating the design
@@ -5322,7 +6290,7 @@ var createScene = function () {
                 "|" +
                 uid +
                 "|" +
-                pabm; //klaus
+                pabm;
               productItem = $("<option></option>")
                 .attr("rel", i)
                 .attr("value", prodStr)
@@ -5523,7 +6491,7 @@ var createScene = function () {
           );
           var pPrice = $(pObj).attr(attrProductPrice);
           var pName = $(pObj).attr(attrProductName);
-          var uid = $(pObj).attr("uid"); //klaus
+          var uid = $(pObj).attr("uid");
           var pValue = $(productItem).attr("value");
           var valueArray = pValue.split("|");
           var prdId = valueArray[0];
@@ -5538,7 +6506,7 @@ var createScene = function () {
           }
 
           var newPValue =
-            prdId + "|" + qty + "|" + pName + "|" + pPrice + "|" + uid; //klaus
+            prdId + "|" + qty + "|" + pName + "|" + pPrice + "|" + uid;
           $(productItem).attr("value", newPValue).attr("selected", true);
           var prdTotal = getMoneyFormatted(pPrice * qty);
           // Now go for updating the design
@@ -5588,22 +6556,11 @@ var createScene = function () {
           $("#curPage span").text(cartItemCount);
 
           $(".scCheckoutButton").hide();
-          $(".oproznij").show();
           if (cProductCount <= 0) {
             showMessage(messageCartEmpty, elmCartList);
-            // $(".scCheckoutButton").hide();
-            // $(".oproznij").hide();
           } else {
             $(".scMessageBar", elmCartList).remove();
-            // $(".scCheckoutButton").show();
-            // $(".oproznij").show();
           }
-          // var url = "../common/s_koszyk.php";
-          // var zakup = $('select[name="products_selected[]"]').serialize(); //KLAUS
-
-          // if (zakup.length > 0) {
-          //   $.post(url, zakup);
-          // } else $.post(url, { dane: "clear" });
         }
 
         function populateCart() {
@@ -5657,7 +6614,6 @@ var createScene = function () {
           });
           if (catCount > 0) {
             $(elmCategory).bind("change", function (e) {
-              // $(txtSearch).val('');
               populateProducts();
               return true;
             });
@@ -5809,299 +6765,304 @@ var createScene = function () {
         let cartCloseBtn = document.getElementById("cart-close-btn");
         //populate cart
         priceBut.onclick = () => {
-          removeSideAccesories(
-            sideAccesories,
-            deleteAccesorie,
-            addFenceAcc,
-            editPost,
-            addNewFenceToSide
-          );
-          addDefaultMaterial(
-            fenceBoards,
-            sturmankersVorderseite,
-            rightPosts,
-            leftPosts,
-            directeHauswandMeshes,
-            fenceBoardMat,
-            fencePostMat,
-            concreteMat,
-            smallBoardsArr,
-            smallBoardsMat,
-            smallBoardsMatDark,
-            fencesArr,
-            addFenceSings
-          );
-          //open cart sections
-          cartFade.style.display = "block";
-          cartMainSection.style.display = "block";
-          //populate start - end part
-          let startEndCartSilb = 0;
-          let startEndCartAnth = 0;
-          startParts.forEach((elm) => {
-            if (elm.isVisible) {
-              if (elm.material.diffuseColor.r > 0.3) {
-                startEndCartSilb += 1;
-              } else {
-                startEndCartAnth += 1;
-              }
-            }
-          });
-          // populate main boards
-          let fenceBoardsCartAnth = 0;
-          let fenceBoardsCartGrau = 0;
-          let fenceBoardsCartSand = 0;
-          let fenceBoardsCartBraun = 0;
-          for (let i = 0; i < smallBoardsArr.length; i++) {
-            for (let j = 0; j < fenceBoards[i].length; j++) {
-              if (fenceBoards[i][j].isVisible) {
-                if (fenceBoards[i][j].material.diffuseColor.b < 0.3) {
-                  fenceBoardsCartAnth += 1;
-                } else if (
-                  fenceBoards[i][j].material.diffuseColor.b > 0.5 &&
-                  fenceBoards[i][j].material.diffuseColor.b < 0.8
-                ) {
-                  fenceBoardsCartGrau += 1;
-                } else if (fenceBoards[i][j].material.diffuseColor.b > 0.8) {
-                  fenceBoardsCartSand += 1;
-                } else if (
-                  fenceBoards[i][j].material.diffuseColor.b > 0.3 &&
-                  fenceBoards[i][j].material.diffuseColor.b < 0.5
-                ) {
-                  fenceBoardsCartBraun += 1;
-                }
-              }
-            }
-          }
-          fenceBoardsCartAnth = Math.ceil(fenceBoardsCartAnth / 4);
-          fenceBoardsCartGrau = Math.ceil(fenceBoardsCartGrau / 4);
-          fenceBoardsCartSand = Math.ceil(fenceBoardsCartSand / 4);
-          fenceBoardsCartBraun = Math.ceil(fenceBoardsCartBraun / 4);
-          //populate posts
-          let post295SilberCart = 0;
-          let post235SilberCart = 0;
-          let post190SilberCart = 0;
-          let post295AnthCart = 0;
-          let post235AnthCart = 0;
-          let post190AnthCart = 0;
-          if (allPosts[0].scaling.x == 1) {
-            if (allPosts[0].material.diffuseColor.r > 0.3) {
-              if (allPosts[0].scaling.y > 1.4) {
-                post295SilberCart += 1;
-              } else if (
-                allPosts[0].scaling.y > 1 &&
-                allPosts[0].scaling.y < 1.4
-              ) {
-                post235SilberCart += 1;
-              } else if (allPosts[0].scaling.y < 1.1) {
-                post190SilberCart += 1;
-              }
-            } else {
-              if (allPosts[0].scaling.y > 1.4) {
-                post295AnthCart += 1;
-              } else if (
-                allPosts[0].scaling.y > 1 &&
-                allPosts[0].scaling.y < 1.4
-              ) {
-                post235AnthCart += 1;
-              } else if (allPosts[0].scaling.y < 1.1) {
-                post190AnthCart += 1;
-              }
-            }
-          }
-          for (let i = 1; i < allPosts.length; i++) {
-            if (allPosts[i].isVisible) {
-              if (allPosts[i].scaling.x == 1) {
-                if (allPosts[i].material.diffuseColor.r > 0.3) {
-                  if (allPosts[i].scaling.z > 1.4) {
-                    post295SilberCart += 1;
-                  } else if (
-                    allPosts[i].scaling.z > 1 &&
-                    allPosts[i].scaling.z < 1.4
-                  ) {
-                    post235SilberCart += 1;
-                  } else if (allPosts[i].scaling.z < 1.1) {
-                    post190SilberCart += 1;
-                  }
-                } else {
-                  if (allPosts[i].scaling.z > 1.4) {
-                    post295AnthCart += 1;
-                  } else if (
-                    allPosts[i].scaling.z > 1 &&
-                    allPosts[i].scaling.z < 1.4
-                  ) {
-                    post235AnthCart += 1;
-                  } else if (allPosts[i].scaling.z < 1.1) {
-                    post190AnthCart += 1;
-                  }
-                }
-              }
-            }
-          }
-          //poulate roots
-          let rootsCart = 0;
-          if (roots[0].isVisible) rootsCart += 1;
-          if (roots[2].isVisible) rootsCart += 1;
-          for (let i = 4; i < roots.length; i++) {
-            if (roots[i].isVisible) rootsCart += 0.5;
-          }
-          //populate hauswand
-          let hauswandSilberCart = 0;
-          let hauswandAnthCart = 0;
-          for (let i = 0; i < directeHauswandMeshes.length; i++) {
-            if (directeHauswandMeshes[i].isVisible) {
-              if (allPosts[i].material.diffuseColor.r > 0.3) {
-                hauswandSilberCart += 1;
-              } else {
-                hauswandAnthCart += 1;
-              }
-            }
-          }
-          //populate sturmanker
-          let sturmankerSilberCart = 0;
-          let sturmankerAnthCart = 0;
-          for (let i = 0; i < sturmankersRuckseite.length; i++) {
-            if (
-              sturmankersRuckseite[i].isVisible ||
-              sturmankersVorderseite[i].isVisible
-            ) {
-              if (allPosts[i].material.diffuseColor.r > 0.3) {
-                sturmankerSilberCart += 1;
-              } else {
-                sturmankerAnthCart += 1;
-              }
-            }
-          }
-          //populate small boards
-          let smallBoardLongAnthCart = 0;
-          let smallBoardShortAnthCart = 0;
-          let smallBoardLongSilberCart = 0;
-          let smallBoardShortSilberCart = 0;
-          for (let i = 0; i < smallBoardsArr.length; i++) {
-            if (smallBoardsArr[i].isVisible) {
-              if (smallBoardsArr[i].material.diffuseColor.r > 0.3) {
-                if (fencesArr[i].size > 60) {
-                  smallBoardLongSilberCart += 1;
-                } else {
-                  smallBoardShortSilberCart += 1;
-                }
-              } else {
-                if (fencesArr[i].size > 60) {
-                  smallBoardLongAnthCart += 1;
-                } else {
-                  smallBoardShortAnthCart += 1;
-                }
-              }
-            }
-          }
-          //populate desighn inlays
-          let inlaysSilberCart = 0;
-          let inlaysAnthCart = 0;
-          for (let i = 0; i < inlays.length; i++) {
-            if (inlays[i][0].isVisible) {
-              if (inlays[i][2].material.diffuseColor.r > 0.3) {
-                inlaysSilberCart += 1;
-              } else {
-                inlaysAnthCart += 1;
-              }
-            }
-          }
-          //populate laisne
-          let laisneSilberCart = 0;
-          let laisnesSevenSilberCart = 0;
-          let laisnesOneSilberCart = 0;
-          let laisneAnthCart = 0;
-          let laisnesSevenAnthCart = 0;
-          let laisnesOneAnthCart = 0;
-          for (let i = 0; i < laisnes.length; i++) {
-            laisnes[i].forEach((elm) => {
+          if (cartPricesLoaded[0]) {
+            removeSideAccesories(
+              sideAccesories,
+              deleteAccesorie,
+              addFenceAcc,
+              editPost,
+              addNewFenceToSide
+            );
+            addDefaultMaterial(
+              fenceBoards,
+              sturmankersVorderseite,
+              rightPosts,
+              leftPosts,
+              directeHauswandMeshes,
+              fenceBoardMat,
+              fencePostMat,
+              concreteMat,
+              smallBoardsArr,
+              silberMat,
+              anthrazitMat,
+              fencesArr,
+              addFenceSings,
+              grauMat,
+              braunMat,
+              sandMat
+            );
+            //open cart sections
+            cartFade.style.display = "block";
+            cartMainSection.style.display = "block";
+            //populate start - end part
+            let startEndCartSilb = 0;
+            let startEndCartAnth = 0;
+            startParts.forEach((elm) => {
               if (elm.isVisible) {
                 if (elm.material.diffuseColor.r > 0.3) {
-                  laisneSilberCart += 1;
+                  startEndCartSilb += 1;
                 } else {
-                  laisneAnthCart += 1;
+                  startEndCartAnth += 1;
                 }
               }
             });
-          }
-          laisnesSevenSilberCart =
-            (laisneSilberCart - (laisneSilberCart % 7)) / 7;
-          laisnesOneSilberCart = laisneSilberCart % 7;
-
-          laisnesSevenAnthCart = (laisneAnthCart - (laisneAnthCart % 7)) / 7;
-          laisnesOneAnthCart = laisneAnthCart % 7;
-          //populate led
-          let ledsCart = 0;
-          let ledsColorCart = 0;
-          let ledsCabelCart = 0;
-          let ledsConectorCart = 0;
-          let ledConector = [];
-          for (let i = 0; i < leds.length; i++) {
-            if (leds[i].isVisible) {
-              ledsCart += 1;
-            }
-          }
-          if (ledsCart < 6) {
-            ledsCabelCart = 1;
-          }
-          if (ledsCart % 6 == 0) {
-            ledsCabelCart = ledsCart / 6;
-          }
-          if (ledsCart % 6 > 0) {
-            ledsCabelCart = Math.floor(ledsCart / 6) + 1;
-          }
-
-          for (let i = 0; i < ledsRight.length; i++) {
-            if (ledsRight[i].isVisible) {
-              if (
-                typeof ledsRight[fencesArr[i].parent] != "undefined" &&
-                !ledsRight[fencesArr[i].parent].isVisible
-              ) {
-                if (!ledConector.includes(fencesArr[i].parent)) {
-                  ledsConectorCart += 1;
+            // populate main boards
+            let fenceBoardsCartAnth = 0;
+            let fenceBoardsCartGrau = 0;
+            let fenceBoardsCartSand = 0;
+            let fenceBoardsCartBraun = 0;
+            for (let i = 0; i < smallBoardsArr.length; i++) {
+              for (let j = 0; j < fenceBoards[i].length; j++) {
+                if (fenceBoards[i][j].isVisible) {
+                  if (fenceBoards[i][j].material.diffuseColor.b < 0.3) {
+                    fenceBoardsCartAnth += 1;
+                  } else if (
+                    fenceBoards[i][j].material.diffuseColor.b > 0.5 &&
+                    fenceBoards[i][j].material.diffuseColor.b < 0.8
+                  ) {
+                    fenceBoardsCartGrau += 1;
+                  } else if (fenceBoards[i][j].material.diffuseColor.b > 0.8) {
+                    fenceBoardsCartSand += 1;
+                  } else if (
+                    fenceBoards[i][j].material.diffuseColor.b > 0.3 &&
+                    fenceBoards[i][j].material.diffuseColor.b < 0.5
+                  ) {
+                    fenceBoardsCartBraun += 1;
+                  }
                 }
-                ledConector.push(fencesArr[i].parent);
               }
             }
+            fenceBoardsCartAnth = Math.ceil(fenceBoardsCartAnth / 4);
+            fenceBoardsCartGrau = Math.ceil(fenceBoardsCartGrau / 4);
+            fenceBoardsCartSand = Math.ceil(fenceBoardsCartSand / 4);
+            fenceBoardsCartBraun = Math.ceil(fenceBoardsCartBraun / 4);
+            //populate posts
+            let post295SilberCart = 0;
+            let post235SilberCart = 0;
+            let post190SilberCart = 0;
+            let post295AnthCart = 0;
+            let post235AnthCart = 0;
+            let post190AnthCart = 0;
+            if (allPosts[0].scaling.x == 1) {
+              if (allPosts[0].material.diffuseColor.r > 0.3) {
+                if (allPosts[0].scaling.y > 1.4) {
+                  post295SilberCart += 1;
+                } else if (
+                  allPosts[0].scaling.y > 1 &&
+                  allPosts[0].scaling.y < 1.4
+                ) {
+                  post235SilberCart += 1;
+                } else if (allPosts[0].scaling.y < 1.1) {
+                  post190SilberCart += 1;
+                }
+              } else {
+                if (allPosts[0].scaling.y > 1.4) {
+                  post295AnthCart += 1;
+                } else if (
+                  allPosts[0].scaling.y > 1 &&
+                  allPosts[0].scaling.y < 1.4
+                ) {
+                  post235AnthCart += 1;
+                } else if (allPosts[0].scaling.y < 1.1) {
+                  post190AnthCart += 1;
+                }
+              }
+            }
+            for (let i = 1; i < allPosts.length; i++) {
+              if (allPosts[i].isVisible) {
+                if (allPosts[i].scaling.x == 1) {
+                  if (allPosts[i].material.diffuseColor.r > 0.3) {
+                    if (allPosts[i].scaling.z > 1.4) {
+                      post295SilberCart += 1;
+                    } else if (
+                      allPosts[i].scaling.z > 1 &&
+                      allPosts[i].scaling.z < 1.4
+                    ) {
+                      post235SilberCart += 1;
+                    } else if (allPosts[i].scaling.z < 1.1) {
+                      post190SilberCart += 1;
+                    }
+                  } else {
+                    if (allPosts[i].scaling.z > 1.4) {
+                      post295AnthCart += 1;
+                    } else if (
+                      allPosts[i].scaling.z > 1 &&
+                      allPosts[i].scaling.z < 1.4
+                    ) {
+                      post235AnthCart += 1;
+                    } else if (allPosts[i].scaling.z < 1.1) {
+                      post190AnthCart += 1;
+                    }
+                  }
+                }
+              }
+            }
+            //poulate roots
+            let rootsCart = 0;
+            if (roots[0].isVisible) rootsCart += 1;
+            if (roots[2].isVisible) rootsCart += 1;
+            for (let i = 4; i < roots.length; i++) {
+              if (roots[i].isVisible) rootsCart += 0.5;
+            }
+            //populate hauswand
+            let hauswandSilberCart = 0;
+            let hauswandAnthCart = 0;
+            for (let i = 0; i < directeHauswandMeshes.length; i++) {
+              if (directeHauswandMeshes[i].isVisible) {
+                if (allPosts[i].material.diffuseColor.r > 0.3) {
+                  hauswandSilberCart += 1;
+                } else {
+                  hauswandAnthCart += 1;
+                }
+              }
+            }
+            //populate sturmanker
+            let sturmankerSilberCart = 0;
+            let sturmankerAnthCart = 0;
+            for (let i = 0; i < sturmankersRuckseite.length; i++) {
+              if (
+                sturmankersRuckseite[i].isVisible ||
+                sturmankersVorderseite[i].isVisible
+              ) {
+                if (allPosts[i].material.diffuseColor.r > 0.3) {
+                  sturmankerSilberCart += 1;
+                } else {
+                  sturmankerAnthCart += 1;
+                }
+              }
+            }
+            //populate small boards
+            let smallBoardLongAnthCart = 0;
+            let smallBoardShortAnthCart = 0;
+            let smallBoardLongSilberCart = 0;
+            let smallBoardShortSilberCart = 0;
+            for (let i = 0; i < smallBoardsArr.length; i++) {
+              if (smallBoardsArr[i].isVisible) {
+                if (smallBoardsArr[i].material.diffuseColor.r > 0.3) {
+                  if (fencesArr[i].size > 60) {
+                    smallBoardLongSilberCart += 1;
+                  } else {
+                    smallBoardShortSilberCart += 1;
+                  }
+                } else {
+                  if (fencesArr[i].size > 60) {
+                    smallBoardLongAnthCart += 1;
+                  } else {
+                    smallBoardShortAnthCart += 1;
+                  }
+                }
+              }
+            }
+            //populate desighn inlays
+            let inlaysSilberCart = 0;
+            let inlaysAnthCart = 0;
+            for (let i = 0; i < inlays.length; i++) {
+              if (inlays[i][0].isVisible) {
+                if (inlays[i][2].material.diffuseColor.r > 0.3) {
+                  inlaysSilberCart += 1;
+                } else {
+                  inlaysAnthCart += 1;
+                }
+              }
+            }
+            //populate laisne
+            let laisneSilberCart = 0;
+            let laisnesSevenSilberCart = 0;
+            let laisnesOneSilberCart = 0;
+            let laisneAnthCart = 0;
+            let laisnesSevenAnthCart = 0;
+            let laisnesOneAnthCart = 0;
+            for (let i = 0; i < laisnes.length; i++) {
+              laisnes[i].forEach((elm) => {
+                if (elm.isVisible) {
+                  if (elm.material.diffuseColor.r > 0.3) {
+                    laisneSilberCart += 1;
+                  } else {
+                    laisneAnthCart += 1;
+                  }
+                }
+              });
+            }
+            laisnesSevenSilberCart =
+              (laisneSilberCart - (laisneSilberCart % 7)) / 7;
+            laisnesOneSilberCart = laisneSilberCart % 7;
+
+            laisnesSevenAnthCart = (laisneAnthCart - (laisneAnthCart % 7)) / 7;
+            laisnesOneAnthCart = laisneAnthCart % 7;
+            //populate led
+            let ledsCart = 0;
+            let ledsColorCart = 0;
+            let ledsCabelCart = 0;
+            let ledsConectorCart = 0;
+            let ledConector = [];
+            for (let i = 0; i < leds.length; i++) {
+              if (leds[i].isVisible) {
+                ledsCart += 1;
+              }
+            }
+            if (ledsCart < 6) {
+              ledsCabelCart = 1;
+            }
+            if (ledsCart % 6 == 0) {
+              ledsCabelCart = ledsCart / 6;
+            }
+            if (ledsCart % 6 > 0) {
+              ledsCabelCart = Math.floor(ledsCart / 6) + 1;
+            }
+
+            for (let i = 0; i < ledsRight.length; i++) {
+              if (ledsRight[i].isVisible) {
+                if (
+                  typeof ledsRight[fencesArr[i].parent] != "undefined" &&
+                  !ledsRight[fencesArr[i].parent].isVisible
+                ) {
+                  if (!ledConector.includes(fencesArr[i].parent)) {
+                    ledsConectorCart += 1;
+                  }
+                  ledConector.push(fencesArr[i].parent);
+                }
+              }
+            }
+            if (ledParts[1].children[2].innerHTML != "") {
+              ledsColorCart = ledsCabelCart;
+            }
+            //cart items
+            cartItems = [];
+            cartItems.push(
+              startEndCartSilb,
+              startEndCartAnth,
+              fenceBoardsCartAnth,
+              fenceBoardsCartGrau,
+              fenceBoardsCartSand,
+              fenceBoardsCartBraun,
+              post295SilberCart,
+              post235SilberCart,
+              post190SilberCart,
+              post295AnthCart,
+              post235AnthCart,
+              post190AnthCart,
+              rootsCart,
+              hauswandSilberCart,
+              hauswandAnthCart,
+              sturmankerSilberCart,
+              sturmankerAnthCart,
+              smallBoardLongAnthCart,
+              smallBoardShortAnthCart,
+              smallBoardLongSilberCart,
+              smallBoardShortSilberCart,
+              inlaysSilberCart,
+              inlaysAnthCart,
+              laisnesSevenSilberCart,
+              laisnesOneSilberCart,
+              laisnesSevenAnthCart,
+              laisnesOneAnthCart,
+              ledsCart,
+              ledsColorCart,
+              ledsCabelCart,
+              ledsConectorCart
+            );
+            mrk();
           }
-          if (ledParts[1].children[2].innerHTML != "") {
-            ledsColorCart = ledsCabelCart;
-          }
-          //cart items
-          cartItems = [];
-          cartItems.push(
-            startEndCartSilb,
-            startEndCartAnth,
-            fenceBoardsCartAnth,
-            fenceBoardsCartGrau,
-            fenceBoardsCartSand,
-            fenceBoardsCartBraun,
-            post295SilberCart,
-            post235SilberCart,
-            post190SilberCart,
-            post295AnthCart,
-            post235AnthCart,
-            post190AnthCart,
-            rootsCart,
-            hauswandSilberCart,
-            hauswandAnthCart,
-            sturmankerSilberCart,
-            sturmankerAnthCart,
-            smallBoardLongAnthCart,
-            smallBoardShortAnthCart,
-            smallBoardLongSilberCart,
-            smallBoardShortSilberCart,
-            inlaysSilberCart,
-            inlaysAnthCart,
-            laisnesSevenSilberCart,
-            laisnesOneSilberCart,
-            laisnesSevenAnthCart,
-            laisnesOneAnthCart,
-            ledsCart,
-            ledsColorCart,
-            ledsCabelCart,
-            ledsConectorCart
-          );
-          mrk();
         };
 
         //CLOSE CART
@@ -6164,26 +7125,26 @@ var createScene = function () {
 
         // Get the money formatted for display
         function getMoneyFormatted(val) {
-          var cena = val.toFixed(2);
+          var priceFormat = val.toFixed(2);
 
-          if (cena > 1000) {
-            var tmp = cena / 1000;
+          if (priceFormat > 1000) {
+            var tmp = priceFormat / 1000;
             tmp = Math.floor(tmp);
-            cena = cena - tmp * 1000;
-            cena = cena.toFixed(2);
+            priceFormat = priceFormat - tmp * 1000;
+            priceFormat = priceFormat.toFixed(2);
 
-            if (cena < 10) {
-              cena = "00" + String(cena);
-            } else if (cena < 100) {
-              cena = "0" + String(cena);
+            if (priceFormat < 10) {
+              priceFormat = "00" + String(priceFormat);
+            } else if (priceFormat < 100) {
+              priceFormat = "0" + String(priceFormat);
             }
 
-            cena = String(tmp) + ";" + String(cena);
+            priceFormat = String(tmp) + ";" + String(priceFormat);
           }
 
-          cena = cena.replace(".", ",");
-          cena = cena.replace(";", ".");
-          return cena;
+          priceFormat = priceFormat.replace(".", ",");
+          priceFormat = priceFormat.replace(";", ".");
+          return priceFormat;
         }
 
         // Trims the blankspace
@@ -6249,390 +7210,623 @@ var createScene = function () {
       }
     };
   })(jQuery, this);
-  //initiate smart cart
-  $("#SmartCart").smartCart();
-  $("#SmartCart").css("visibility", "visible");
-  $(document).foundation();
-  // setInterval(() => {
-  //   allPosts.forEach((elm) => {
-  //     console.log(Math.round(getAbsPosX(elm) * 100));
-  //   });
-  // }, 1000);
+  ////////////////////////
+  //POPULATE CART PRICES
+  let cartPricesLoaded = [false];
+  populateCartPrices(cartPricesLoaded);
+  function checkLoaded() {
+    if (cartPricesLoaded[0]) {
+      $("#SmartCart").smartCart();
+      $("#SmartCart").css("visibility", "visible");
+      $(document).foundation();
+      clearInterval(refreshIntervalId);
+      console.log("cart loaded");
+    } else {
+      console.log("cart not loaded");
+    }
+  }
+  if (!cartPricesLoaded[0]) {
+    var refreshIntervalId = setInterval(checkLoaded, 100);
+  }
   ///////////////////////////////////////////////////////////////CANVAS PLAN///////////////////////////////////////////////////////////////////
-  // const canvasPlan = document.getElementById("canvas-plan");
-  // const ctx = canvasPlan.getContext("2d");
-  // let plan = document.getElementById("plan");
-  // let downloadPlan = document.getElementById("download-canvas");
-  // // outlined square X: 50, Y: 35, width/height 50
+  const canvasPlan = document.getElementById("canvas-plan");
+  const ctx = canvasPlan.getContext("2d");
+  let plan = document.getElementById("2dplan-but");
+  // outlined square X: 50, Y: 35, width/height 50
 
-  // //function to draw foundations
-  // function drawFoundation(x, y, width, height) {
-  //   ctx.setLineDash([0]);
-  //   //draw rect
-  //   ctx.fillStyle = "#A8A8A8";
-  //   ctx.fillRect(x, y, width, height);
-  //   ctx.strokeRect(x, y, width, height);
-  //   ctx.strokeRect(x + 7.5, y + 7.5, width - 15, height - 15);
-  //   // //draw cross
-  //   ctx.beginPath();
-  //   ctx.moveTo(x + 7.5, y + 7.5);
-  //   ctx.lineTo(x + 22.5, y + 22.5);
-  //   ctx.moveTo(x + 22.5, y + 7.5);
-  //   ctx.lineTo(x + 7.5, y + 22.5);
-  //   ctx.closePath();
-  //   //line down of foundation
-  //   // ctx.moveTo(x + 10, y + 20);
-  //   // ctx.lineTo(x + 10, y + 40);
-  //   ctx.stroke();
-  // }
-  // function drawText2d(text, x, y) {
-  //   ctx.save();
-  //   ctx.font = "15px Arial";
-  //   ctx.textAlign = "center";
-  //   ctx.fillText(text, x, y);
-  //   ctx.restore();
-  // }
-  // function drawLine(lineWid, startX, startY, endX, endY, arrowHeads) {
-  //   //draw line
-  //   ctx.lineWidth = lineWid;
-  //   ctx.beginPath();
-  //   ctx.moveTo(startX, startY);
-  //   ctx.lineTo(endX, endY);
-  //   ctx.closePath();
-  //   ctx.stroke();
+  //function to draw foundations
+  function drawFoundation(
+    x,
+    y,
+    width,
+    height,
+    x2,
+    y2,
+    width2,
+    height2,
+    foundScal
+  ) {
+    ctx.setLineDash([0]);
+    //draw rect
+    if (foundScal > 1) {
+      ctx.fillStyle = "#585858";
+    } else {
+      ctx.fillStyle = "#A8A8A8";
+    }
 
-  //   if (arrowHeads) {
-  //     if (startY == endY) {
-  //       if (startX < endX) {
-  //         //draw left arrow
-  //         drawArrowhead(
-  //           startX,
-  //           startY,
-  //           startX + 10,
-  //           startY - 5,
-  //           startX + 10,
-  //           startY + 5
-  //         );
-  //         //draw right arrow
-  //         drawArrowhead(endX, endY, endX - 10, endY - 5, endX - 10, endY + 5);
-  //       } else {
-  //         //draw left arrow
-  //         drawArrowhead(
-  //           startX,
-  //           startY,
-  //           startX - 10,
-  //           startY - 5,
-  //           startX - 10,
-  //           startY + 5
-  //         );
-  //         //draw right arrow
-  //         drawArrowhead(endX, endY, endX + 10, endY - 5, endX + 10, endY + 5);
-  //       }
-  //       //side lines
-  //       //side line left
-  //       ctx.beginPath();
-  //       ctx.moveTo(startX, startY - 10);
-  //       ctx.lineTo(startX, startY + 10);
-  //       ctx.closePath();
-  //       ctx.stroke();
-  //       // //side line right
-  //       ctx.beginPath();
-  //       ctx.moveTo(endX, endY - 10);
-  //       ctx.lineTo(endX, endY + 10);
-  //       ctx.closePath();
-  //       ctx.stroke();
-  //     } else {
-  //       if (startY < endY) {
-  //         //draw left arrow
-  //         drawArrowhead(
-  //           startX,
-  //           startY,
-  //           startX - 5,
-  //           startY + 10,
-  //           startX + 5,
-  //           startY + 10
-  //         );
-  //         //draw right arrow
-  //         drawArrowhead(endX, endY, endX - 5, endY - 10, endX + 5, endY - 10);
-  //       } else {
-  //         drawArrowhead(
-  //           startX,
-  //           startY,
-  //           startX - 5,
-  //           startY - 10,
-  //           startX + 5,
-  //           startY - 10
-  //         );
-  //         //draw right arrow
-  //         drawArrowhead(endX, endY, endX - 5, endY + 10, endX + 5, endY + 10);
-  //       }
-  //       //side lines
-  //       //side line left
-  //       ctx.beginPath();
-  //       ctx.moveTo(startX - 10, startY);
-  //       ctx.lineTo(startX + 10, startY);
-  //       ctx.closePath();
-  //       ctx.stroke();
-  //       // //side line right
-  //       ctx.beginPath();
-  //       ctx.moveTo(endX - 10, endY);
-  //       ctx.lineTo(endX + 10, endY);
-  //       ctx.closePath();
-  //       ctx.stroke();
-  //     }
-  //   }
-  // }
-  // function drawArrowhead(pointX, pointY, upX, upY, downX, downY) {
-  //   ctx.beginPath();
-  //   ctx.moveTo(pointX, pointY);
-  //   ctx.lineTo(upX, upY);
-  //   ctx.lineTo(downX, downY);
-  //   ctx.fill();
-  // }
+    ctx.fillRect(x, y, width, height);
+    ctx.strokeRect(x, y, width, height);
+    ctx.strokeRect(x2, y2, width2, height2);
+    // //draw cross
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 + 15, y2 + 15);
+    ctx.moveTo(x2 + 15, y2);
+    ctx.lineTo(x2, y2 + 15);
+    ctx.closePath();
+    //line down of foundation
+    // ctx.moveTo(x + 10, y + 20);
+    // ctx.lineTo(x + 10, y + 40);
+    ctx.stroke();
+  }
+  function drawText2d(text, x, y) {
+    ctx.save();
+    ctx.font = "15px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(text, x, y);
+    ctx.restore();
+  }
+  function drawLine(lineWid, startX, startY, endX, endY, arrowHeads) {
+    //draw line
+    ctx.lineWidth = lineWid;
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
+    ctx.closePath();
+    ctx.stroke();
 
-  // //create 2d plan
-  // plan.onclick = () => {
-  //   canvasPlan.style.display = "block";
-  //   downloadPlan.style.display = "block";
-  //   plan.style.display = "none";
-  //   // draw ground
-  //   // let groundPosX = 500 - displayGroundSizeX / 2;
-  //   // let groundPosZ = 500 - displayGroundSizeZ / 2;
-  //   // let groundSizeX = displayGroundSizeX;
-  //   // let groundSizeZ = displayGroundSizeZ;
-  //   // drawGround(groundPosX, groundPosZ, groundSizeX, groundSizeZ);
-  //   console.log(displayGroundSizeX, displayGroundSizeZ);
-  //   // if(displayGroundSizeX)
-  //   //get postions of all posts
-  //   let allPostsPos = [];
-  //   let allXpos = [0];
-  //   let allZpos = [];
-  //   for (let i = 1; i < allPosts.length; i++) {
-  //     let postsChildren = [];
+    if (arrowHeads) {
+      if (startY == endY) {
+        if (startX < endX) {
+          //draw left arrow
+          drawArrowhead(
+            startX,
+            startY,
+            startX + 10,
+            startY - 5,
+            startX + 10,
+            startY + 5
+          );
+          //draw right arrow
+          drawArrowhead(endX, endY, endX - 10, endY - 5, endX - 10, endY + 5);
+        } else {
+          //draw left arrow
+          drawArrowhead(
+            startX,
+            startY,
+            startX - 10,
+            startY - 5,
+            startX - 10,
+            startY + 5
+          );
+          //draw right arrow
+          drawArrowhead(endX, endY, endX + 10, endY - 5, endX + 10, endY + 5);
+        }
+        //side lines
+        //side line left
+        ctx.beginPath();
+        ctx.moveTo(startX, startY - 30);
+        ctx.lineTo(startX, startY + 10);
+        ctx.closePath();
+        ctx.stroke();
+        // //side line right
+        ctx.beginPath();
+        ctx.moveTo(endX, endY - 30);
+        ctx.lineTo(endX, endY + 10);
+        ctx.closePath();
+        ctx.stroke();
+      } else {
+        if (startY < endY) {
+          //draw left arrow
+          drawArrowhead(
+            startX,
+            startY,
+            startX - 5,
+            startY + 10,
+            startX + 5,
+            startY + 10
+          );
+          //draw right arrow
+          drawArrowhead(endX, endY, endX - 5, endY - 10, endX + 5, endY - 10);
+        } else {
+          drawArrowhead(
+            startX,
+            startY,
+            startX - 5,
+            startY - 10,
+            startX + 5,
+            startY - 10
+          );
+          //draw right arrow
+          drawArrowhead(endX, endY, endX - 5, endY + 10, endX + 5, endY + 10);
+        }
+        //side lines
+        //side line left
+        ctx.beginPath();
+        ctx.moveTo(startX - 30, startY);
+        ctx.lineTo(startX + 10, startY);
+        ctx.closePath();
+        ctx.stroke();
+        // //side line right
+        ctx.beginPath();
+        ctx.moveTo(endX - 30, endY);
+        ctx.lineTo(endX + 10, endY);
+        ctx.closePath();
+        ctx.stroke();
+      }
+    }
+  }
+  function drawArrowhead(pointX, pointY, upX, upY, downX, downY) {
+    ctx.beginPath();
+    ctx.moveTo(pointX, pointY);
+    ctx.lineTo(upX, upY);
+    ctx.lineTo(downX, downY);
+    ctx.fill();
+  }
 
-  //     fencesArr[i - 1].children.forEach((elm) => {
-  //       postsChildren.push(elm);
-  //     });
+  //create 2d plan
+  plan.onclick = () => {
+    let canvasSize;
+    if (displayGroundSizeX > displayGroundSizeZ) {
+      canvasSize = displayGroundSizeX < 700 ? 1000 : displayGroundSizeX * 1.5;
+    } else {
+      canvasSize = displayGroundSizeZ < 700 ? 1000 : displayGroundSizeZ * 1.5;
+    }
+    ctx.canvas.width = ctx.canvas.height = canvasSize;
+    canvasPlan.style.display = "block";
+    setTimeout(() => {
+      canvasPlan.style.display = "none";
+    }, 1000);
+    // downloadPlan.style.display = "block";
+    // plan.style.display = "none";
+    // draw ground
+    // let groundPosX = 500 - displayGroundSizeX / 2;
+    // let groundPosZ = 500 - displayGroundSizeZ / 2;
+    // let groundSizeX = displayGroundSizeX;
+    // let groundSizeZ = displayGroundSizeZ;
+    // drawGround(groundPosX, groundPosZ, groundSizeX, groundSizeZ);
+    // if(displayGroundSizeX)
+    //get postions of all posts
+    let allPostsPos = [];
+    let allXpos = [0];
+    let allZpos = [];
+    for (let i = 1; i < allPosts.length; i++) {
+      let postsChildren = [];
 
-  //     let allPostPosX = Math.round(getAbsPosX(allPosts[i]) * 100);
-  //     let allPostPosZ;
-  //     if (Math.round(getAbsPosZ(allPosts[i]) * 100) > 0) {
-  //       allPostPosZ = -Math.abs(Math.round(getAbsPosZ(allPosts[i]) * 100));
-  //     } else {
-  //       allPostPosZ = Math.abs(Math.round(getAbsPosZ(allPosts[i]) * 100));
-  //     }
-  //     let postPosArr = [allPostPosX, allPostPosZ, i, postsChildren];
-  //     allPostsPos.push(postPosArr);
-  //     allXpos.push(allPostPosX);
-  //     allZpos.push(allPostPosZ);
-  //   }
-  //   //get sizes for kotas
-  //   let fencesSize = [];
-  //   fencesArr.forEach((elm) => {
-  //     fencesSize.push(elm.size + 11);
-  //   });
+      fencesArr[i - 1].children.forEach((elm) => {
+        postsChildren.push(elm);
+      });
 
-  //   //draw main post
-  //   allXpos.sort(function (a, b) {
-  //     return a - b;
-  //   });
-  //   allZpos.sort(function (a, b) {
-  //     return a - b;
-  //   });
-  //   let mainPostPosX = 485 - (allXpos[0] + allXpos[allXpos.length - 1]) / 2;
-  //   let mainPostPosZ = 485 - (allZpos[0] + allZpos[allZpos.length - 1]) / 2;
+      let allPostPosX = Math.round(getAbsPosX(allPosts[i]) * 100);
+      let allPostPosZ;
+      if (Math.round(getAbsPosZ(allPosts[i]) * 100) > 0) {
+        allPostPosZ = -Math.abs(Math.round(getAbsPosZ(allPosts[i]) * 100));
+      } else {
+        allPostPosZ = Math.abs(Math.round(getAbsPosZ(allPosts[i]) * 100));
+      }
+      let postPosArr = [allPostPosX, allPostPosZ, i, postsChildren];
+      allPostsPos.push(postPosArr);
+      allXpos.push(allPostPosX);
+      allZpos.push(allPostPosZ);
+    }
+    //get sizes for kotas
+    let fencesSize = [];
+    fencesArr.forEach((elm) => {
+      fencesSize.push(elm.size + 4);
+    });
 
-  //   //get all posts positions
-  //   let linesX = [];
-  //   let linesY = [];
-  //   allPostsPos.forEach((elm) => {
-  //     linesX.push(mainPostPosX + elm[0] + 15);
-  //     linesY.push(mainPostPosZ + elm[1] + 15);
-  //   });
+    //draw main post
+    allXpos.sort(function (a, b) {
+      return a - b;
+    });
+    allZpos.sort(function (a, b) {
+      return a - b;
+    });
+    let mainPostPosX =
+      canvasSize / 2 - 15 - (allXpos[0] + allXpos[allXpos.length - 1]) / 2;
+    let mainPostPosZ =
+      canvasSize / 2 - 15 - (allZpos[0] + allZpos[allZpos.length - 1]) / 2;
 
-  //   //draw line betwen first and second foundations
-  //   for (let i = 0; i < rightPosts.length; i++) {
-  //     if (typeof fencesArr[i].parent == "undefined") {
-  //       if (mainPostPosZ + 15 == linesY[i]) {
-  //         //draw line betwen first and second foundations
-  //         drawLine(
-  //           3,
-  //           mainPostPosX + 15,
-  //           mainPostPosZ + 15,
-  //           linesX[i],
-  //           linesY[i],
-  //           false
-  //         );
-  //         //draw text kotas for first fence
-  //         drawText2d(
-  //           fencesSize[i] + "cm",
-  //           (mainPostPosX + 15 + linesX[i]) / 2,
-  //           mainPostPosZ + 30
-  //         );
-  //         //
-  //         //middle line to present size between foundation
-  //         drawLine(
-  //           1,
-  //           mainPostPosX + 15,
-  //           mainPostPosZ + 40,
-  //           linesX[i],
-  //           linesY[i] + 25,
-  //           true
-  //         );
-  //       } else {
-  //         //draw line betwen first and second foundations
-  //         drawLine(
-  //           3,
-  //           mainPostPosX + 15,
-  //           mainPostPosZ + 15,
-  //           linesX[i],
-  //           linesY[i],
-  //           false
-  //         );
-  //         //draw text kotas for first fence
-  //         drawText2d(
-  //           fencesSize[i] + "cm",
-  //           mainPostPosX + 65,
-  //           (mainPostPosZ + 15 + linesY[i]) / 2
-  //         );
-  //         //
-  //         //middle line to present size between foundation
-  //         drawLine(
-  //           1,
-  //           mainPostPosX + 40,
-  //           mainPostPosZ + 15,
-  //           linesX[i] + 25,
-  //           linesY[i],
-  //           true
-  //         );
-  //       }
-  //     }
-  //   }
-  //   //draw lines betwen foundations
-  //   for (let i = 0; i < allPostsPos.length; i++) {
-  //     allPostsPos[i][3].forEach((elm) => {
-  //       if (rightPosts[i].isVisible && rightPosts[elm].isVisible) {
-  //         drawLine(3, linesX[i], linesY[i], linesX[elm], linesY[elm], false);
-  //         //draw text kotas
-  //         if (linesY[i] == linesY[elm]) {
-  //           //size of small line text
-  //           drawText2d(
-  //             fencesSize[i + 1] + "cm",
-  //             (linesX[i] + linesX[elm]) / 2,
-  //             linesY[i] + 20
-  //           );
-  //           //middle line to present size between foundation
-  //           drawLine(
-  //             1,
-  //             linesX[i],
-  //             linesY[i] + 25,
-  //             linesX[elm],
-  //             linesY[elm] + 25,
-  //             true
-  //           );
-  //         } else {
-  //           //size of small line text
-  //           drawText2d(
-  //             fencesSize[i + 1] + "cm",
-  //             linesX[i] + 55,
-  //             (linesY[i] + linesY[elm]) / 2
-  //           );
-  //           //middle line to present size between foundation
-  //           drawLine(
-  //             1,
-  //             linesX[i] + 25,
-  //             linesY[i],
-  //             linesX[elm] + 25,
-  //             linesY[elm],
-  //             true
-  //           );
-  //         }
-  //       }
-  //     });
-  //   }
+    //get all posts positions
+    let linesX = [];
+    let linesY = [];
+    allPostsPos.forEach((elm) => {
+      linesX.push(mainPostPosX + elm[0] + 15);
+      linesY.push(mainPostPosZ + elm[1] + 15);
+    });
 
-  //   //for whole sizees
-  //   linesX.push(mainPostPosX + 15);
-  //   linesY.push(mainPostPosZ + 15);
-  //   linesX.sort(function (a, b) {
-  //     return a - b;
-  //   });
-  //   linesY.sort(function (a, b) {
-  //     return a - b;
-  //   });
+    //draw line betwen first and second foundations
+    for (let i = 0; i < rightPosts.length; i++) {
+      if (
+        typeof fencesArr[i].parent == "undefined" &&
+        rightPosts[i].isVisible
+      ) {
+        if (mainPostPosZ + 15 == linesY[i]) {
+          //draw line betwen first and second foundations
+          drawLine(
+            3,
+            mainPostPosX + 15,
+            mainPostPosZ + 15,
+            linesX[i],
+            linesY[i],
+            false
+          );
+          //draw text kotas for first fence
+          if (fencesSize[i] < 81) {
+            drawText2d(
+              fencesSize[i] + "cm",
+              (mainPostPosX + 15 + linesX[i]) / 2,
+              mainPostPosZ - 5
+            );
+          } else {
+            drawText2d(
+              fencesSize[i] + "cm",
+              (mainPostPosX + 15 + linesX[i]) / 2,
+              mainPostPosZ + 55
+            );
+          }
+          //middle line to present size between foundation
+          drawLine(
+            1,
+            mainPostPosX + 15,
+            mainPostPosZ + 60,
+            linesX[i],
+            linesY[i] + 45,
+            true
+          );
+        } else {
+          //draw line betwen first and second foundations
+          drawLine(
+            3,
+            mainPostPosX + 15,
+            mainPostPosZ + 15,
+            linesX[i],
+            linesY[i],
+            false
+          );
+          //draw text kotas for first fence
+          drawText2d(
+            fencesSize[i] + "cm",
+            mainPostPosX + 85,
+            (mainPostPosZ + 15 + linesY[i]) / 2
+          );
+          //
+          //middle line to present size between foundation
+          drawLine(
+            1,
+            mainPostPosX + 60,
+            mainPostPosZ + 15,
+            linesX[i] + 45,
+            linesY[i],
+            true
+          );
+        }
+      }
+    }
 
-  //   //main line //vertical size
-  //   drawLine(
-  //     1,
-  //     linesX[0],
-  //     linesY[linesY.length - 1] + 70,
-  //     linesX[linesX.length - 1],
-  //     linesY[linesY.length - 1] + 70,
-  //     true
-  //   );
-  //   //size of small line text //veritical size
-  //   drawText2d(
-  //     displayGroundSizeX + "cm",
-  //     (linesX[0] + linesX[linesX.length - 1]) / 2,
-  //     linesY[linesY.length - 1] + 90
-  //   );
+    for (let i = 0; i < allPostsPos.length; i++) {
+      allPostsPos[i][3].forEach((elm) => {
+        if (rightPosts[i].isVisible && rightPosts[elm].isVisible) {
+          drawLine(3, linesX[i], linesY[i], linesX[elm], linesY[elm], false);
+          //draw text kotas
+          if (linesY[i] == linesY[elm]) {
+            //size of small line text
+            if (fencesSize[elm] > 81) {
+              drawText2d(
+                fencesSize[elm] + "cm",
+                (linesX[i] + linesX[elm]) / 2,
+                linesY[i] + 40
+              );
+            } else {
+              drawText2d(
+                fencesSize[elm] + "cm",
+                (linesX[i] + linesX[elm]) / 2,
+                linesY[i] - 20
+              );
+            }
+            //middle line to present size between foundation
+            drawLine(
+              1,
+              linesX[i],
+              linesY[i] + 45,
+              linesX[elm],
+              linesY[elm] + 45,
+              true
+            );
+          } else {
+            //size of small line text
+            drawText2d(
+              fencesSize[elm] + "cm",
+              linesX[i] + 75,
+              (linesY[i] + linesY[elm]) / 2
+            );
+            //middle line to present size between foundation
+            drawLine(
+              1,
+              linesX[i] + 45,
+              linesY[i],
+              linesX[elm] + 45,
+              linesY[elm],
+              true
+            );
+          }
+        }
+      });
+    }
 
-  //   //main line //horizontal size
-  //   if (displayGroundSizeZ > 20) {
-  //     drawLine(
-  //       1,
-  //       linesX[linesX.length - 1] + 90,
-  //       linesY[0],
-  //       linesX[linesX.length - 1] + 90,
-  //       linesY[linesY.length - 1],
-  //       true
-  //     );
-  //     //size of small line text //horizontal size
-  //     drawText2d(
-  //       displayGroundSizeZ + "cm",
-  //       linesX[linesX.length - 1] + 125,
-  //       (linesY[0] + linesY[linesY.length - 1]) / 2
-  //     );
-  //   }
+    //for whole sizees
+    let mainX = [];
+    let mainY = [];
+    for (let i = 0; i < rightPosts.length; i++) {
+      if (rightPosts[i].isVisible) {
+        mainX.push(linesX[i]);
+        mainY.push(linesY[i]);
+      }
+    }
+    mainX.push(mainPostPosX + 15);
+    mainY.push(mainPostPosZ + 15);
 
-  //   //draw foundarion
-  //   //draw first foundation
-  //   drawFoundation(mainPostPosX, mainPostPosZ, 30, 30);
-  //   //draw all foundaions
-  //   for (let i = 0; i < allPostsPos.length; i++) {
-  //     if (rightPosts[i].isVisible) {
-  //       drawFoundation(
-  //         mainPostPosX + allPostsPos[i][0],
-  //         mainPostPosZ + allPostsPos[i][1],
-  //         30,
-  //         30
-  //       );
-  //     }
-  //   }
-  //   ////////////////////////////////////
-  //   //end create 2d function
-  // };
+    mainX.sort(function (a, b) {
+      return a - b;
+    });
+    mainY.sort(function (a, b) {
+      return a - b;
+    });
+    //main line //horizontal size
+    drawLine(
+      1,
+      mainX[0],
+      mainY[mainY.length - 1] + 110,
+      mainX[mainX.length - 1],
+      mainY[mainY.length - 1] + 110,
+      true
+    );
+    //size of big line text //horizontal size
+    if (displayGroundSizeX > 191) {
+      drawText2d(
+        displayGroundSizeX + "cm",
+        (mainX[0] + mainX[mainX.length - 1]) / 2,
+        mainY[mainY.length - 1] + 130
+      );
+    } else {
+      drawText2d(
+        displayGroundSizeX - 7 + "cm",
+        (mainX[0] + mainX[mainX.length - 1]) / 2,
+        mainY[mainY.length - 1] + 130
+      );
+    }
 
-  // //download 3d
-  // var formats = {
-  //   a4: [210, 297],
-  //   a3: [400, 200],
-  // };
-  // downloadPlan.onclick = () => {
-  //   html2canvas(canvasPlan, {
-  //     onrendered: function (canvasPlan) {
-  //       var img = canvasPlan.toDataURL("image/jpeg,0.5");
-  //       // pdf.output("datauri");
-  //       // var imgData = new Image();
-  //       // imgData.src = "./img/Maska_linije.png";
-  //       var pdf = new jsPDF("l", "mm", formats.a4);
-  //       pdf.addImage(img, "PNG", 43.5, 0, 210, 210);
-  //       pdf.text("Mega Holz 2D Plan", 35, 25);
-  //       // pdf.addImage(imgData, "PNG", 0, 0, 300, 150);
-  //       pdf.save("Mega Holz 2D Plan For Fundaments.pdf");
-  //     },
-  //   });
-  // };
+    //main line //vertical size
+    if (displayGroundSizeZ > 20) {
+      drawLine(
+        1,
+        mainX[mainX.length - 1] + 110,
+        mainY[0],
+        mainX[mainX.length - 1] + 110,
+        mainY[mainY.length - 1],
+        true
+      );
+      //size of big line text //vertical size
+      if (displayGroundSizeZ > 191) {
+        drawText2d(
+          displayGroundSizeZ + "cm",
+          mainX[mainX.length - 1] + 145,
+          (mainY[0] + mainY[mainY.length - 1]) / 2
+        );
+      } else {
+        drawText2d(
+          displayGroundSizeZ - 7 + "cm",
+          mainX[mainX.length - 1] + 145,
+          (mainY[0] + mainY[mainY.length - 1]) / 2
+        );
+      }
+    }
+
+    //draw foundarion
+    //draw first foundation
+    if (foundationsVord[0].isVisible)
+      drawFoundation(
+        mainPostPosX,
+        mainPostPosZ,
+        30,
+        50,
+        mainPostPosX + 7.5,
+        mainPostPosZ + 7.5,
+        15,
+        15,
+        foundations[0].scaling.y
+      );
+    if (foundationsRuck[0].isVisible)
+      drawFoundation(
+        mainPostPosX,
+        mainPostPosZ - 20,
+        30,
+        50,
+        mainPostPosX + 7.5,
+        mainPostPosZ + 7.5,
+        15,
+        15,
+        foundations[0].scaling.y
+      );
+    if (foundations[0].isVisible)
+      drawFoundation(
+        mainPostPosX,
+        mainPostPosZ,
+        30,
+        30,
+        mainPostPosX + 7.5,
+        mainPostPosZ + 7.5,
+        15,
+        15,
+        foundations[0].scaling.y
+      );
+    //draw all foundaions
+    for (let i = 0; i < allPostsPos.length; i++) {
+      if (rightPosts[i].isVisible) {
+        //vord
+        if (foundationsVord[i + 1].isVisible) {
+          if (wholeFences[i].rotation.y == 0) {
+            drawFoundation(
+              mainPostPosX + allPostsPos[i][0],
+              mainPostPosZ + allPostsPos[i][1],
+              30,
+              50,
+              mainPostPosX + allPostsPos[i][0] + 7.5,
+              mainPostPosZ + allPostsPos[i][1] + 7.5,
+              15,
+              15,
+              foundationsRight[i].scaling.y
+            );
+          }
+          if (wholeFences[i].rotation.y > 1 && wholeFences[i].rotation.y < 2) {
+            drawFoundation(
+              mainPostPosX + allPostsPos[i][0] - 20,
+              mainPostPosZ + allPostsPos[i][1],
+              50,
+              30,
+              mainPostPosX + allPostsPos[i][0] + 7.5,
+              mainPostPosZ + allPostsPos[i][1] + 7.5,
+              15,
+              15,
+              foundationsRight[i].scaling.y
+            );
+          }
+          if (wholeFences[i].rotation.y > 2) {
+            drawFoundation(
+              mainPostPosX + allPostsPos[i][0],
+              mainPostPosZ + allPostsPos[i][1] - 20,
+              30,
+              50,
+              mainPostPosX + allPostsPos[i][0] + 7.5,
+              mainPostPosZ + allPostsPos[i][1] + 7.5,
+              15,
+              15,
+              foundationsRight[i].scaling.y
+            );
+          }
+          if (wholeFences[i].rotation.y < 0) {
+            drawFoundation(
+              mainPostPosX + allPostsPos[i][0],
+              mainPostPosZ + allPostsPos[i][1],
+              50,
+              30,
+              mainPostPosX + allPostsPos[i][0] + 7.5,
+              mainPostPosZ + allPostsPos[i][1] + 7.5,
+              15,
+              15,
+              foundationsRight[i].scaling.y
+            );
+          }
+        }
+        //ruck
+        if (foundationsRuck[i + 1].isVisible) {
+          if (wholeFences[i].rotation.y == 0) {
+            drawFoundation(
+              mainPostPosX + allPostsPos[i][0],
+              mainPostPosZ + allPostsPos[i][1] - 20,
+              30,
+              50,
+              mainPostPosX + allPostsPos[i][0] + 7.5,
+              mainPostPosZ + allPostsPos[i][1] + 7.5,
+              15,
+              15,
+              foundationsRight[i].scaling.y
+            );
+          }
+          if (wholeFences[i].rotation.y > 1 && wholeFences[i].rotation.y < 2) {
+            drawFoundation(
+              mainPostPosX + allPostsPos[i][0],
+              mainPostPosZ + allPostsPos[i][1],
+              50,
+              30,
+              mainPostPosX + allPostsPos[i][0] + 7.5,
+              mainPostPosZ + allPostsPos[i][1] + 7.5,
+              15,
+              15,
+              foundationsRight[i].scaling.y
+            );
+          }
+          if (wholeFences[i].rotation.y > 2) {
+            drawFoundation(
+              mainPostPosX + allPostsPos[i][0],
+              mainPostPosZ + allPostsPos[i][1],
+              30,
+              50,
+              mainPostPosX + allPostsPos[i][0] + 7.5,
+              mainPostPosZ + allPostsPos[i][1] + 7.5,
+              15,
+              15,
+              foundationsRight[i].scaling.y
+            );
+          }
+          if (wholeFences[i].rotation.y < 0) {
+            drawFoundation(
+              mainPostPosX + allPostsPos[i][0] - 20,
+              mainPostPosZ + allPostsPos[i][1],
+              50,
+              30,
+              mainPostPosX + allPostsPos[i][0] + 7.5,
+              mainPostPosZ + allPostsPos[i][1] + 7.5,
+              15,
+              15,
+              foundationsRight[i].scaling.y
+            );
+          }
+        }
+        //ohne
+        if (foundations[i + 1].isVisible)
+          drawFoundation(
+            mainPostPosX + allPostsPos[i][0],
+            mainPostPosZ + allPostsPos[i][1],
+            30,
+            30,
+            mainPostPosX + allPostsPos[i][0] + 7.5,
+            mainPostPosZ + allPostsPos[i][1] + 7.5,
+            15,
+            15,
+            foundationsRight[i].scaling.y
+          );
+      }
+    }
+
+    //download 3d
+    var formats = {
+      a4: [210, 297],
+      a3: [400, 200],
+    };
+
+    setTimeout(() => {
+      html2canvas(canvasPlan, {
+        onrendered: function (canvasPlan) {
+          var img = canvasPlan.toDataURL("image/jpeg,0.5");
+          // pdf.output("datauri");
+          var imgData = new Image();
+          imgData.src = "./img/pdfInstr.png";
+          var pdf = new jsPDF("l", "mm", [210, 297]);
+          imgData.onload = function () {
+            pdf.addImage(imgData, "PNG", 5, 140, 43.5, 61.46);
+            pdf.addImage(img, "PNG", 43.5, 0, 210, 210);
+            pdf.text("Mega Holz 2D Plan", 10, 10);
+            pdf.save("Mega Holz 2D Plan For Fundaments.pdf");
+          };
+        },
+      });
+    }, 500);
+
+    ////////////////////////////////////
+    //end create 2d function
+  };
+
   //end of scene
   return scene;
 };

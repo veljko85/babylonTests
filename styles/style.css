@@ -148,7 +148,8 @@ video {
 #fa-gear,
 .fa-calculator,
 .fa-play-circle-o,
-.fa-camera {
+.fa-camera,
+.fa-map {
   font-size: 18px;
   margin-top: 2px;
   padding-right: 5px;
@@ -324,7 +325,8 @@ video {
   height: 300px;
   background-color: red;
 }
-.slider-btns {
+.slider-btns,
+.del-sing-btns {
   border: 1px solid var(--main-style-color);
   width: 40px;
   height: 40px;
@@ -335,6 +337,9 @@ video {
   color: var(--main-style-color);
 }
 .slider-btns:hover {
+  background-color: var(--main-style-light-color);
+}
+.del-sing-btns:hover {
   background-color: var(--main-style-light-color);
 }
 #set-part-fence-acc-del {
@@ -372,7 +377,8 @@ video {
   background-color: var(--main-font-color);
 }
 .set-part-click-title,
-.set-part-click-title-single {
+.set-part-click-title-single,
+#changeAllFences {
   width: 90%;
   height: 50px;
   margin-left: 5%;
@@ -405,7 +411,8 @@ video {
   color: var(--main-style-color);
 }
 .active-text-color,
-.active-text-color-single {
+.active-text-color-single,
+.active-text-color-single-pfosten {
   color: var(--main-style-color);
 }
 .set-num {
@@ -444,9 +451,13 @@ video {
 .set-part-direkte-hauswand,
 .set-part-sturmanker,
 .set-part-led,
+.set-delete-single-board,
 .set-part-befe-pfosten-single,
+.set-part-main-farbe-single,
 .set-part-designleisten-aus-aluminium-act-col-single,
-.set-part-designleisten-aus-aluminium-single {
+.set-part-designleisten-aus-aluminium-single,
+.set-part-start-und-absch-single,
+.set-activnes-design-inlays-single {
   width: 90%;
   height: 40px;
   margin: 5px 5%;
@@ -693,6 +704,9 @@ video {
   width: 95%;
   margin-left: 2.5%;
   overflow-y: auto;
+}
+#canvas-plan {
+  z-index: -10;
 }
 /******************************************************************************END*************************************************************************/
 /* MOBILE HIGHER THAN 300PX */

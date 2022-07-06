@@ -15,12 +15,14 @@ function createNewFence(
   singsDel,
   fenceType,
   smallBoardsCol,
-  inlaysOnOff
+  inlaysOnOff,
+  getAbsPosX,
+  getAbsPosZ
 ) {
   if (activeArrowSide == 1) {
     createRightFence(
-      rightPosts[activeArrow].getAbsolutePosition().x + 0.94,
-      rightPosts[activeArrow].getAbsolutePosition().z,
+      getAbsPosX(rightPosts[activeArrow]) + 0.94,
+      getAbsPosZ(rightPosts[activeArrow]),
       0,
       fenceType,
       smallBoardsCol,
@@ -29,8 +31,8 @@ function createNewFence(
   }
   if (activeArrowSide == 2) {
     createRightFence(
-      rightPosts[activeArrow].getAbsolutePosition().x,
-      rightPosts[activeArrow].getAbsolutePosition().z - 0.94,
+      getAbsPosX(rightPosts[activeArrow]),
+      getAbsPosZ(rightPosts[activeArrow]) - 0.94,
       Math.PI / 2,
       fenceType,
       smallBoardsCol,
@@ -39,8 +41,8 @@ function createNewFence(
   }
   if (activeArrowSide == 3) {
     createRightFence(
-      rightPosts[activeArrow].getAbsolutePosition().x,
-      rightPosts[activeArrow].getAbsolutePosition().z + 0.94,
+      getAbsPosX(rightPosts[activeArrow]),
+      getAbsPosZ(rightPosts[activeArrow]) + 0.94,
       -Math.PI / 2,
       fenceType,
       smallBoardsCol,
@@ -49,8 +51,8 @@ function createNewFence(
   }
   if (activeArrowSide == 4) {
     createRightFence(
-      rightPosts[activeArrow].getAbsolutePosition().x - 0.94,
-      rightPosts[activeArrow].getAbsolutePosition().z,
+      getAbsPosX(rightPosts[activeArrow]) - 0.94,
+      getAbsPosZ(rightPosts[activeArrow]),
       Math.PI,
       fenceType,
       smallBoardsCol,
@@ -59,8 +61,8 @@ function createNewFence(
   }
   if (activeArrowSide == 5) {
     createRightFence(
-      leftPosts[0].getAbsolutePosition().x,
-      leftPosts[0].getAbsolutePosition().z - 0.94,
+      getAbsPosX(leftPosts[0]),
+      getAbsPosZ(leftPosts[0]) - 0.94,
       Math.PI / 2,
       fenceType,
       smallBoardsCol,
@@ -69,8 +71,8 @@ function createNewFence(
   }
   if (activeArrowSide == 6) {
     createRightFence(
-      leftPosts[0].getAbsolutePosition().x,
-      leftPosts[0].getAbsolutePosition().z + 0.94,
+      getAbsPosX(leftPosts[0]),
+      getAbsPosZ(leftPosts[0]) + 0.94,
       -Math.PI / 2,
       fenceType,
       smallBoardsCol,
@@ -89,7 +91,9 @@ function createNewFence(
   addNewFenceToSide.style.display = "none";
   newFenceInlays.style.display = "none";
   newStub.style.display = "none";
-  unselect();
+
+  unselect(false);
+
   singsDel.forEach((elm) => {
     elm.isVisible = false;
   });
