@@ -75,6 +75,8 @@ let sideAccCloseBtn = document.getElementsByClassName(
   "side-accesories-close-btn"
 );
 let addFenceAcc = document.getElementById("add-fence-acc");
+let addEasyFenceAcc = document.getElementById("easy-fence-acc");
+let addGardoFenceAcc = document.getElementById("gardo-fence-acc");
 let addNewFenceToSide = document.getElementById("addNewFenceToSide");
 let openFenceSlider = document.getElementById("open-fence-slider");
 let fenceSliderSection = document.getElementById("fence-slider");
@@ -264,6 +266,12 @@ var createScene = function () {
 
   // camera.lowerBetaLimit = 0;
   camera.upperBetaLimit = 1.9;
+  //ENVIROMENT
+  scene.environmentTexture = new BABYLON.CubeTexture(
+    "enviorment/env.env",
+    scene
+  );
+  scene.environmentIntensity = 0.8;
 
   //LIGHTS
   let lights = [];
@@ -594,10 +602,27 @@ var createScene = function () {
   var fakeFences = [];
   var wholeFences = [];
 
+  //gardo
+  var gardoFenceBoards = [];
+  var topBoards = [];
+  var metalParts = [];
+  var rightMetalParts = [0];
+  var smallMetalParts = [];
+  var rightSmallMetalParts = [0];
+  var rankelements = [];
+  var allWoodPosts = [];
+  var rightWoodPosts = [0];
+  var woodMaterials = [];
+  var woodTopParts = [];
+
   //FUNCTONS TO GET AND SET ABSOLUTE POSTIOIONS
   var getAbsPosX = (mesh) => {
     mesh.computeWorldMatrix(true);
     return mesh.getAbsolutePosition().x;
+  };
+  var getAbsPosY = (mesh) => {
+    mesh.computeWorldMatrix(true);
+    return mesh.getAbsolutePosition().y;
   };
   var getAbsPosZ = (mesh) => {
     mesh.computeWorldMatrix(true);
@@ -612,6 +637,14 @@ var createScene = function () {
       )
     );
   };
+  //FUNCTIONS OTHER
+  function setActiveFenceOnCombineFences() {
+    for (let j = 0; j < rightPosts.length; j++) {
+      if (rightPosts[j].material.id == "selectedMat") {
+        activeFence = j;
+      }
+    }
+  }
 
   //CHANCHING SIZE ON SLIDER
   //function to change position and scale of fence
@@ -658,6 +691,43 @@ var createScene = function () {
         getAbsPosZ(rightPosts[activeFence])
       )
     );
+    //GARDO FENCE
+    if (
+      fencesArr[activeFence].type == "gardoFence" ||
+      fencesArr[activeFence].type == "gardoHalf" ||
+      fencesArr[activeFence].type == "gardoRank"
+    ) {
+      fencesArr[activeFence].gardoParts.woodTopPart.scaling.x =
+        fenceScale * 0.84;
+      fencesArr[activeFence].gardoParts.woodTopPart.position.x =
+        -0.9 + fenceSize / 2 - 0.01;
+
+      fencesArr[activeFence].gardoParts.boards.forEach((elm) => {
+        elm.scaling.x = fenceScale;
+        elm.position.x = -0.9 + fenceSize / 2 - 0.01;
+      });
+
+      fencesArr[activeFence].gardoParts.woodPost.position.x =
+        rightPosts[activeFence].position.x;
+
+      fencesArr[activeFence].gardoParts.smallMetalParts.forEach((elm) => {
+        elm.position.x = rightPosts[activeFence].position.x;
+      });
+
+      fencesArr[activeFence].gardoParts.metalParts.forEach((elm) => {
+        elm.setAbsolutePosition(
+          new BABYLON.Vector3(
+            getAbsPosX(rightPosts[activeFence]),
+            getAbsPosY(elm),
+            getAbsPosZ(rightPosts[activeFence])
+          )
+        );
+      });
+
+      fencesArr[activeFence].gardoParts.topBoard.scaling.x = fenceScale;
+      fencesArr[activeFence].gardoParts.topBoard.position.x =
+        -0.9 + fenceSize / 2 - 0.01;
+    }
 
     newFenceForwardSigns[activeFence].setAbsolutePosition(
       new BABYLON.Vector3(
@@ -721,6 +791,18 @@ var createScene = function () {
 
     wholeFences[i].position.x = wholeFences[i].position.x - (firstX - secondX);
     wholeFences[i].position.z = wholeFences[i].position.z - (firstZ - secondZ);
+
+    //gardo fence
+    if (
+      fencesArr[i].type == "gardoFence" ||
+      fencesArr[i].type == "gardoHalf" ||
+      fencesArr[i].type == "gardoRank"
+    ) {
+      fencesArr[i].fenceGardo.position.x =
+        fencesArr[i].fenceGardo.position.x - (firstX - secondX);
+      fencesArr[i].fenceGardo.position.z =
+        fencesArr[i].fenceGardo.position.z - (firstZ - secondZ);
+    }
 
     newFenceForwardSigns[i].position.x =
       newFenceForwardSigns[i].position.x - (firstX - secondX);
@@ -832,7 +914,13 @@ var createScene = function () {
                 addFenceSings,
                 grauMat,
                 braunMat,
-                sandMat
+                sandMat,
+                woodMaterials,
+                topBoards,
+                rankelements,
+                rightWoodPosts,
+                woodTopParts,
+                gardoFenceBoards
               );
               activeFence = false;
               leftPost.material = selectedMat;
@@ -848,7 +936,7 @@ var createScene = function () {
                 addFenceSings
               );
               //set day when select sturmanker
-              setDayNight(0.6, 0, 0.7);
+              setDayNight(0.6, 0.8, 0.7);
               setLightColor(4);
               glow.intensity = 0;
               singsWar.forEach((elm) => {
@@ -1154,7 +1242,9 @@ var createScene = function () {
         }
         sideAccesories.style.display = "block";
         addFenceAcc.style.display = "block";
-
+        addEasyFenceAcc.style.display = "block";
+        addGardoFenceAcc.style.display = "none";
+        addFenceAcc.children[0].style.display = "block";
         //set delete fence image and text
         deleteFenceOn(activeFence);
         //delete fence
@@ -1197,7 +1287,7 @@ var createScene = function () {
               leds.forEach((elm) => {
                 elm.isVisible = false;
               });
-              setDayNight(0.6, 0, 0.7);
+              setDayNight(0.6, 0.8, 0.7);
               ledColNum = 4;
               setLightColor(ledColNum);
               setLedColor(ledColNum);
@@ -1314,7 +1404,7 @@ var createScene = function () {
         });
         addNewFenceToSide.style.display = "none";
         //set day night
-        setDayNight(0.6, 0, 0.7);
+        setDayNight(0.6, 0.8, 0.7);
         setLightColor(4);
         glow.intensity = 0;
         singsWar.forEach((elm) => {
@@ -1430,7 +1520,13 @@ var createScene = function () {
                   addFenceSings,
                   grauMat,
                   braunMat,
-                  sandMat
+                  sandMat,
+                  woodMaterials,
+                  topBoards,
+                  rankelements,
+                  rightWoodPosts,
+                  woodTopParts,
+                  gardoFenceBoards
                 );
                 result.meshes[1].material =
                   result.meshes[2].material =
@@ -1465,7 +1561,13 @@ var createScene = function () {
                   addFenceSings,
                   grauMat,
                   braunMat,
-                  sandMat
+                  sandMat,
+                  woodMaterials,
+                  topBoards,
+                  rankelements,
+                  rightWoodPosts,
+                  woodTopParts,
+                  gardoFenceBoards
                 );
 
                 singsDel.forEach((elm) => {
@@ -1657,26 +1759,6 @@ var createScene = function () {
       fakePosts.push(fakePost);
       fakePost.isVisible = false;
 
-      //CHECK IF POSTS ARE INTESECTING
-      // setTimeout(() => {
-      //   for (let i = 0; i < fakePosts.length; i++) {
-      //     for (let j = i; j < fakePosts.length; j++) {
-      //       if (i != j) {
-      //         if (
-      //           fakePosts[i].intersectsMesh(fakePosts[j], true) &&
-      //           allPosts[i].isVisible &&
-      //           llPosts[j].isVisible
-      //         ) {
-      //           allPosts[j].isVisible = false;
-      //           rightRoots[j - 1].forEach((elm) => {
-      //             elm.isVisible = false;
-      //           });
-      //         }
-      //       }
-      //     }
-      //   }
-      // }, 1000);
-
       checkPostIntersecting(
         fakePosts,
         allPosts,
@@ -1720,7 +1802,13 @@ var createScene = function () {
                 addFenceSings,
                 grauMat,
                 braunMat,
-                sandMat
+                sandMat,
+                woodMaterials,
+                topBoards,
+                rankelements,
+                rightWoodPosts,
+                woodTopParts,
+                gardoFenceBoards
               );
               rightPost.material = selectedMat;
               sideAccesories.style.display = "block";
@@ -1782,7 +1870,13 @@ var createScene = function () {
                 addFenceSings,
                 grauMat,
                 braunMat,
-                sandMat
+                sandMat,
+                woodMaterials,
+                topBoards,
+                rankelements,
+                rightWoodPosts,
+                woodTopParts,
+                gardoFenceBoards
               );
             }
           }
@@ -2007,11 +2101,12 @@ var createScene = function () {
       );
 
       foundationVordStart.position = new BABYLON.Vector3(0, 0.13, 0.01);
-      foundationVordStart.rotation.x = Math.PI / 2;
+      foundationVordStart.rotation.x = -Math.PI / 2;
       foundationVordStart.material = concreteMat;
       foundationVordStart.parent = rightRoot0;
       foundationStartsVord.push(foundationVordStart);
       foundationVordStart.isVisible = false;
+
       //create foundation for front stunmankwer
       let foundationVord = new BABYLON.MeshBuilder.CreateBox(
         "foundationVord",
@@ -2146,7 +2241,13 @@ var createScene = function () {
         setActivnesStyle,
         grauMat,
         braunMat,
-        sandMat
+        sandMat,
+        woodMaterials,
+        topBoards,
+        rankelements,
+        rightWoodPosts,
+        woodTopParts,
+        gardoFenceBoards
       );
       directeHauswandMeshesRight[directeHauswandMeshesRight.length - 1].parent =
         rightPostCap;
@@ -2367,6 +2468,111 @@ var createScene = function () {
       );
 
       fencesArr[fenceId].status = "activeFence";
+      // var topBoards = [];
+      // var metalParts = [];
+      // var rightMetalParts = [];
+      // var smallMetalParts = [];
+      // var rightSmallMetalParts = [];
+      // var rankelements = [];
+      // var allWoodPosts = [];
+      // var rightWoodPosts = [];
+      // var woodMaterials = [];
+      // var woodTopParts = [];
+
+      //LOAD GARDO COMBO FENCE
+      if (type == "gardoFence") {
+        startPart.isVisible = endPart.isVisible = false;
+        newBoarsdArr.forEach((elm) => {
+          elm.isVisible = false;
+        });
+
+        loadGardoFence(
+          posX,
+          posZ,
+          rotY,
+          gardoFenceBoards,
+          woodMaterials,
+          topBoards,
+          rankelements,
+          metalParts,
+          rightMetalParts,
+          rootMat,
+          smallMetalParts,
+          rightSmallMetalParts,
+          allWoodPosts,
+          rightWoodPosts,
+          woodTopParts,
+          activeFence,
+          removeSideAccesories,
+          addDefaultMaterial,
+          selectedMat,
+          newFenceForwardSigns,
+          newFenceRightSigns,
+          newFenceLeftSigns,
+          newFenceBackSigns,
+          cameraTargetMesh,
+          cameraTarget,
+          ground,
+          fenceBoards,
+          sturmankersVorderseite,
+          rightPosts,
+          leftPosts,
+          directeHauswandMeshes,
+          fenceBoardMat,
+          fencePostMat,
+          concreteMat,
+          smallBoardsArr,
+          silberMat,
+          anthrazitMat,
+          fencesArr,
+          addFenceSings,
+          grauMat,
+          braunMat,
+          sandMat,
+          deleteFenceOn,
+          deleteFencePart,
+          delFenFun,
+          deleteFence,
+          checkPostIntersecting,
+          fakePosts,
+          allPosts,
+          rightRoots,
+          intersectedPosts,
+          intersectedPostsMain,
+          sturmankersRuckseite,
+          intersectArrowSignsFence,
+          fakeFences,
+          addNewFenceToSide,
+          activeArrow,
+          activeArrowSide,
+          addNewFenceMeshMat,
+          wholeFences,
+          rightPost,
+          fenceId,
+          setActiveFenceOnCombineFences,
+          pipsSlider,
+          noUiSlider,
+          easyFenceSliderOpt,
+          closeSliderContainer,
+          setDayNight,
+          setLightColor,
+          glow,
+          singsWar,
+          leds,
+          singsDel,
+          setActivnesStyle,
+          sturmankerCon,
+          lightSettings,
+          lightColorSet,
+          ledColNum,
+          setLedColor,
+          ledParts,
+          addEasyFenceAcc,
+          addGardoFenceAcc,
+          changeFenceGardo,
+          setPhostenAct
+        );
+      }
 
       if (fenceId > 0 && typeof activeFence != "boolean") {
         fencesArr[activeFence].children.push(fenceId);
@@ -2512,8 +2718,6 @@ var createScene = function () {
     camera.animations.push(radiusAnimation);
     //call radius animation
     scene.beginAnimation(camera, 0, 120, false);
-
-    // scene.beginDirectAnimation(camera, [radiusAnimation], 0, 60, false);
 
     displayGroundSizeX = Math.round((arrXFirst + arrXSecond) * 100) + 7;
     displayGroundSizeZ = Math.round((arrZFirst + arrZSecond) * 100) + 7;
@@ -2761,6 +2965,57 @@ var createScene = function () {
     });
   };
 
+  let addNewCombineFenceTitle = document.getElementById(
+    "addNewCombineFenceTitle"
+  );
+  let combineFenceContainer = document.getElementById("combineFenceContainer");
+  // addNewCombineFenceTitle.onclick = () => {
+  //   combineFenceContainer.style.height = "auto";
+  // };
+  let newFenceGardo = document.getElementById("new-fence-gardo");
+
+  let combineFencesOpen = false;
+  function closecombineFencesContainer() {
+    // addNewCombineFenceTitle.style.color = "#333333";
+    addNewCombineFenceTitle.children[1].innerHTML = "+";
+    combineFenceContainer.style.height = 0;
+    combineFencesOpen = false;
+  }
+  addNewCombineFenceTitle.onclick = () => {
+    if (!combineFencesOpen) {
+      // addNewCombineFenceTitle.style.color = "#3967ff";
+      addNewCombineFenceTitle.children[1].innerHTML = "-";
+      combineFenceContainer.style.height = "auto";
+      combineFencesOpen = true;
+    } else {
+      closecombineFencesContainer();
+    }
+  };
+
+  newFenceGardo.onclick = () => {
+    createNewFence(
+      createRightFence,
+      activeArrowSide,
+      rightPosts,
+      leftPosts,
+      activeArrow,
+      fencePostMat,
+      addFenceSings,
+      addNewFenceMeshMat,
+      sideAccesories,
+      addNewFenceToSide,
+      newFenceInlays,
+      newStub,
+      unselect,
+      singsDel,
+      "gardoFence",
+      "silber",
+      0,
+      getAbsPosX,
+      getAbsPosZ
+    );
+  };
+
   //ADD NEW FENCE SIDE BAR SETTINGS
   function addNewFenceSideBar() {
     removeSideAccesories(
@@ -2890,7 +3145,13 @@ var createScene = function () {
               addFenceSings,
               grauMat,
               braunMat,
-              sandMat
+              sandMat,
+              woodMaterials,
+              topBoards,
+              rankelements,
+              rightWoodPosts,
+              woodTopParts,
+              gardoFenceBoards
             );
             newFenceForwardSigns[i].isVisible = true;
             newFenceRightSigns[i].isVisible = true;
@@ -2950,7 +3211,13 @@ var createScene = function () {
               addFenceSings,
               grauMat,
               braunMat,
-              sandMat
+              sandMat,
+              woodMaterials,
+              topBoards,
+              rankelements,
+              rightWoodPosts,
+              woodTopParts,
+              gardoFenceBoards
             );
             newFenceForwardSigns[i].isVisible = true;
             newFenceRightSigns[i].isVisible = true;
@@ -3010,7 +3277,13 @@ var createScene = function () {
               addFenceSings,
               grauMat,
               braunMat,
-              sandMat
+              sandMat,
+              woodMaterials,
+              topBoards,
+              rankelements,
+              rightWoodPosts,
+              woodTopParts,
+              gardoFenceBoards
             );
             newFenceForwardSigns[i].isVisible = true;
             newFenceRightSigns[i].isVisible = true;
@@ -3070,7 +3343,13 @@ var createScene = function () {
               addFenceSings,
               grauMat,
               braunMat,
-              sandMat
+              sandMat,
+              woodMaterials,
+              topBoards,
+              rankelements,
+              rightWoodPosts,
+              woodTopParts,
+              gardoFenceBoards
             );
             newFenceForwardSigns[i].isVisible = true;
             newFenceRightSigns[i].isVisible = true;
@@ -3149,7 +3428,13 @@ var createScene = function () {
             addFenceSings,
             grauMat,
             braunMat,
-            sandMat
+            sandMat,
+            woodMaterials,
+            topBoards,
+            rankelements,
+            rightWoodPosts,
+            woodTopParts,
+            gardoFenceBoards
           );
           addNewFenceMeshRightMain.isVisible = true;
           addNewFenceMeshLeftMain.isVisible = true;
@@ -3215,7 +3500,13 @@ var createScene = function () {
             addFenceSings,
             grauMat,
             braunMat,
-            sandMat
+            sandMat,
+            woodMaterials,
+            topBoards,
+            rankelements,
+            rightWoodPosts,
+            woodTopParts,
+            gardoFenceBoards
           );
           addNewFenceMeshRightMain.isVisible = true;
           addNewFenceMeshLeftMain.isVisible = true;
@@ -3260,7 +3551,7 @@ var createScene = function () {
       leds.forEach((elm) => {
         elm.isVisible = false;
       });
-      setDayNight(0.6, 0, 0.7);
+      setDayNight(0.6, 0.8, 0.7);
       ledColNum = 4;
       setLightColor(ledColNum);
       setLedColor(ledColNum);
@@ -3314,51 +3605,55 @@ var createScene = function () {
 
   //ADD LAISNE ON FENCE - 3
   let createLaisne = (laisnePos, j) => {
-    if (rightPosts[j].isVisible) {
-      if (fencesArr[j].type != "easyFenceHalf" || laisnePos < 3) {
-        laisnes[j][laisnePos].isVisible = true;
-        startParts[j].position.y += 0.01;
-      }
-      laisnes[j][laisnePos].position.y =
-        fenceBoards[j][laisnePos].position.y + 0.22 / 2 + 0.005;
+    if (fencesArr[j].fenceGardo == undefined) {
+      if (rightPosts[j].isVisible) {
+        if (fencesArr[j].type != "easyFenceHalf" || laisnePos < 3) {
+          laisnes[j][laisnePos].isVisible = true;
+          startParts[j].position.y += 0.01;
+        }
+        laisnes[j][laisnePos].position.y =
+          fenceBoards[j][laisnePos].position.y + 0.22 / 2 + 0.005;
 
-      if (laisnePos < 6) {
-        inlays[j][0].position.y += 0.01;
-        inlays[j][2].position.y += 0.01;
-      }
-      for (let i = laisnePos; i < 7; i++) {
-        fenceBoards[j][i + 1].position.y += 0.01;
-        if (i < 6) {
-          if (fencesArr[j].laisnes[i + 1]) {
-            laisnes[j][i + 1].position.y += 0.01;
+        if (laisnePos < 6) {
+          inlays[j][0].position.y += 0.01;
+          inlays[j][2].position.y += 0.01;
+        }
+        for (let i = laisnePos; i < 7; i++) {
+          fenceBoards[j][i + 1].position.y += 0.01;
+          if (i < 6) {
+            if (fencesArr[j].laisnes[i + 1]) {
+              laisnes[j][i + 1].position.y += 0.01;
+            }
           }
         }
       }
-    }
-    for (let i = 0; i < laisnes.length; i++) {
-      if (smallBoardsArr[i].isVisible) {
-        laisnes[i].forEach((elm) => {
-          elm.isVisible = false;
-        });
+      for (let i = 0; i < laisnes.length; i++) {
+        if (smallBoardsArr[i].isVisible) {
+          laisnes[i].forEach((elm) => {
+            elm.isVisible = false;
+          });
+        }
       }
     }
   };
 
   //REMOVE LAISNE FROM FENCE
   let disposeLaisne = (laisnePos, j) => {
-    if (fencesArr[j].type != "easyFenceHalf" || laisnePos < 3) {
-      laisnes[j][laisnePos].isVisible = false;
-      startParts[j].position.y -= 0.01;
-    }
-    if (laisnePos < 6) {
-      inlays[j][0].position.y -= 0.01;
-      inlays[j][2].position.y -= 0.01;
-    }
-    for (let i = laisnePos; i < 7; i++) {
-      fenceBoards[j][i + 1].position.y -= 0.01;
-      if (i < 6) {
-        if (fencesArr[j].laisnes[i + 1]) {
-          laisnes[j][i + 1].position.y -= 0.01;
+    if (fencesArr[j].fenceGardo == undefined) {
+      if (fencesArr[j].type != "easyFenceHalf" || laisnePos < 3) {
+        laisnes[j][laisnePos].isVisible = false;
+        startParts[j].position.y -= 0.01;
+      }
+      if (laisnePos < 6) {
+        inlays[j][0].position.y -= 0.01;
+        inlays[j][2].position.y -= 0.01;
+      }
+      for (let i = laisnePos; i < 7; i++) {
+        fenceBoards[j][i + 1].position.y -= 0.01;
+        if (i < 6) {
+          if (fencesArr[j].laisnes[i + 1]) {
+            laisnes[j][i + 1].position.y -= 0.01;
+          }
         }
       }
     }
@@ -3376,17 +3671,6 @@ var createScene = function () {
   );
   for (let i = 0; i < clickableMainSec.length; i++) {
     clickableMainSec[i].onclick = () => {
-      // for (let j = 0; j < clickableMainSec.length; j++) {
-      //   if (clickableMainSec[j].className == "set-part-click-title clicked") {
-      //     clickableMainSec[j].className = clickableMainSec[i].className.replace(
-      //       " clicked",
-      //       " not-clicked"
-      //     );
-      //     clickableMainSec[j].className == "set-part-click-title not-clicked";
-      //     clickableMainSec[j].children[2].innerHTML = "+";
-      //     clickableMainSec[j].nextElementSibling.style.height = 0;
-      //   }
-      // }
       if (clickableMainSec[i].className != "set-part-click-title clicked") {
         clickableMainSec[i].className = clickableMainSec[i].className.replace(
           " not-clicked",
@@ -3409,7 +3693,7 @@ var createScene = function () {
       if (i != 5) {
         setActivnesStyle(ledDayNight, 8, 0, "active-text-color");
         for (let i = 0; i < leds.length; i++) {
-          setDayNight(0.6, 0, 0.7);
+          setDayNight(0.6, 0.8, 0.7);
           setLightColor(4);
           setLedColor(ledColNum);
           glow.intensity = 0;
@@ -3621,14 +3905,15 @@ var createScene = function () {
   //inlays show or not
   function inlaysFunction(a, b, c, d) {
     for (let i = 0; i < rightPosts.length; i++) {
-      if (rightPosts[i].isVisible) {
+      if (rightPosts[i].isVisible && fencesArr[i].fenceGardo == undefined) {
         inlays[i][0].isVisible = b;
         inlays[i][2].isVisible = b;
+        fenceBoards[i][6].isVisible = a;
       }
     }
-    fenceBoards.forEach((elmF) => {
-      elmF[6].isVisible = a;
-    });
+    // fenceBoards.forEach((elmF) => {
+    //   elmF[6].isVisible = a;
+    // });
     for (let i = 0; i < inlays.length; i++) {
       inlays[i][2].material = c;
       inlays[i][0].material.albedoColor = inlays[i][2].material.diffuseColor;
@@ -3640,7 +3925,7 @@ var createScene = function () {
         inlays[i][2].isVisible = false;
         fencesArr[i].inlays = 0;
       } else {
-        fencesArr[i].type = d;
+        if (fencesArr[i].fenceGardo == undefined) fencesArr[i].type = d;
       }
     }
   }
@@ -3684,6 +3969,8 @@ var createScene = function () {
     //   elm.intensity = b;
     // });
     skyBoxes[0].material.luminance = c;
+
+    scene.environmentIntensity = b;
     // if (directeHauswandMesh.isVisible) lightsLed[0].intensity = 0;
   }
   //set lights color
@@ -3718,7 +4005,7 @@ var createScene = function () {
       leds.forEach((elm) => {
         elm.isVisible = false;
       });
-      setDayNight(0.6, 0, 0.7);
+      setDayNight(0.6, 0.8, 0.7);
       ledColNum = 4;
       setLightColor(ledColNum);
       setLedColor(ledColNum);
@@ -3750,7 +4037,6 @@ var createScene = function () {
         foundationStartsRuck,
         foundationsRuck
       );
-
       singsWar.forEach((elm) => {
         elm.isVisible = false;
       });
@@ -3782,7 +4068,7 @@ var createScene = function () {
         ledColNum = 0;
         setLightColor(ledColNum);
         setLedColor(ledColNum);
-        setDayNight(0.2, 0.5, 1.15);
+        setDayNight(0.2, 0, 1.15);
       } else {
         singsWar.forEach((elm) => {
           elm.isVisible = false;
@@ -3884,7 +4170,7 @@ var createScene = function () {
         leds.forEach((elm) => {
           if (elm.isVisible) ledsOn += 1;
         });
-        setDayNight(0.2, 0.5, 1.15);
+        setDayNight(0.2, 0, 1.15);
       } else {
         singsWar.forEach((elm) => {
           elm.isVisible = false;
@@ -4281,13 +4567,13 @@ var createScene = function () {
         onSturmanker.style.display = "block";
         setSturmanker(a, b, c, d, e);
         strurmOn = true;
-        setDayNight(0.6, 0, 0.7);
+        setDayNight(0.6, 0.8, 0.7);
       } else {
         singsWar.forEach((elm) => {
           elm.isVisible = false;
         });
         for (let i = 0; i < leds.length; i++) {
-          setDayNight(0.6, 0, 0.7);
+          setDayNight(0.6, 0.8, 0.7);
           setLightColor(4);
           // setLedColor(ledColNum);
           glow.intensity = 0;
@@ -4454,7 +4740,13 @@ var createScene = function () {
                 addFenceSings,
                 grauMat,
                 braunMat,
-                sandMat
+                sandMat,
+                woodMaterials,
+                topBoards,
+                rankelements,
+                rightWoodPosts,
+                woodTopParts,
+                gardoFenceBoards
               );
               a.forEach((elm) => {
                 elm.material = fencePostMat;
@@ -4468,7 +4760,7 @@ var createScene = function () {
               deleteAccesorie[1].style.display = "block";
               addNewFenceToSide.style.display = "none";
               //set day when select sturmanker
-              setDayNight(0.6, 0, 0.7);
+              setDayNight(0.6, 0.8, 0.7);
               setLightColor(4);
               glow.intensity = 0;
               singsWar.forEach((elm) => {
@@ -4632,7 +4924,13 @@ var createScene = function () {
             addFenceSings,
             grauMat,
             braunMat,
-            sandMat
+            sandMat,
+            woodMaterials,
+            topBoards,
+            rankelements,
+            rightWoodPosts,
+            woodTopParts,
+            gardoFenceBoards
           );
           directeHauswandMesh.material = selectedMat;
           sideAccesories.style.display = "block";
@@ -4640,7 +4938,7 @@ var createScene = function () {
           addNewFenceToSide.style.display = "none";
           singsDel[0].isVisible = false;
           //set day when select sturmanker
-          setDayNight(0.6, 0, 0.7);
+          setDayNight(0.6, 0.8, 0.7);
           setLightColor(4);
           glow.intensity = 0;
           singsWar.forEach((elm) => {
@@ -4811,15 +5109,35 @@ var createScene = function () {
   let numOfBords = document.getElementById("numOfBords");
   let numOfBordsVal = 8;
   delSingBut[0].onclick = () => {
-    if (numOfBordsVal > 1) {
+    if (
+      numOfBordsVal > 1 &&
+      (fencesArr[i].type == "easyFence" ||
+        fencesArr[i].type == "easyFenceInlaysAnth" ||
+        fencesArr[i].type == "easyFenceInlaysSilber" ||
+        fencesArr[i].type == "easyFenceHalf")
+    ) {
       numOfBordsVal -= 1;
       numOfBords.innerHTML = numOfBordsVal;
       for (let i = 0; i < fencesArr.length; i++) {
         if (
-          fencesArr[i].type == "easyFence" &&
-          numOfBordsVal + 1 == fencesArr[i].numOfBoards
+          (fencesArr[i].type == "easyFence" &&
+            numOfBordsVal + 1 == fencesArr[i].numOfBoards) ||
+          (fencesArr[i].type == "easyFenceInlaysAnth" &&
+            numOfBordsVal + 1 == fencesArr[i].numOfBoards) ||
+          (fencesArr[i].type == "easyFenceInlaysSilber" &&
+            numOfBordsVal + 1 == fencesArr[i].numOfBoards)
         ) {
           fenceBoards[i][numOfBordsVal].isVisible = false;
+          if (fencesArr[i].laisnes[numOfBordsVal - 1])
+            laisnes[i][numOfBordsVal - 1].isVisible = false;
+          if (
+            (fencesArr[i].type == "easyFenceInlaysAnth" &&
+              numOfBordsVal == 6) ||
+            (fencesArr[i].type == "easyFenceInlaysSilber" && numOfBordsVal == 6)
+          ) {
+            inlays[i][0].isVisible = false;
+            inlays[i][2].isVisible = false;
+          }
           startParts[i].position.y =
             fenceBoards[i][numOfBordsVal - 1].position.y + 0.23 / 2 + 0.005;
           fencesArr[i].numOfBoards = numOfBordsVal;
@@ -4830,6 +5148,8 @@ var createScene = function () {
           numOfBordsVal + 1 == fencesArr[i].numOfBoards
         ) {
           fenceBoards[i][numOfBordsVal].isVisible = false;
+          if (fencesArr[i].laisnes[numOfBordsVal - 1])
+            laisnes[i][numOfBordsVal - 1].isVisible = false;
           startParts[i].position.y =
             fenceBoards[i][numOfBordsVal - 1].position.y + 0.23 / 2 + 0.005;
           fencesArr[i].numOfBoards = numOfBordsVal;
@@ -4839,13 +5159,34 @@ var createScene = function () {
   };
 
   delSingBut[1].onclick = () => {
-    if (numOfBordsVal < 8) {
+    if (
+      numOfBordsVal < 8 &&
+      (fencesArr[i].type == "easyFence" ||
+        fencesArr[i].type == "easyFenceInlaysAnth" ||
+        fencesArr[i].type == "easyFenceInlaysSilber" ||
+        fencesArr[i].type == "easyFenceHalf")
+    ) {
       for (let i = 0; i < fencesArr.length; i++) {
         if (
-          fencesArr[i].type == "easyFence" &&
-          fenceBoards[i][numOfBordsVal].isVisible == false
+          (fencesArr[i].type == "easyFence" &&
+            fenceBoards[i][numOfBordsVal].isVisible == false) ||
+          (fencesArr[i].type == "easyFenceInlaysAnth" &&
+            fenceBoards[i][numOfBordsVal].isVisible == false) ||
+          (fencesArr[i].type == "easyFenceInlaysSilber" &&
+            fenceBoards[i][numOfBordsVal].isVisible == false)
         ) {
           fenceBoards[i][numOfBordsVal].isVisible = true;
+          if (fencesArr[i].laisnes[numOfBordsVal - 1])
+            laisnes[i][numOfBordsVal - 1].isVisible = true;
+          if (
+            (fencesArr[i].type == "easyFenceInlaysAnth" &&
+              numOfBordsVal == 6) ||
+            (fencesArr[i].type == "easyFenceInlaysSilber" && numOfBordsVal == 6)
+          ) {
+            inlays[i][0].isVisible = true;
+            inlays[i][2].isVisible = true;
+            fenceBoards[i][numOfBordsVal].isVisible = false;
+          }
           startParts[i].position.y =
             fenceBoards[i][numOfBordsVal].position.y + 0.23 / 2 + 0.005;
           fencesArr[i].numOfBoards = numOfBordsVal + 1;
@@ -4856,6 +5197,8 @@ var createScene = function () {
           numOfBordsVal == fencesArr[i].numOfBoards
         ) {
           fenceBoards[i][numOfBordsVal].isVisible = true;
+          if (fencesArr[i].laisnes[numOfBordsVal - 1])
+            laisnes[i][numOfBordsVal - 1].isVisible = true;
           startParts[i].position.y =
             fenceBoards[i][numOfBordsVal].position.y + 0.23 / 2 + 0.005;
           fencesArr[i].numOfBoards = numOfBordsVal + 1;
@@ -4880,6 +5223,7 @@ var createScene = function () {
     }
     addFenceAcc.style.display = "none";
     closeSliderContainer();
+    closecombineFencesContainer();
     addDefaultMaterial(
       fenceBoards,
       sturmankersVorderseite,
@@ -4896,7 +5240,13 @@ var createScene = function () {
       addFenceSings,
       grauMat,
       braunMat,
-      sandMat
+      sandMat,
+      woodMaterials,
+      topBoards,
+      rankelements,
+      rightWoodPosts,
+      woodTopParts,
+      gardoFenceBoards
     );
     addFenceSings;
     if (activnesToFalse) {
@@ -5068,7 +5418,10 @@ var createScene = function () {
       //children
       let childType = 0;
       for (let i = 0; i < fencesArr[h].children.length; i++) {
-        if (fencesArr[fencesArr[h].children[i]].type != "easyFenceHalf") {
+        if (
+          fencesArr[fencesArr[h].children[i]].type != "easyFenceHalf" &&
+          fencesArr[fencesArr[h].children[i]].type != "gardoHalf"
+        ) {
           childType += 1;
         }
       }
@@ -5094,7 +5447,10 @@ var createScene = function () {
 
       //parent
       if (h > 0) {
-        if (fencesArr[fencesArr[h].parent].type == "easyFenceHalf") {
+        if (
+          fencesArr[fencesArr[h].parent].type == "easyFenceHalf" ||
+          fencesArr[fencesArr[h].parent].type == "gardoHalf"
+        ) {
           let fenceSibling = 0;
           for (
             let i = 0;
@@ -5103,7 +5459,9 @@ var createScene = function () {
           ) {
             if (
               fencesArr[fencesArr[fencesArr[h].parent].children[i]].type !=
-              "easyFenceHalf"
+                "easyFenceHalf" &&
+              fencesArr[fencesArr[fencesArr[h].parent].children[i]].type !=
+                "gardoHalf"
             ) {
               fenceSibling += 1;
             }
@@ -5444,6 +5802,13 @@ var createScene = function () {
         }
       }
     }
+    for (let i = 0; i < laisnes.length; i++) {
+      if (smallBoardsArr[activeFence].isVisible) {
+        laisnes[activeFence].forEach((elm) => {
+          elm.isVisible = false;
+        });
+      }
+    }
   };
 
   //remove lisnes to single fence
@@ -5508,13 +5873,38 @@ var createScene = function () {
   let numOfBordsSing = document.getElementById("numOfBordsSing");
   // let numOfBordsVal = 8;
   delSingButSingle[0].onclick = () => {
-    if (fencesArr[activeFence].numOfBoards > 1) {
+    if (
+      fencesArr[activeFence].numOfBoards > 1 &&
+      (fencesArr[activeFence].type == "easyFence" ||
+        fencesArr[activeFence].type == "easyFenceInlaysAnth" ||
+        fencesArr[activeFence].type == "easyFenceInlaysSilber" ||
+        fencesArr[activeFence].type == "easyFenceHalf")
+    ) {
       fencesArr[activeFence].numOfBoards -= 1;
       numOfBordsSing.innerHTML = fencesArr[activeFence].numOfBoards;
-      if (fencesArr[activeFence].type == "easyFence") {
+      if (
+        fencesArr[activeFence].type == "easyFence" ||
+        fencesArr[activeFence].type == "easyFenceInlaysAnth" ||
+        fencesArr[activeFence].type == "easyFenceInlaysSilber"
+      ) {
         fenceBoards[activeFence][
           fencesArr[activeFence].numOfBoards
         ].isVisible = false;
+        if (
+          fencesArr[activeFence].laisnes[fencesArr[activeFence].numOfBoards - 1]
+        )
+          laisnes[activeFence][
+            fencesArr[activeFence].numOfBoards - 1
+          ].isVisible = false;
+        if (
+          (fencesArr[activeFence].type == "easyFenceInlaysAnth" &&
+            fencesArr[activeFence].numOfBoards == 6) ||
+          (fencesArr[activeFence].type == "easyFenceInlaysSilber" &&
+            fencesArr[activeFence].numOfBoards == 6)
+        ) {
+          inlays[activeFence][0].isVisible = false;
+          inlays[activeFence][2].isVisible = false;
+        }
         startParts[activeFence].position.y =
           fenceBoards[activeFence][fencesArr[activeFence].numOfBoards - 1]
             .position.y +
@@ -5528,6 +5918,12 @@ var createScene = function () {
         fenceBoards[activeFence][
           fencesArr[activeFence].numOfBoards
         ].isVisible = false;
+        if (
+          fencesArr[activeFence].laisnes[fencesArr[activeFence].numOfBoards - 1]
+        )
+          laisnes[activeFence][
+            fencesArr[activeFence].numOfBoards - 1
+          ].isVisible = false;
         startParts[activeFence].position.y =
           fenceBoards[activeFence][fencesArr[activeFence].numOfBoards - 1]
             .position.y +
@@ -5539,11 +5935,39 @@ var createScene = function () {
   };
 
   delSingButSingle[1].onclick = () => {
-    if (fencesArr[activeFence].numOfBoards < 8) {
-      if (fencesArr[activeFence].type == "easyFence") {
+    if (
+      fencesArr[activeFence].numOfBoards < 8 &&
+      (fencesArr[activeFence].type == "easyFence" ||
+        fencesArr[activeFence].type == "easyFenceInlaysAnth" ||
+        fencesArr[activeFence].type == "easyFenceInlaysSilber" ||
+        fencesArr[activeFence].type == "easyFenceHalf")
+    ) {
+      if (
+        fencesArr[activeFence].type == "easyFence" ||
+        fencesArr[activeFence].type == "easyFenceInlaysAnth" ||
+        fencesArr[activeFence].type == "easyFenceInlaysSilber"
+      ) {
         fenceBoards[activeFence][
           fencesArr[activeFence].numOfBoards
         ].isVisible = true;
+        if (
+          fencesArr[activeFence].laisnes[fencesArr[activeFence].numOfBoards - 1]
+        )
+          laisnes[activeFence][
+            fencesArr[activeFence].numOfBoards - 1
+          ].isVisible = true;
+        if (
+          (fencesArr[activeFence].type == "easyFenceInlaysAnth" &&
+            fencesArr[activeFence].numOfBoards == 6) ||
+          (fencesArr[activeFence].type == "easyFenceInlaysSilber" &&
+            fencesArr[activeFence].numOfBoards == 6)
+        ) {
+          inlays[activeFence][0].isVisible = true;
+          inlays[activeFence][2].isVisible = true;
+          fenceBoards[activeFence][
+            fencesArr[activeFence].numOfBoards
+          ].isVisible = false;
+        }
         startParts[activeFence].position.y =
           fenceBoards[activeFence][fencesArr[activeFence].numOfBoards].position
             .y +
@@ -5559,6 +5983,12 @@ var createScene = function () {
         fenceBoards[activeFence][
           fencesArr[activeFence].numOfBoards
         ].isVisible = true;
+        if (
+          fencesArr[activeFence].laisnes[fencesArr[activeFence].numOfBoards - 1]
+        )
+          laisnes[activeFence][
+            fencesArr[activeFence].numOfBoards - 1
+          ].isVisible = true;
         startParts[activeFence].position.y =
           fenceBoards[activeFence][fencesArr[activeFence].numOfBoards].position
             .y +
@@ -5576,7 +6006,11 @@ var createScene = function () {
   changeAllFences.onclick = () => {
     if (fencesArr[activeFence].type == "easyFence") {
       for (let i = 0; i < fencesArr.length; i++) {
-        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+        if (
+          activeFence != i &&
+          fencesArr[i].status != "disposedFence" &&
+          fencesArr[i].fenceGardo == undefined
+        ) {
           changeFenceFunction(
             true,
             false,
@@ -5594,7 +6028,11 @@ var createScene = function () {
     }
     if (fencesArr[activeFence].type == "easyFenceInlaysSilber") {
       for (let i = 0; i < fencesArr.length; i++) {
-        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+        if (
+          activeFence != i &&
+          fencesArr[i].status != "disposedFence" &&
+          fencesArr[i].fenceGardo == undefined
+        ) {
           changeFenceFunction(
             true,
             false,
@@ -5612,7 +6050,11 @@ var createScene = function () {
     }
     if (fencesArr[activeFence].type == "easyFenceInlaysAnth") {
       for (let i = 0; i < fencesArr.length; i++) {
-        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+        if (
+          activeFence != i &&
+          fencesArr[i].status != "disposedFence" &&
+          fencesArr[i].fenceGardo == undefined
+        ) {
           changeFenceFunction(
             true,
             false,
@@ -5633,7 +6075,11 @@ var createScene = function () {
       fencesArr[activeFence].smBoaCol == "silber"
     ) {
       for (let i = 0; i < fencesArr.length; i++) {
-        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+        if (
+          activeFence != i &&
+          fencesArr[i].status != "disposedFence" &&
+          fencesArr[i].fenceGardo == undefined
+        ) {
           changeFenceFunction(
             false,
             true,
@@ -5654,7 +6100,11 @@ var createScene = function () {
       fencesArr[activeFence].smBoaCol == "anthrazit"
     ) {
       for (let i = 0; i < fencesArr.length; i++) {
-        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+        if (
+          activeFence != i &&
+          fencesArr[i].status != "disposedFence" &&
+          fencesArr[i].fenceGardo == undefined
+        ) {
           changeFenceFunction(
             false,
             true,
@@ -5675,7 +6125,11 @@ var createScene = function () {
       fencesArr[activeFence].smBoaCol == "silber"
     ) {
       for (let i = 0; i < fencesArr.length; i++) {
-        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+        if (
+          activeFence != i &&
+          fencesArr[i].status != "disposedFence" &&
+          fencesArr[i].fenceGardo == undefined
+        ) {
           changeFenceFunction(
             false,
             true,
@@ -5696,7 +6150,11 @@ var createScene = function () {
       fencesArr[activeFence].smBoaCol == "anthrazit"
     ) {
       for (let i = 0; i < fencesArr.length; i++) {
-        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+        if (
+          activeFence != i &&
+          fencesArr[i].status != "disposedFence" &&
+          fencesArr[i].fenceGardo == undefined
+        ) {
           changeFenceFunction(
             false,
             true,
@@ -5714,7 +6172,11 @@ var createScene = function () {
     }
     if (fencesArr[activeFence].type == "easyFenceHalf") {
       for (let i = 0; i < fencesArr.length; i++) {
-        if (activeFence != i && fencesArr[i].status != "disposedFence") {
+        if (
+          activeFence != i &&
+          fencesArr[i].status != "disposedFence" &&
+          fencesArr[i].fenceGardo == undefined
+        ) {
           changeFenceFunction(
             true,
             false,
@@ -5829,6 +6291,104 @@ var createScene = function () {
   //close side
   accCloseButFun(changeFence);
   ////////////////////////////////////////////////////////////////////////
+  //CHANGE GARDO FENCE
+  //set activnes for add fence
+  let changeFenceGardo = document.getElementsByClassName(
+    "set-activnes-change-fence-gardo"
+  );
+  setActivnes(changeFenceGardo, 0, "active-text-color-gardo-change");
+
+  //close add new fence accesoire when close button
+  accCloseButFun(sideAccCloseBtn);
+
+  changeFenceGardo[0].addEventListener("click", () => {
+    changeFenceFunctionGardo(
+      180,
+      "gardoFence",
+      activeFence,
+      fencesArr,
+      changePosAndScaleFence,
+      positionChildrenOnParentSizeChange,
+      rightPosts,
+      ledsRight,
+      rightPostCaps,
+      rightPostCapClones,
+      setGround
+    );
+  });
+  changeFenceGardo[1].addEventListener("click", () => {
+    changeFenceFunctionGardo(
+      180,
+      "gardoHalf",
+      activeFence,
+      fencesArr,
+      changePosAndScaleFence,
+      positionChildrenOnParentSizeChange,
+      rightPosts,
+      ledsRight,
+      rightPostCaps,
+      rightPostCapClones,
+      setGround
+    );
+  });
+  changeFenceGardo[2].addEventListener("click", () => {
+    changeFenceFunctionGardo(
+      180,
+      "gardoRank",
+      activeFence,
+      fencesArr,
+      changePosAndScaleFence,
+      positionChildrenOnParentSizeChange,
+      rightPosts,
+      ledsRight,
+      rightPostCaps,
+      rightPostCapClones,
+      setGround
+    );
+  });
+  //close when change all fences
+  //   accCloseButFun(changeAllFences);
+  //close side
+  accCloseButFun(changeFenceGardo);
+
+  //change gardo fence height
+  let h76 = document.getElementById("h76");
+  h76.style.color = "#3967ff";
+  let h85 = document.getElementById("h85");
+
+  function setPhostenAct(a, b) {
+    a.style.color = "#3967ff";
+    b.style.color = "#000000";
+    a.children[1].innerHTML = checkMark;
+    b.children[1].innerHTML = "";
+  }
+
+  h76.onclick = () => {
+    setPhostenAct(h76, h85);
+    fencesArr[activeFence].gardoParts.topBoard.isVisible = false;
+    if (fencesArr[activeFence].type != "gardoHalf") {
+      fencesArr[activeFence].gardoParts.woodTopPart.position.y =
+        fencesArr[activeFence].gardoParts.boards[15].position.y + 0.102;
+    } else {
+      fencesArr[activeFence].gardoParts.boards[8].isVisible = false;
+      fencesArr[activeFence].gardoParts.woodTopPart.position.y =
+        fencesArr[activeFence].gardoParts.boards[7].position.y + 0.102;
+    }
+  };
+
+  h85.onclick = () => {
+    setPhostenAct(h85, h76);
+    if (fencesArr[activeFence].type != "gardoHalf") {
+      fencesArr[activeFence].gardoParts.topBoard.isVisible = true;
+      fencesArr[activeFence].gardoParts.woodTopPart.position.y =
+        fencesArr[activeFence].gardoParts.topBoard.position.y + 0.102;
+    } else {
+      fencesArr[activeFence].gardoParts.boards[8].isVisible = true;
+      fencesArr[activeFence].gardoParts.woodTopPart.position.y =
+        fencesArr[activeFence].gardoParts.boards[8].position.y + 0.102;
+    }
+  };
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //DELETE FENCE
   let deleteFencePart = document.getElementById("set-part-fence-acc-del");
 
@@ -5884,13 +6444,37 @@ var createScene = function () {
     ledsRight[a].isVisible = false;
     startParts[a].isVisible = endParts[a].isVisible = false;
 
+    //dispose gardo fence
+    if (
+      fencesArr[a].type == "gardoFence" ||
+      fencesArr[a].type == "gardoHalf" ||
+      fencesArr[a].type == "gardoRank"
+    ) {
+      Object.values(fencesArr[a].gardoParts).forEach((elm) => {
+        if (elm.length == undefined) {
+          elm.dispose();
+          elm.isVisible = false;
+        }
+        if (elm.length > 0) {
+          elm.forEach((element) => {
+            element.dispose();
+            element.isVisible = false;
+          });
+        }
+      });
+    }
     //set post size for small parent post
-    if (fencesArr[fencesArr[a].parent].type == "easyFenceHalf") {
+    if (
+      fencesArr[fencesArr[a].parent].type == "easyFenceHalf" ||
+      fencesArr[fencesArr[a].parent].type == "gardoHalf"
+    ) {
       let childTypee = 0;
       for (let i = 0; i < fencesArr[fencesArr[a].parent].children.length; i++) {
         if (
           fencesArr[fencesArr[fencesArr[a].parent].children[i]].type !=
-          "easyFenceHalf"
+            "easyFenceHalf" &&
+          fencesArr[fencesArr[fencesArr[h].parent].children[i]].type !=
+            "gardoHalf"
         ) {
           childTypee += 1;
         }
@@ -5997,1835 +6581,54 @@ var createScene = function () {
   };
   //parent.imgPDF();
 
-  ///////////////////////////////////////////////////////////////////SMART CART
-  /*
-   * SmartCart 2.0 plugin
-   * jQuery Shopping Cart Plugin
-   * by Dipu
-   */
-  (function ($) {
-    $.fn.smartCart = function (options) {
-      var options = $.extend({}, $.fn.smartCart.defaults, options);
-
-      return this.each(function () {
-        var obj = $(this);
-        var products = $("input[type=hidden]", obj);
-        var resultName = options.resultName;
-        var cartItemCount = 0;
-        var cartProductCount = 0;
-        var subTotal = 0;
-        var toolMaxImageHeight = 80;
-        var attrProductId = "pid";
-        var attrProductName = "pname";
-        var attrProductPrice = "pprice";
-        var attrProductImage = "pimage";
-        var attrCategoryName = "pcategory";
-
-        var labelCartMenuName = "Warenkorb (_COUNT_)";
-        var labelCartMenuNameTooltip =
-          "Warenkorb | Art. _PRODUCTCOUNT_ | Menge _ITEMCOUNT_";
-        var labelProductMenuName = "Elemente hinzufügen";
-        var labelSearchButton = "Search";
-        var labelSearchText = "Search";
-        var labelCategoryText = "Kategorien";
-        var labelClearButton = "Clear";
-        var labelAddToCartButton = "In den Warenkorb";
-        var labelQuantityText = "Menge";
-        var labelProducts = "Artikel";
-        var labelPrice = "Preis / Stk.";
-        var labelSubtotal = "Endpreis";
-        var labelTotal = "Gesamtpreis";
-        var labelRemove = "Löschen";
-        var labelCheckout = "Weiter";
-
-        var messageConfirmRemove =
-          'Sind Sie wirklich sicher, dass Sie "_PRODUCTNAME_" aus dem Warenkorb entfernen möchten?';
-        var messageCartEmpty = "Ihr Warenkorb ist leer";
-        var messageProductEmpty = "---";
-        var messageProductAddError = "Hinzufügen zum Warenkorb nicht möglich.";
-        var messageItemAdded = "Zum Warenkorb hinzugefügt";
-        var messageItemRemoved = "Artikel gelöscht";
-        var messageQuantityUpdated = "aktualisiert";
-        var messageQuantityErrorAdd =
-          "Fehlmenge. Hinzufügen zum Warenkorb nicht möglich.";
-        var messageQuantityErrorUpdate = "Fehlmenge.";
-
-        var txtvat = "Alle Preise inkl. gesetzl. MwSt.";
-
-        //Create Main Menu
-        cartMenu = labelCartMenuName.replace("_COUNT_", "0"); // display default
-        var btShowCart = $("<a>" + cartMenu + "</a>")
-          .attr("href", "#scart")
-          .addClass("button secondary");
-        var btShowProductList = $("<a>" + labelProductMenuName + "</a>")
-          .attr("href", "#sproducts")
-          .addClass("button secondary");
-        var msgBox2 = $("<div></div>")
-          .attr("id", "messBar")
-          .addClass("scMessageBar2")
-          .hide();
-
-        var elmProductMenu = $("<div></div>")
-          .addClass("cell medium-3 small-6")
-          .append(btShowProductList);
-        var elmCartMenu = $("<div></div>")
-          .addClass("cell medium-3 small-6")
-          .append(btShowCart);
-        var elmMsgBox = $("<div></div>").addClass("").append(msgBox2);
-        var elmMenuBar = $("<div></div>")
-          .addClass("scMenuBar button-group")
-          .append(btShowCart)
-          .append(btShowProductList)
-          .append(elmMsgBox);
-        obj.prepend(elmMenuBar);
-
-        // Create Search Elements
-        var elmPLSearchPanel = $("<div></div>").addClass(
-          "scSearchPanel grid-x grid-padding-x align-center-middle addmt"
-        );
-
-        // Create Category filter
-        if (options.enableCategoryFilter) {
-          var lblCategory = $(
-            "<div><p>" + labelCategoryText + ":</p></div>"
-          ).addClass("scLabelCategory cell shrink");
-          var elmCategory = $("<select></select>").addClass("scSelCategory");
-          var divC = $("<div></div>").addClass("cell shrink");
-          divC.append(elmCategory);
-          elmPLSearchPanel.append(lblCategory).append(divC);
-          fillCategory();
-        }
-
-        // Create Product List
-        var elmPLContainer = $("<div></div>").addClass("scTabs").hide();
-        elmPLContainer.prepend(elmPLSearchPanel);
-
-        var elmPLProducts = $("<div></div>").addClass("scProductList");
-        elmPLContainer.append(elmPLProducts);
-
-        // Create Cart
-        var elmCartContainer = $("<div></div>").addClass("scTabs").hide();
-        var elmCartHeader = $("<div></div>").addClass(
-          "grid-x grid-padding-x show-for-large align-middle cartngl"
-        );
-        var elmCartHeaderTitle1 = $(
-          "<div>" + labelProducts + "</div>"
-        ).addClass("cell large-5");
-        var elmCartHeaderTitle2 = $("<div>" + labelPrice + "</div>").addClass(
-          "cell large-2  text-center"
-        );
-        var elmCartHeaderTitle3 = $(
-          "<div>" + labelQuantityText + "</div>"
-        ).addClass("cell large-2 text-center");
-        var elmCartHeaderTitle4 = $(
-          "<div>" + labelSubtotal + "</div>"
-        ).addClass("cell large-2 text-center");
-        var elmCartHeaderTitle5 = $("<div></div>").addClass("cell large-1");
-        elmCartHeader
-          .append(elmCartHeaderTitle1)
-          .append(elmCartHeaderTitle2)
-          .append(elmCartHeaderTitle3)
-          .append(elmCartHeaderTitle4)
-          .append(elmCartHeaderTitle5);
-
-        var elmCartList = $("<div></div>").addClass("scCartList");
-        elmCartContainer.append(elmCartHeader).append(elmCartList);
-
-        obj.append(elmPLContainer).append(elmCartContainer);
-
-        // Create Bottom bar
-        var elmBottomBar = $("<div></div>").addClass(
-          "scBottomBar grid-x grid-padding-x grid-padding-y align-middle"
-        );
-
-        var elmW1 = $("<div></div>").addClass("cell large-8");
-        var elmBottomSubtotalText = $(
-          "<label>" + labelTotal + ":</label>"
-        ).addClass("scLabelSubtotalText");
-        var elWaluta = $("<label>EUR</label>").addClass("scWalutaText");
-        var elmBottomSubtotalValue = $(
-          "<label>" + getMoneyFormatted(subTotal) + "</label>"
-        ).addClass("scLabelSubtotalValue");
-
-        var elmW2 = $("<div></div>").addClass("cell large-1 text-right");
-        var btCheckout = $("<a>" + labelCheckout + "</a>")
-          .attr("href", "#")
-          .addClass("scCheckoutButton button");
-        $(btCheckout).click(function () {
-          // $(this).parents("form").submit();
-
-          parent.linkshare();
-          $(this).hide();
-          return false;
-        });
-
-        var elmW3 = $("<div></div>").addClass("cell large-3");
-
-        elmW1
-          .append(elWaluta)
-          .append(elmBottomSubtotalValue)
-          .append(elmBottomSubtotalText)
-          .append('<p class="vat">' + txtvat + "</p>");
-        elmW2.append(btCheckout);
-        elmBottomBar.append(elmW3).append(elmW1).append(elmW2);
-        obj.append(elmBottomBar);
-
-        // Create Tooltip
-        var tooltip = $("<div></div>").addClass("tooltip").hide();
-        obj.append(tooltip);
-        obj.bind("mousemove", function () {
-          tooltip.hide();
-          return true;
-        });
-
-        // Create SelectList
-        var elmProductSelected = $('select[name="' + resultName + '"]', obj);
-        if (elmProductSelected.length <= 0) {
-          elmProductSelected = $("<select></select>")
-            .attr("name", resultName)
-            .attr("multiple", "multiple")
-            .hide();
-          refreshCartValues();
-        } else {
-          elmProductSelected.attr("multiple", "multiple").hide();
-          populateCart(); // pre-populate cart if there are selected items
-        }
-        obj.append(elmProductSelected);
-
-        // prepare the product list
-        populateProducts();
-
-        if (options.selected == "1") {
-          showCart();
-        } else {
-          showProductList();
-        }
-
-        $(btShowProductList).bind("click", function (e) {
-          showProductList();
-          return false;
-        });
-        $(btShowCart).bind("click", function (e) {
-          showCart();
-          return false;
-        });
-
-        function showCart() {
-          $(btShowProductList).removeClass("sel");
-          $(btShowCart).addClass("sel");
-          $(elmPLContainer).hide();
-          $(elmCartContainer).show();
-        }
-        function showProductList() {
-          $(btShowProductList).addClass("sel");
-          $(btShowCart).removeClass("sel");
-          $(elmCartContainer).hide();
-          $(elmPLContainer).show();
-        }
-
-        function addToCart(i, qty) {
-          var addProduct = products.eq(i);
-          if (addProduct.length > 0) {
-            if ($.isFunction(options.onAdd)) {
-              // calling onAdd event; expecting a return value
-              // will start add if returned true and cancel add if returned false
-              if (!options.onAdd.call(this, $(addProduct), qty)) {
-                return false;
-              }
-            }
-            var pId = $(addProduct).attr(attrProductId);
-            var pName = $(addProduct).attr(attrProductName);
-            var pPrice = $(addProduct).attr(attrProductPrice);
-            var uid = $(addProduct).attr("uid");
-            var pabm = $(addProduct).attr("pabm");
-
-            // Check wheater the item is already added
-            var productItem = elmProductSelected.children(
-              "option[rel=" + i + "]"
-            );
-            if (productItem.length > 0) {
-              // Item already added, update the quantity and total
-              var curPValue = productItem.attr("value");
-              var valueArray = curPValue.split("|");
-              var prdId = valueArray[0];
-              var prdQty = valueArray[1];
-              prdQty = prdQty - 0 + (qty - 0);
-              var newPValue =
-                prdId +
-                "|" +
-                prdQty +
-                "|" +
-                pName +
-                "|" +
-                pPrice +
-                "|" +
-                uid +
-                "|" +
-                pabm;
-              productItem.attr("value", newPValue).attr("selected", true);
-              var prdTotal = getMoneyFormatted(pPrice * prdQty);
-              // Now go for updating the design
-              var lalQuantity = $("#lblQuantity" + i).val(prdQty);
-
-              var wBrutto =
-                '<label class="hide-for-large">' +
-                labelSubtotal +
-                ": </label>" +
-                prdTotal +
-                '<label class="hide-for-large"> EUR</label>';
-
-              var lblTotal = $("#lblTotal" + i).html(wBrutto);
-              // show product quantity updated message
-              showHighlightMessage(messageQuantityUpdated);
-            } else {
-              // This is a new item so create the list
-              var prodStr =
-                pId +
-                "|" +
-                qty +
-                "|" +
-                pName +
-                "|" +
-                pPrice +
-                "|" +
-                uid +
-                "|" +
-                pabm;
-              productItem = $("<option></option>")
-                .attr("rel", i)
-                .attr("value", prodStr)
-                .attr("selected", true)
-                .html(pName);
-              elmProductSelected.append(productItem);
-              addCartItemDisplay(addProduct, qty);
-              // show product added message
-              showHighlightMessage(messageItemAdded);
-            }
-            // refresh the cart
-            refreshCartValues();
-            // calling onAdded event; not expecting a return value
-            if ($.isFunction(options.onAdded)) {
-              options.onAdded.call(this, $(addProduct), qty);
-            }
-          } else {
-            showHighlightMessage(messageProductAddError);
-          }
-        }
-
-        function addCartItemDisplay(objProd, Quantity) {
-          var pId = $(objProd).attr(attrProductId);
-          var pIndex = products.index(objProd);
-          var pName = $(objProd).attr(attrProductName);
-          var pPrice = $(objProd).attr(attrProductPrice);
-          var prodImgSrc = $(objProd).attr(attrProductImage);
-          var pTotal = (pPrice - 0) * (Quantity - 0);
-          pTotal = getMoneyFormatted(pTotal);
-
-          pTotal =
-            '<label class="hide-for-large">' +
-            labelSubtotal +
-            ": </label>" +
-            pTotal +
-            '<label class="hide-for-large"> EUR</label>';
-
-          var pCena = getMoneyFormatted(pPrice - 0);
-          pCena =
-            '<label class="hide-for-large">Preis: </label>' +
-            pCena +
-            '<label class="hide-for-large"> </label>';
-
-          $(".scMessageBar", elmCartList).remove();
-
-          var elmCPTitle1 = $("<div></div>").addClass(
-            "cell large-5 no-left-pad"
-          );
-          if (prodImgSrc && options.enableImage && prodImgSrc.length > 0) {
-            var prodImg = $("<img alt=''></img>")
-              .attr("src", prodImgSrc)
-              .addClass("scProductImageSmall");
-            var scImg = $("<div></div>").addClass("scPDiv1");
-            scImg.append(prodImg);
-            elmCPTitle1.append(scImg);
-          }
-          var elmCP = $("<div></div>")
-            .attr("id", "divCartItem" + pIndex)
-            .addClass("grid-x grid-padding-x align-middle cartpad");
-
-          var pTitle = pName;
-          var phtml = formatTemplate(options.cartItemTemplate, $(objProd));
-          var elmCPContent = $("<div></div>").html(phtml).attr("title", pTitle);
-          elmCPTitle1.append(elmCPContent);
-
-          var elmCPTitle2 = $("<div>" + pCena + "</div>").addClass(
-            "cell large-2  medium-6 text-right"
-          );
-          var inputQty = $('<input type="text" value="' + Quantity + '" />')
-            .attr("id", "lblQuantity" + pIndex)
-            .attr("rel", pIndex)
-            .addClass("scTxtQuantity2");
-          $(inputQty).bind("change", function (e) {
-            var newQty = $(this).val();
-            var prodIdx = $(this).attr("rel");
-            newQty = newQty - 0;
-            if (validateNumber(newQty)) {
-              updateCartQuantity(prodIdx, newQty);
-            } else {
-              var productItem = elmProductSelected.children(
-                "option[rel=" + prodIdx + "]"
-              );
-              var pValue = $(productItem).attr("value");
-              var valueArray = pValue.split("|");
-              var pQty = valueArray[1];
-              $(this).val(pQty);
-              showHighlightMessage(messageQuantityErrorUpdate);
-            }
-            return true;
-          });
-
-          var elmCPTitle3 = $("<div></div>")
-            .append('<label class="hide-for-large">Menge: </label>')
-            .append(inputQty)
-            .addClass("cell large-2 medium-6   text-right medium-text-center");
-
-          var elmCPTitle4 = $("<div>" + pTotal + "</div>")
-            .attr("id", "lblTotal" + pIndex)
-            .addClass("cell large-2 medium-6  text-right");
-          var btRemove = $('<a><img src="img/deleteCart.svg"></a>')
-            .attr("rel", pIndex)
-            .attr("href", "#")
-            .addClass("scRemove button")
-            .attr("title", labelRemove);
-          $(btRemove).bind("click", function (e) {
-            var idx = $(this).attr("rel");
-            removeFromCart(idx);
-            return false;
-          });
-          var elmCPTitle5 = $("<div></div>").addClass(
-            "cell large-1 medium-6 text-right large-text-center noborder"
-          );
-          elmCPTitle5.append(btRemove);
-
-          elmCPTitle1.append(elmCPContent);
-          elmCP
-            .append(elmCPTitle1)
-            .append(elmCPTitle2)
-            .append(elmCPTitle3)
-            .append(elmCPTitle4)
-            .append(elmCPTitle5);
-          elmCartList.append(elmCP);
-        }
-
-        function ConfirmD(title, message, callback) {
-          // create your modal template
-          var modal =
-            '<div class="reveal tiny" id="confirmation">' +
-            '<h3 style="text-align:center; background-color:#ddd; color:#f47920;">' +
-            title +
-            "</h3>" +
-            '<p class="lead">' +
-            message +
-            "</p>" +
-            '<button class="button yes">OK</button>' +
-            '<button class="button secondary float-right" data-close>abbrechen</button>' +
-            "</div>";
-          // appending new reveal modal to the page
-          $("body").append(modal);
-          // registergin this modal DOM as Foundation reveal
-          var confirmation = new Foundation.Reveal($("#confirmation"));
-          // open
-          confirmation.open();
-          // listening for yes click
-
-          $("#confirmation")
-            .children(".yes")
-            .on("click", function () {
-              confirmation.close();
-              $("#confirmation").remove();
-              // calling the function to process
-              callback.call();
-            });
-          $(document).on("closed.zf.reveal", "#confirmation", function () {
-            $("#confirmation").remove();
-          });
-        }
-
-        function removeFromCart(idx) {
-          var pObj = products.eq(idx);
-          var pName = $(pObj).attr(attrProductName);
-          var removeMsg = messageConfirmRemove.replace("_PRODUCTNAME_", pName); // display default
-          //if(confirm(removeMsg)){
-
-          ConfirmD("?", removeMsg, function () {
-            if ($.isFunction(options.onRemove)) {
-              // calling onRemove event; expecting a return value
-              // will start remove if returned true and cancel remove if returned false
-              if (!options.onRemove.call(this, $(pObj))) {
-                return false;
-              }
-            }
-            var productItem = elmProductSelected.children(
-              "option[rel=" + idx + "]"
-            );
-            var pValue = $(productItem).attr("value");
-            var valueArray = pValue.split("|");
-            var pQty = valueArray[1];
-            productItem.remove();
-            $("#divCartItem" + idx, elmCartList).slideUp("slow", function () {
-              $(this).remove();
-              showHighlightMessage(messageItemRemoved);
-              //Refresh the cart
-              refreshCartValues();
-            });
-            if ($.isFunction(options.onRemoved)) {
-              // calling onRemoved event; not expecting a return value
-              options.onRemoved.call(this, $(pObj));
-            }
-          });
-          //}
-        }
-
-        function updateCartQuantity(idx, qty) {
-          var pObj = products.eq(idx);
-          var productItem = elmProductSelected.children(
-            "option[rel=" + idx + "]"
-          );
-          var pPrice = $(pObj).attr(attrProductPrice);
-          var pName = $(pObj).attr(attrProductName);
-          var uid = $(pObj).attr("uid");
-          var pValue = $(productItem).attr("value");
-          var valueArray = pValue.split("|");
-          var prdId = valueArray[0];
-          var curQty = valueArray[1];
-          if ($.isFunction(options.onUpdate)) {
-            // calling onUpdate event; expecting a return value
-            // will start Update if returned true and cancel Update if returned false
-            if (!options.onUpdate.call(this, $(pObj), qty)) {
-              $("#lblQuantity" + idx).val(curQty);
-              return false;
-            }
-          }
-
-          var newPValue =
-            prdId + "|" + qty + "|" + pName + "|" + pPrice + "|" + uid;
-          $(productItem).attr("value", newPValue).attr("selected", true);
-          var prdTotal = getMoneyFormatted(pPrice * qty);
-          // Now go for updating the design
-          var wBrutto =
-            '<label class="hide-for-large">' +
-            labelSubtotal +
-            ": </label>" +
-            prdTotal +
-            '<label class="hide-for-large"> EUR</label>';
-
-          var lblTotal = $("#lblTotal" + idx).html(wBrutto);
-          showHighlightMessage(messageQuantityUpdated);
-          //Refresh the cart
-          refreshCartValues();
-          if ($.isFunction(options.onUpdated)) {
-            // calling onUpdated event; not expecting a return value
-            options.onUpdated.call(this, $(pObj), qty);
-          }
-        }
-
-        function refreshCartValues() {
-          var sTotal = 0;
-          var cProductCount = 0;
-          var cItemCount = 0;
-          elmProductSelected.children("option").each(function (n) {
-            var pIdx = $(this).attr("rel");
-            var pObj = products.eq(pIdx);
-            var pValue = $(this).attr("value");
-            var valueArray = pValue.split("|");
-            var prdId = valueArray[0];
-            var pQty = valueArray[1];
-            var pPrice = $(pObj).attr(attrProductPrice);
-            sTotal = sTotal + (pPrice - 0) * (pQty - 0);
-            cProductCount++;
-            cItemCount = cItemCount + (pQty - 0);
-          });
-          subTotal = sTotal;
-          cartProductCount = cProductCount;
-          cartItemCount = cItemCount;
-          elmBottomSubtotalValue.html(getMoneyFormatted(subTotal));
-          cartMenu = labelCartMenuName.replace("_COUNT_", cartItemCount);
-          cartMenuTooltip = labelCartMenuNameTooltip
-            .replace("_PRODUCTCOUNT_", cartProductCount)
-            .replace("_ITEMCOUNT_", cartItemCount);
-          btShowCart.html(cartMenu).attr("title", cartMenuTooltip);
-          $("#bcart span").text(cartItemCount);
-          $("#curPage span").text(cartItemCount);
-
-          $(".scCheckoutButton").hide();
-          if (cProductCount <= 0) {
-            showMessage(messageCartEmpty, elmCartList);
-          } else {
-            $(".scMessageBar", elmCartList).remove();
-          }
-        }
-
-        function populateCart() {
-          elmProductSelected.children("option").each(function (n) {
-            var curPValue = $(this).attr("value");
-            var valueArray = curPValue.split("|");
-            var prdId = valueArray[0];
-            var prdQty = valueArray[1];
-            if (!prdQty) {
-              prdQty = 1; // if product quantity is not present default to 1
-            }
-            var objProd = jQuery.grep(products, function (n, i) {
-              return $(n).attr(attrProductId) == prdId;
-            });
-            var prodIndex = products.index(objProd[0]);
-            var prodName = $(objProd[0]).attr(attrProductName);
-            $(this).attr("selected", true);
-            $(this).attr("rel", prodIndex);
-            $(this).html(prodName);
-            cartItemCount++;
-            addCartItemDisplay(objProd[0], prdQty);
-          });
-          // Reresh the cart
-          refreshCartValues();
-        }
-
-        function fillCategory() {
-          var catCount = 0;
-          var catItem = $("<option></option>")
-            .attr("value", "")
-            .attr("selected", true)
-            .html("Alle");
-          elmCategory.prepend(catItem);
-          $(products).each(function (i, n) {
-            var pCategory = $(this).attr(attrCategoryName);
-            if (pCategory && pCategory.length > 0) {
-              var objProd = jQuery.grep(
-                elmCategory.children("option"),
-                function (n, i) {
-                  return $(n).val() == pCategory;
-                }
-              );
-              if (objProd.length <= 0) {
-                catCount++;
-                var catItem = $("<option></option>")
-                  .attr("value", pCategory)
-                  .html(pCategory);
-                elmCategory.append(catItem);
-              }
-            }
-          });
-          if (catCount > 0) {
-            $(elmCategory).bind("change", function (e) {
-              populateProducts();
-              return true;
-            });
-          } else {
-            elmCategory.hide();
-            lblCategory.hide();
-          }
-        }
-
-        function populateProducts(searchString) {
-          var isSearch = false;
-          var productCount = 0;
-          var selectedCategory = $(elmCategory).children(":selected").val();
-          // validate and prepare search string
-          if (searchString) {
-            searchString = trim(searchString);
-            if (searchString.length > 0) {
-              isSearch = true;
-              searchString = searchString.toLowerCase();
-            }
-          }
-          // Clear the current items on product list
-          elmPLProducts.html("");
-          // Lets go for dispalying the products
-          $(products).each(function (i, n) {
-            var productName = $(this).attr(attrProductName);
-            var productCategory = $(this).attr(attrCategoryName);
-            var isValid = true;
-            var isCategoryValid = true;
-
-            var lic = $(this).attr("lic");
-
-            if (lic > 0) {
-              addToCart(i, lic);
-            }
-
-            if (isSearch) {
-              if (productName.toLowerCase().indexOf(searchString) == -1) {
-                isValid = false;
-              } else {
-                isValid = true;
-              }
-            }
-            // Category filter
-            if (selectedCategory && selectedCategory.length > 0) {
-              selectedCategory = selectedCategory.toLowerCase();
-              if (
-                productCategory.toLowerCase().indexOf(selectedCategory) == -1
-              ) {
-                isCategoryValid = false;
-              } else {
-                isCategoryValid = true;
-              }
-            }
-
-            if (isValid && isCategoryValid) {
-              productCount++;
-              var productPrice = $(this).attr(attrProductPrice);
-              var prodImgSrc = $(this).attr(attrProductImage);
-
-              var elmProdDiv1 = $("<div></div>").addClass("scImg");
-              if (prodImgSrc && options.enableImage && prodImgSrc.length > 0) {
-                var prodImg = $("<img alt=''></img>")
-                  .attr("src", prodImgSrc)
-                  .addClass("scProductImage");
-                elmProdDiv1.append(prodImg);
-              }
-
-              var elmProdDiv2 = $("<div></div>").addClass(
-                "scPDiv2 cell small-8 medium-6"
-              ); // for product name, desc & price
-              var productHtml = formatTemplate(
-                options.productItemTemplate,
-                $(this)
-              );
-              elmProdDiv2.html(productHtml);
-
-              var elmProdDiv3 = $("<div></div>").addClass(
-                "scPDiv3 cell small-3 medium-1 text-center align-self-bottom"
-              ); // for button & qty
-              var btAddToCart = $("<a>" + labelAddToCartButton + "</a>")
-                .attr("href", "#")
-                .attr("rel", i)
-                .attr("title", labelAddToCartButton)
-                .addClass("scAddToCart button");
-              $(btAddToCart).bind("click", function (e) {
-                var idx = $(this).attr("rel");
-                var qty = $(this).parent().parent().find("input").val();
-                if (validateNumber(qty)) {
-                  addToCart(idx, qty);
-                } else {
-                  $(this).siblings("input").val(1);
-                  showHighlightMessage(messageQuantityErrorAdd);
-                }
-                return false;
-              });
-
-              var inputQty = $('<input type="text" value="1" />').addClass(
-                "scTxtQuantity"
-              );
-              var labelQty = $(
-                "<label>" + labelQuantityText + ":</label>"
-              ).addClass("scLabelQuantity");
-              elmProdDiv3.append(labelQty).append(inputQty);
-
-              var butKontener = $("<div></div").addClass(
-                "cell small-8 medium-shrink align-self-bottom"
-              );
-              butKontener.append(btAddToCart);
-
-              var elmProds = $("<div></div>").addClass(
-                "scProducts grid-x grid-padding-y grid-padding-x"
-              );
-
-              elmProds
-                .append(
-                  '<div class=" cell small-4 medium-shrink">' +
-                    elmProdDiv1.wrap("<p/>").parent().html() +
-                    "</div>"
-                )
-                .append(elmProdDiv2)
-                .append(elmProdDiv3)
-                .append(butKontener);
-              elmPLProducts.append(elmProds);
-            }
-          });
-
-          if (productCount <= 0) {
-            showMessage(messageProductEmpty, elmPLProducts);
-          }
-        }
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //ADD TO CART
-        let cartItems = [];
-        var mrk = () => {
-          $(".scCartList").empty();
-          elmProductSelected.empty();
-          refreshCartValues();
-          for (let i = 0; i < cartItems.length; i++) {
-            if (cartItems[i] > 0) {
-              addToCart(i, cartItems[i]);
-            }
-          }
-        };
-        //CART
-        let priceBut = document.getElementById("price-but");
-        let cartFade = document.getElementById("cart-fade");
-        let cartMainSection = document.getElementById("cart-main-section");
-        let cartCloseBtn = document.getElementById("cart-close-btn");
-        //populate cart
-        priceBut.onclick = () => {
-          if (cartPricesLoaded[0]) {
-            removeSideAccesories(
-              sideAccesories,
-              deleteAccesorie,
-              addFenceAcc,
-              editPost,
-              addNewFenceToSide
-            );
-            addDefaultMaterial(
-              fenceBoards,
-              sturmankersVorderseite,
-              rightPosts,
-              leftPosts,
-              directeHauswandMeshes,
-              fenceBoardMat,
-              fencePostMat,
-              concreteMat,
-              smallBoardsArr,
-              silberMat,
-              anthrazitMat,
-              fencesArr,
-              addFenceSings,
-              grauMat,
-              braunMat,
-              sandMat
-            );
-            //open cart sections
-            cartFade.style.display = "block";
-            cartMainSection.style.display = "block";
-            //populate start - end part
-            let startEndCartSilb = 0;
-            let startEndCartAnth = 0;
-            startParts.forEach((elm) => {
-              if (elm.isVisible) {
-                if (elm.material.diffuseColor.r > 0.3) {
-                  startEndCartSilb += 1;
-                } else {
-                  startEndCartAnth += 1;
-                }
-              }
-            });
-            // populate main boards
-            let fenceBoardsCartAnth = 0;
-            let fenceBoardsCartGrau = 0;
-            let fenceBoardsCartSand = 0;
-            let fenceBoardsCartBraun = 0;
-            for (let i = 0; i < smallBoardsArr.length; i++) {
-              for (let j = 0; j < fenceBoards[i].length; j++) {
-                if (fenceBoards[i][j].isVisible) {
-                  if (fenceBoards[i][j].material.diffuseColor.b < 0.3) {
-                    fenceBoardsCartAnth += 1;
-                  } else if (
-                    fenceBoards[i][j].material.diffuseColor.b > 0.5 &&
-                    fenceBoards[i][j].material.diffuseColor.b < 0.8
-                  ) {
-                    fenceBoardsCartGrau += 1;
-                  } else if (fenceBoards[i][j].material.diffuseColor.b > 0.8) {
-                    fenceBoardsCartSand += 1;
-                  } else if (
-                    fenceBoards[i][j].material.diffuseColor.b > 0.3 &&
-                    fenceBoards[i][j].material.diffuseColor.b < 0.5
-                  ) {
-                    fenceBoardsCartBraun += 1;
-                  }
-                }
-              }
-            }
-            fenceBoardsCartAnth = Math.ceil(fenceBoardsCartAnth / 4);
-            fenceBoardsCartGrau = Math.ceil(fenceBoardsCartGrau / 4);
-            fenceBoardsCartSand = Math.ceil(fenceBoardsCartSand / 4);
-            fenceBoardsCartBraun = Math.ceil(fenceBoardsCartBraun / 4);
-            //populate posts
-            let post295SilberCart = 0;
-            let post235SilberCart = 0;
-            let post190SilberCart = 0;
-            let post295AnthCart = 0;
-            let post235AnthCart = 0;
-            let post190AnthCart = 0;
-            if (allPosts[0].scaling.x == 1) {
-              if (allPosts[0].material.diffuseColor.r > 0.3) {
-                if (allPosts[0].scaling.y > 1.4) {
-                  post295SilberCart += 1;
-                } else if (
-                  allPosts[0].scaling.y > 1 &&
-                  allPosts[0].scaling.y < 1.4
-                ) {
-                  post235SilberCart += 1;
-                } else if (allPosts[0].scaling.y < 1.1) {
-                  post190SilberCart += 1;
-                }
-              } else {
-                if (allPosts[0].scaling.y > 1.4) {
-                  post295AnthCart += 1;
-                } else if (
-                  allPosts[0].scaling.y > 1 &&
-                  allPosts[0].scaling.y < 1.4
-                ) {
-                  post235AnthCart += 1;
-                } else if (allPosts[0].scaling.y < 1.1) {
-                  post190AnthCart += 1;
-                }
-              }
-            }
-            for (let i = 1; i < allPosts.length; i++) {
-              if (allPosts[i].isVisible) {
-                if (allPosts[i].scaling.x == 1) {
-                  if (allPosts[i].material.diffuseColor.r > 0.3) {
-                    if (allPosts[i].scaling.z > 1.4) {
-                      post295SilberCart += 1;
-                    } else if (
-                      allPosts[i].scaling.z > 1 &&
-                      allPosts[i].scaling.z < 1.4
-                    ) {
-                      post235SilberCart += 1;
-                    } else if (allPosts[i].scaling.z < 1.1) {
-                      post190SilberCart += 1;
-                    }
-                  } else {
-                    if (allPosts[i].scaling.z > 1.4) {
-                      post295AnthCart += 1;
-                    } else if (
-                      allPosts[i].scaling.z > 1 &&
-                      allPosts[i].scaling.z < 1.4
-                    ) {
-                      post235AnthCart += 1;
-                    } else if (allPosts[i].scaling.z < 1.1) {
-                      post190AnthCart += 1;
-                    }
-                  }
-                }
-              }
-            }
-            //poulate roots
-            let rootsCart = 0;
-            if (roots[0].isVisible) rootsCart += 1;
-            if (roots[2].isVisible) rootsCart += 1;
-            for (let i = 4; i < roots.length; i++) {
-              if (roots[i].isVisible) rootsCart += 0.5;
-            }
-            //populate hauswand
-            let hauswandSilberCart = 0;
-            let hauswandAnthCart = 0;
-            for (let i = 0; i < directeHauswandMeshes.length; i++) {
-              if (directeHauswandMeshes[i].isVisible) {
-                if (allPosts[i].material.diffuseColor.r > 0.3) {
-                  hauswandSilberCart += 1;
-                } else {
-                  hauswandAnthCart += 1;
-                }
-              }
-            }
-            //populate sturmanker
-            let sturmankerSilberCart = 0;
-            let sturmankerAnthCart = 0;
-            for (let i = 0; i < sturmankersRuckseite.length; i++) {
-              if (
-                sturmankersRuckseite[i].isVisible ||
-                sturmankersVorderseite[i].isVisible
-              ) {
-                if (allPosts[i].material.diffuseColor.r > 0.3) {
-                  sturmankerSilberCart += 1;
-                } else {
-                  sturmankerAnthCart += 1;
-                }
-              }
-            }
-            //populate small boards
-            let smallBoardLongAnthCart = 0;
-            let smallBoardShortAnthCart = 0;
-            let smallBoardLongSilberCart = 0;
-            let smallBoardShortSilberCart = 0;
-            for (let i = 0; i < smallBoardsArr.length; i++) {
-              if (smallBoardsArr[i].isVisible) {
-                if (smallBoardsArr[i].material.diffuseColor.r > 0.3) {
-                  if (fencesArr[i].size > 60) {
-                    smallBoardLongSilberCart += 1;
-                  } else {
-                    smallBoardShortSilberCart += 1;
-                  }
-                } else {
-                  if (fencesArr[i].size > 60) {
-                    smallBoardLongAnthCart += 1;
-                  } else {
-                    smallBoardShortAnthCart += 1;
-                  }
-                }
-              }
-            }
-            //populate desighn inlays
-            let inlaysSilberCart = 0;
-            let inlaysAnthCart = 0;
-            for (let i = 0; i < inlays.length; i++) {
-              if (inlays[i][0].isVisible) {
-                if (inlays[i][2].material.diffuseColor.r > 0.3) {
-                  inlaysSilberCart += 1;
-                } else {
-                  inlaysAnthCart += 1;
-                }
-              }
-            }
-            //populate laisne
-            let laisneSilberCart = 0;
-            let laisnesSevenSilberCart = 0;
-            let laisnesOneSilberCart = 0;
-            let laisneAnthCart = 0;
-            let laisnesSevenAnthCart = 0;
-            let laisnesOneAnthCart = 0;
-            for (let i = 0; i < laisnes.length; i++) {
-              laisnes[i].forEach((elm) => {
-                if (elm.isVisible) {
-                  if (elm.material.diffuseColor.r > 0.3) {
-                    laisneSilberCart += 1;
-                  } else {
-                    laisneAnthCart += 1;
-                  }
-                }
-              });
-            }
-            laisnesSevenSilberCart =
-              (laisneSilberCart - (laisneSilberCart % 7)) / 7;
-            laisnesOneSilberCart = laisneSilberCart % 7;
-
-            laisnesSevenAnthCart = (laisneAnthCart - (laisneAnthCart % 7)) / 7;
-            laisnesOneAnthCart = laisneAnthCart % 7;
-            //populate led
-            let ledsCart = 0;
-            let ledsColorCart = 0;
-            let ledsCabelCart = 0;
-            let ledsConectorCart = 0;
-            let ledConector = [];
-            for (let i = 0; i < leds.length; i++) {
-              if (leds[i].isVisible) {
-                ledsCart += 1;
-              }
-            }
-            if (ledsCart < 6) {
-              ledsCabelCart = 1;
-            }
-            if (ledsCart % 6 == 0) {
-              ledsCabelCart = ledsCart / 6;
-            }
-            if (ledsCart % 6 > 0) {
-              ledsCabelCart = Math.floor(ledsCart / 6) + 1;
-            }
-
-            for (let i = 0; i < ledsRight.length; i++) {
-              if (ledsRight[i].isVisible) {
-                if (
-                  typeof ledsRight[fencesArr[i].parent] != "undefined" &&
-                  !ledsRight[fencesArr[i].parent].isVisible
-                ) {
-                  if (!ledConector.includes(fencesArr[i].parent)) {
-                    ledsConectorCart += 1;
-                  }
-                  ledConector.push(fencesArr[i].parent);
-                }
-              }
-            }
-            if (ledParts[1].children[2].innerHTML != "") {
-              ledsColorCart = ledsCabelCart;
-            }
-            //cart items
-            cartItems = [];
-            cartItems.push(
-              startEndCartSilb,
-              startEndCartAnth,
-              fenceBoardsCartAnth,
-              fenceBoardsCartGrau,
-              fenceBoardsCartSand,
-              fenceBoardsCartBraun,
-              post295SilberCart,
-              post235SilberCart,
-              post190SilberCart,
-              post295AnthCart,
-              post235AnthCart,
-              post190AnthCart,
-              rootsCart,
-              hauswandSilberCart,
-              hauswandAnthCart,
-              sturmankerSilberCart,
-              sturmankerAnthCart,
-              smallBoardLongAnthCart,
-              smallBoardShortAnthCart,
-              smallBoardLongSilberCart,
-              smallBoardShortSilberCart,
-              inlaysSilberCart,
-              inlaysAnthCart,
-              laisnesSevenSilberCart,
-              laisnesOneSilberCart,
-              laisnesSevenAnthCart,
-              laisnesOneAnthCart,
-              ledsCart,
-              ledsColorCart,
-              ledsCabelCart,
-              ledsConectorCart
-            );
-            mrk();
-          }
-        };
-
-        //CLOSE CART
-        cartCloseBtn.onclick = () => {
-          cartFade.style.display = "none";
-          cartMainSection.style.display = "none";
-        };
-        cartFade.onclick = () => {
-          cartMainSection.style.display = "none";
-          cartFade.style.display = "none";
-        };
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // Display message
-        function showMessage(msg, elm) {
-          var elmMessage = $("<div></div>").addClass("scMessageBar").hide();
-          elmMessage.html(msg);
-          if (elm) {
-            elm.append(elmMessage);
-            elmMessage.show();
-          }
-        }
-
-        function showHighlightMessage(msg) {
-          msgBox2.html(msg);
-          msgBox2.fadeIn("fast", function () {
-            setTimeout(function () {
-              msgBox2.fadeOut("fast");
-            }, 1000);
-          });
-        }
-
-        // Show Image tooltip
-        function showTooltip(img) {
-          var height = img.height();
-          var width = img.height();
-          var imgOffsetTop = img.offset().top;
-          jQuery.log(img.offset());
-          jQuery.log(img.position());
-          jQuery.log("--------------");
-          tooltip.html("");
-          var tImage = $("<img alt=''></img>").attr("src", $(img).attr("src"));
-          tImage.height(toolMaxImageHeight);
-          tooltip.append(tImage);
-          var top = imgOffsetTop - height;
-          var left = width + 10;
-          tooltip.css({ top: top, left: left });
-          tooltip.show("fast");
-        }
-
-        function validateNumber(num) {
-          var ret = false;
-          if (num) {
-            num = num - 0;
-            if (num && num > 0) {
-              ret = true;
-            }
-          }
-          return ret;
-        }
-
-        // Get the money formatted for display
-        function getMoneyFormatted(val) {
-          var priceFormat = val.toFixed(2);
-
-          if (priceFormat > 1000) {
-            var tmp = priceFormat / 1000;
-            tmp = Math.floor(tmp);
-            priceFormat = priceFormat - tmp * 1000;
-            priceFormat = priceFormat.toFixed(2);
-
-            if (priceFormat < 10) {
-              priceFormat = "00" + String(priceFormat);
-            } else if (priceFormat < 100) {
-              priceFormat = "0" + String(priceFormat);
-            }
-
-            priceFormat = String(tmp) + ";" + String(priceFormat);
-          }
-
-          priceFormat = priceFormat.replace(".", ",");
-          priceFormat = priceFormat.replace(";", ".");
-          return priceFormat;
-        }
-
-        // Trims the blankspace
-        function trim(s) {
-          var l = 0;
-          var r = s.length - 1;
-          while (l < s.length && s[l] == " ") {
-            l++;
-          }
-          while (r > l && s[r] == " ") {
-            r -= 1;
-          }
-          return s.substring(l, r + 1);
-        }
-        // format the product template
-        function formatTemplate(str, objItem) {
-          resStr = str.split("<%=");
-          var finalStr = "";
-          for (i = 0; i < resStr.length; i++) {
-            var tmpStr = resStr[i];
-            valRef = tmpStr.substring(0, tmpStr.indexOf("%>"));
-            if (valRef != "" || valRef != null) {
-              var valRep = objItem.attr(valRef); //n[valRef];
-              if (valRep == null || valRep == "undefined") {
-                valRep = "";
-              }
-              tmpStr = tmpStr.replace(valRef + "%>", valRep);
-              finalStr += tmpStr;
-            } else {
-              finalStr += tmpStr;
-            }
-          }
-          return finalStr;
-        }
-      });
-    };
-
-    // Default options
-    $.fn.smartCart.defaults = {
-      selected: 1, // 0 = produts list, 1 = cart
-      resultName: "products_selected[]",
-      enableImage: true,
-      enableImageTooltip: false,
-      enableSearch: false,
-      enableCategoryFilter: true,
-      productItemTemplate:
-        "<small>Art. <%=pid%></small><br /><strong><%=pname%></strong><br /><small><%=pabm%></small><br /><small>Preis: <strong><%=fprice%> </strong></small>",
-      cartItemTemplate:
-        "<small>Art. <%=pid%></small><br /><strong><%=pname%></strong><br /><small><%=pabm%></small>",
-      // Events
-      onAdd: null, // function(pObj,quantity){ return true; }
-      onAdded: null, // function(pObj,quantity){ }
-      onRemove: null, // function(pObj){return true;}
-      onRemoved: null, // function(pObj){ }
-      onUpdate: null, // function(pObj,quantity){ return true; }
-      onUpdated: null, // function(pObj,quantity){ }
-      onCheckout: null, // function(Obj){ }
-    };
-
-    jQuery.log = function (message) {
-      if (window.console) {
-        console.debug(message);
-      }
-    };
-  })(jQuery, this);
-  ////////////////////////
-  //POPULATE CART PRICES
-  let cartPricesLoaded = [false];
-  populateCartPrices(cartPricesLoaded);
-  function checkLoaded() {
-    if (cartPricesLoaded[0]) {
-      $("#SmartCart").smartCart();
-      $("#SmartCart").css("visibility", "visible");
-      $(document).foundation();
-      clearInterval(refreshIntervalId);
-      console.log("cart loaded");
-    } else {
-      console.log("cart not loaded");
-    }
-  }
-  if (!cartPricesLoaded[0]) {
-    var refreshIntervalId = setInterval(checkLoaded, 100);
-  }
+  ////////////////////////////////////SMART CART///////////////////////////////
+  loadCart(
+    fenceBoards,
+    sturmankersVorderseite,
+    rightPosts,
+    leftPosts,
+    directeHauswandMeshes,
+    fenceBoardMat,
+    fencePostMat,
+    concreteMat,
+    smallBoardsArr,
+    silberMat,
+    anthrazitMat,
+    fencesArr,
+    addFenceSings,
+    grauMat,
+    braunMat,
+    sandMat,
+    startParts,
+    allPosts,
+    roots,
+    sturmankersRuckseite,
+    inlays,
+    laisnes,
+    leds,
+    ledsRight,
+    ledParts,
+    woodMaterials,
+    topBoards,
+    rankelements,
+    rightWoodPosts,
+    woodTopParts,
+    gardoFenceBoards,
+    metalParts
+  );
   ///////////////////////////////////////////////////////////////CANVAS PLAN///////////////////////////////////////////////////////////////////
-  const canvasPlan = document.getElementById("canvas-plan");
-  const ctx = canvasPlan.getContext("2d");
-  let plan = document.getElementById("2dplan-but");
-  // outlined square X: 50, Y: 35, width/height 50
-
-  //function to draw foundations
-  function drawFoundation(
-    x,
-    y,
-    width,
-    height,
-    x2,
-    y2,
-    width2,
-    height2,
-    foundScal
-  ) {
-    ctx.setLineDash([0]);
-    //draw rect
-    if (foundScal > 1) {
-      ctx.fillStyle = "#585858";
-    } else {
-      ctx.fillStyle = "#A8A8A8";
-    }
-
-    ctx.fillRect(x, y, width, height);
-    ctx.strokeRect(x, y, width, height);
-    ctx.strokeRect(x2, y2, width2, height2);
-    // //draw cross
-    ctx.beginPath();
-    ctx.moveTo(x2, y2);
-    ctx.lineTo(x2 + 15, y2 + 15);
-    ctx.moveTo(x2 + 15, y2);
-    ctx.lineTo(x2, y2 + 15);
-    ctx.closePath();
-    //line down of foundation
-    // ctx.moveTo(x + 10, y + 20);
-    // ctx.lineTo(x + 10, y + 40);
-    ctx.stroke();
-  }
-  function drawText2d(text, x, y) {
-    ctx.save();
-    ctx.font = "15px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText(text, x, y);
-    ctx.restore();
-  }
-  function drawLine(lineWid, startX, startY, endX, endY, arrowHeads) {
-    //draw line
-    ctx.lineWidth = lineWid;
-    ctx.beginPath();
-    ctx.moveTo(startX, startY);
-    ctx.lineTo(endX, endY);
-    ctx.closePath();
-    ctx.stroke();
-
-    if (arrowHeads) {
-      if (startY == endY) {
-        if (startX < endX) {
-          //draw left arrow
-          drawArrowhead(
-            startX,
-            startY,
-            startX + 10,
-            startY - 5,
-            startX + 10,
-            startY + 5
-          );
-          //draw right arrow
-          drawArrowhead(endX, endY, endX - 10, endY - 5, endX - 10, endY + 5);
-        } else {
-          //draw left arrow
-          drawArrowhead(
-            startX,
-            startY,
-            startX - 10,
-            startY - 5,
-            startX - 10,
-            startY + 5
-          );
-          //draw right arrow
-          drawArrowhead(endX, endY, endX + 10, endY - 5, endX + 10, endY + 5);
-        }
-        //side lines
-        //side line left
-        ctx.beginPath();
-        ctx.moveTo(startX, startY - 30);
-        ctx.lineTo(startX, startY + 10);
-        ctx.closePath();
-        ctx.stroke();
-        // //side line right
-        ctx.beginPath();
-        ctx.moveTo(endX, endY - 30);
-        ctx.lineTo(endX, endY + 10);
-        ctx.closePath();
-        ctx.stroke();
-      } else {
-        if (startY < endY) {
-          //draw left arrow
-          drawArrowhead(
-            startX,
-            startY,
-            startX - 5,
-            startY + 10,
-            startX + 5,
-            startY + 10
-          );
-          //draw right arrow
-          drawArrowhead(endX, endY, endX - 5, endY - 10, endX + 5, endY - 10);
-        } else {
-          drawArrowhead(
-            startX,
-            startY,
-            startX - 5,
-            startY - 10,
-            startX + 5,
-            startY - 10
-          );
-          //draw right arrow
-          drawArrowhead(endX, endY, endX - 5, endY + 10, endX + 5, endY + 10);
-        }
-        //side lines
-        //side line left
-        ctx.beginPath();
-        ctx.moveTo(startX - 30, startY);
-        ctx.lineTo(startX + 10, startY);
-        ctx.closePath();
-        ctx.stroke();
-        // //side line right
-        ctx.beginPath();
-        ctx.moveTo(endX - 30, endY);
-        ctx.lineTo(endX + 10, endY);
-        ctx.closePath();
-        ctx.stroke();
-      }
-    }
-  }
-  function drawArrowhead(pointX, pointY, upX, upY, downX, downY) {
-    ctx.beginPath();
-    ctx.moveTo(pointX, pointY);
-    ctx.lineTo(upX, upY);
-    ctx.lineTo(downX, downY);
-    ctx.fill();
-  }
-
-  //create 2d plan
-  plan.onclick = () => {
-    let canvasSize;
-    if (displayGroundSizeX > displayGroundSizeZ) {
-      canvasSize = displayGroundSizeX < 700 ? 1000 : displayGroundSizeX * 1.5;
-    } else {
-      canvasSize = displayGroundSizeZ < 700 ? 1000 : displayGroundSizeZ * 1.5;
-    }
-    ctx.canvas.width = ctx.canvas.height = canvasSize;
-    canvasPlan.style.display = "block";
-    setTimeout(() => {
-      canvasPlan.style.display = "none";
-    }, 1000);
-    // downloadPlan.style.display = "block";
-    // plan.style.display = "none";
-    // draw ground
-    // let groundPosX = 500 - displayGroundSizeX / 2;
-    // let groundPosZ = 500 - displayGroundSizeZ / 2;
-    // let groundSizeX = displayGroundSizeX;
-    // let groundSizeZ = displayGroundSizeZ;
-    // drawGround(groundPosX, groundPosZ, groundSizeX, groundSizeZ);
-    // if(displayGroundSizeX)
-    //get postions of all posts
-    let allPostsPos = [];
-    let allXpos = [0];
-    let allZpos = [];
-    for (let i = 1; i < allPosts.length; i++) {
-      let postsChildren = [];
-
-      fencesArr[i - 1].children.forEach((elm) => {
-        postsChildren.push(elm);
-      });
-
-      let allPostPosX = Math.round(getAbsPosX(allPosts[i]) * 100);
-      let allPostPosZ;
-      if (Math.round(getAbsPosZ(allPosts[i]) * 100) > 0) {
-        allPostPosZ = -Math.abs(Math.round(getAbsPosZ(allPosts[i]) * 100));
-      } else {
-        allPostPosZ = Math.abs(Math.round(getAbsPosZ(allPosts[i]) * 100));
-      }
-      let postPosArr = [allPostPosX, allPostPosZ, i, postsChildren];
-      allPostsPos.push(postPosArr);
-      allXpos.push(allPostPosX);
-      allZpos.push(allPostPosZ);
-    }
-    //get sizes for kotas
-    let fencesSize = [];
-    fencesArr.forEach((elm) => {
-      fencesSize.push(elm.size + 4);
-    });
-
-    //draw main post
-    allXpos.sort(function (a, b) {
-      return a - b;
-    });
-    allZpos.sort(function (a, b) {
-      return a - b;
-    });
-    let mainPostPosX =
-      canvasSize / 2 - 15 - (allXpos[0] + allXpos[allXpos.length - 1]) / 2;
-    let mainPostPosZ =
-      canvasSize / 2 - 15 - (allZpos[0] + allZpos[allZpos.length - 1]) / 2;
-
-    //get all posts positions
-    let linesX = [];
-    let linesY = [];
-    allPostsPos.forEach((elm) => {
-      linesX.push(mainPostPosX + elm[0] + 15);
-      linesY.push(mainPostPosZ + elm[1] + 15);
-    });
-
-    //draw line betwen first and second foundations
-    for (let i = 0; i < rightPosts.length; i++) {
-      if (
-        typeof fencesArr[i].parent == "undefined" &&
-        rightPosts[i].isVisible
-      ) {
-        if (mainPostPosZ + 15 == linesY[i]) {
-          //draw line betwen first and second foundations
-          drawLine(
-            3,
-            mainPostPosX + 15,
-            mainPostPosZ + 15,
-            linesX[i],
-            linesY[i],
-            false
-          );
-          //draw text kotas for first fence
-          if (fencesSize[i] < 81) {
-            drawText2d(
-              fencesSize[i] + "cm",
-              (mainPostPosX + 15 + linesX[i]) / 2,
-              mainPostPosZ - 5
-            );
-          } else {
-            drawText2d(
-              fencesSize[i] + "cm",
-              (mainPostPosX + 15 + linesX[i]) / 2,
-              mainPostPosZ + 55
-            );
-          }
-          //middle line to present size between foundation
-          drawLine(
-            1,
-            mainPostPosX + 15,
-            mainPostPosZ + 60,
-            linesX[i],
-            linesY[i] + 45,
-            true
-          );
-        } else {
-          //draw line betwen first and second foundations
-          drawLine(
-            3,
-            mainPostPosX + 15,
-            mainPostPosZ + 15,
-            linesX[i],
-            linesY[i],
-            false
-          );
-          //draw text kotas for first fence
-          drawText2d(
-            fencesSize[i] + "cm",
-            mainPostPosX + 85,
-            (mainPostPosZ + 15 + linesY[i]) / 2
-          );
-          //
-          //middle line to present size between foundation
-          drawLine(
-            1,
-            mainPostPosX + 60,
-            mainPostPosZ + 15,
-            linesX[i] + 45,
-            linesY[i],
-            true
-          );
-        }
-      }
-    }
-
-    for (let i = 0; i < allPostsPos.length; i++) {
-      allPostsPos[i][3].forEach((elm) => {
-        if (rightPosts[i].isVisible && rightPosts[elm].isVisible) {
-          drawLine(3, linesX[i], linesY[i], linesX[elm], linesY[elm], false);
-          //draw text kotas
-          if (linesY[i] == linesY[elm]) {
-            //size of small line text
-            if (fencesSize[elm] > 81) {
-              drawText2d(
-                fencesSize[elm] + "cm",
-                (linesX[i] + linesX[elm]) / 2,
-                linesY[i] + 40
-              );
-            } else {
-              drawText2d(
-                fencesSize[elm] + "cm",
-                (linesX[i] + linesX[elm]) / 2,
-                linesY[i] - 20
-              );
-            }
-            //middle line to present size between foundation
-            drawLine(
-              1,
-              linesX[i],
-              linesY[i] + 45,
-              linesX[elm],
-              linesY[elm] + 45,
-              true
-            );
-          } else {
-            //size of small line text
-            drawText2d(
-              fencesSize[elm] + "cm",
-              linesX[i] + 75,
-              (linesY[i] + linesY[elm]) / 2
-            );
-            //middle line to present size between foundation
-            drawLine(
-              1,
-              linesX[i] + 45,
-              linesY[i],
-              linesX[elm] + 45,
-              linesY[elm],
-              true
-            );
-          }
-        }
-      });
-    }
-
-    //for whole sizees
-    let mainX = [];
-    let mainY = [];
-    for (let i = 0; i < rightPosts.length; i++) {
-      if (rightPosts[i].isVisible) {
-        mainX.push(linesX[i]);
-        mainY.push(linesY[i]);
-      }
-    }
-    mainX.push(mainPostPosX + 15);
-    mainY.push(mainPostPosZ + 15);
-
-    mainX.sort(function (a, b) {
-      return a - b;
-    });
-    mainY.sort(function (a, b) {
-      return a - b;
-    });
-    //main line //horizontal size
-    drawLine(
-      1,
-      mainX[0],
-      mainY[mainY.length - 1] + 110,
-      mainX[mainX.length - 1],
-      mainY[mainY.length - 1] + 110,
-      true
-    );
-    //size of big line text //horizontal size
-    if (displayGroundSizeX > 191) {
-      drawText2d(
-        displayGroundSizeX + "cm",
-        (mainX[0] + mainX[mainX.length - 1]) / 2,
-        mainY[mainY.length - 1] + 130
-      );
-    } else {
-      drawText2d(
-        displayGroundSizeX - 7 + "cm",
-        (mainX[0] + mainX[mainX.length - 1]) / 2,
-        mainY[mainY.length - 1] + 130
-      );
-    }
-
-    //main line //vertical size
-    if (displayGroundSizeZ > 20) {
-      drawLine(
-        1,
-        mainX[mainX.length - 1] + 110,
-        mainY[0],
-        mainX[mainX.length - 1] + 110,
-        mainY[mainY.length - 1],
-        true
-      );
-      //size of big line text //vertical size
-      if (displayGroundSizeZ > 191) {
-        drawText2d(
-          displayGroundSizeZ + "cm",
-          mainX[mainX.length - 1] + 145,
-          (mainY[0] + mainY[mainY.length - 1]) / 2
-        );
-      } else {
-        drawText2d(
-          displayGroundSizeZ - 7 + "cm",
-          mainX[mainX.length - 1] + 145,
-          (mainY[0] + mainY[mainY.length - 1]) / 2
-        );
-      }
-    }
-
-    //draw foundarion
-    //draw first foundation
-    if (foundationsVord[0].isVisible)
-      drawFoundation(
-        mainPostPosX,
-        mainPostPosZ,
-        30,
-        50,
-        mainPostPosX + 7.5,
-        mainPostPosZ + 7.5,
-        15,
-        15,
-        foundations[0].scaling.y
-      );
-    if (foundationsRuck[0].isVisible)
-      drawFoundation(
-        mainPostPosX,
-        mainPostPosZ - 20,
-        30,
-        50,
-        mainPostPosX + 7.5,
-        mainPostPosZ + 7.5,
-        15,
-        15,
-        foundations[0].scaling.y
-      );
-    if (foundations[0].isVisible)
-      drawFoundation(
-        mainPostPosX,
-        mainPostPosZ,
-        30,
-        30,
-        mainPostPosX + 7.5,
-        mainPostPosZ + 7.5,
-        15,
-        15,
-        foundations[0].scaling.y
-      );
-    //draw all foundaions
-    for (let i = 0; i < allPostsPos.length; i++) {
-      if (rightPosts[i].isVisible) {
-        //vord
-        if (foundationsVord[i + 1].isVisible) {
-          if (wholeFences[i].rotation.y == 0) {
-            drawFoundation(
-              mainPostPosX + allPostsPos[i][0],
-              mainPostPosZ + allPostsPos[i][1],
-              30,
-              50,
-              mainPostPosX + allPostsPos[i][0] + 7.5,
-              mainPostPosZ + allPostsPos[i][1] + 7.5,
-              15,
-              15,
-              foundationsRight[i].scaling.y
-            );
-          }
-          if (wholeFences[i].rotation.y > 1 && wholeFences[i].rotation.y < 2) {
-            drawFoundation(
-              mainPostPosX + allPostsPos[i][0] - 20,
-              mainPostPosZ + allPostsPos[i][1],
-              50,
-              30,
-              mainPostPosX + allPostsPos[i][0] + 7.5,
-              mainPostPosZ + allPostsPos[i][1] + 7.5,
-              15,
-              15,
-              foundationsRight[i].scaling.y
-            );
-          }
-          if (wholeFences[i].rotation.y > 2) {
-            drawFoundation(
-              mainPostPosX + allPostsPos[i][0],
-              mainPostPosZ + allPostsPos[i][1] - 20,
-              30,
-              50,
-              mainPostPosX + allPostsPos[i][0] + 7.5,
-              mainPostPosZ + allPostsPos[i][1] + 7.5,
-              15,
-              15,
-              foundationsRight[i].scaling.y
-            );
-          }
-          if (wholeFences[i].rotation.y < 0) {
-            drawFoundation(
-              mainPostPosX + allPostsPos[i][0],
-              mainPostPosZ + allPostsPos[i][1],
-              50,
-              30,
-              mainPostPosX + allPostsPos[i][0] + 7.5,
-              mainPostPosZ + allPostsPos[i][1] + 7.5,
-              15,
-              15,
-              foundationsRight[i].scaling.y
-            );
-          }
-        }
-        //ruck
-        if (foundationsRuck[i + 1].isVisible) {
-          if (wholeFences[i].rotation.y == 0) {
-            drawFoundation(
-              mainPostPosX + allPostsPos[i][0],
-              mainPostPosZ + allPostsPos[i][1] - 20,
-              30,
-              50,
-              mainPostPosX + allPostsPos[i][0] + 7.5,
-              mainPostPosZ + allPostsPos[i][1] + 7.5,
-              15,
-              15,
-              foundationsRight[i].scaling.y
-            );
-          }
-          if (wholeFences[i].rotation.y > 1 && wholeFences[i].rotation.y < 2) {
-            drawFoundation(
-              mainPostPosX + allPostsPos[i][0],
-              mainPostPosZ + allPostsPos[i][1],
-              50,
-              30,
-              mainPostPosX + allPostsPos[i][0] + 7.5,
-              mainPostPosZ + allPostsPos[i][1] + 7.5,
-              15,
-              15,
-              foundationsRight[i].scaling.y
-            );
-          }
-          if (wholeFences[i].rotation.y > 2) {
-            drawFoundation(
-              mainPostPosX + allPostsPos[i][0],
-              mainPostPosZ + allPostsPos[i][1],
-              30,
-              50,
-              mainPostPosX + allPostsPos[i][0] + 7.5,
-              mainPostPosZ + allPostsPos[i][1] + 7.5,
-              15,
-              15,
-              foundationsRight[i].scaling.y
-            );
-          }
-          if (wholeFences[i].rotation.y < 0) {
-            drawFoundation(
-              mainPostPosX + allPostsPos[i][0] - 20,
-              mainPostPosZ + allPostsPos[i][1],
-              50,
-              30,
-              mainPostPosX + allPostsPos[i][0] + 7.5,
-              mainPostPosZ + allPostsPos[i][1] + 7.5,
-              15,
-              15,
-              foundationsRight[i].scaling.y
-            );
-          }
-        }
-        //ohne
-        if (foundations[i + 1].isVisible)
-          drawFoundation(
-            mainPostPosX + allPostsPos[i][0],
-            mainPostPosZ + allPostsPos[i][1],
-            30,
-            30,
-            mainPostPosX + allPostsPos[i][0] + 7.5,
-            mainPostPosZ + allPostsPos[i][1] + 7.5,
-            15,
-            15,
-            foundationsRight[i].scaling.y
-          );
-      }
-    }
-
-    //download 3d
-    var formats = {
-      a4: [210, 297],
-      a3: [400, 200],
-    };
-
-    setTimeout(() => {
-      html2canvas(canvasPlan, {
-        onrendered: function (canvasPlan) {
-          var img = canvasPlan.toDataURL("image/jpeg,0.5");
-          // pdf.output("datauri");
-          var imgData = new Image();
-          imgData.src = "./img/pdfInstr.png";
-          var pdf = new jsPDF("l", "mm", [210, 297]);
-          imgData.onload = function () {
-            pdf.addImage(imgData, "PNG", 5, 140, 43.5, 61.46);
-            pdf.addImage(img, "PNG", 43.5, 0, 210, 210);
-            pdf.text("Mega Holz 2D Plan", 10, 10);
-            pdf.save("Mega Holz 2D Plan For Fundaments.pdf");
-          };
-        },
-      });
-    }, 500);
-
-    ////////////////////////////////////
-    //end create 2d function
-  };
+  draw2dPlan(
+    allPosts,
+    fencesArr,
+    getAbsPosX,
+    getAbsPosZ,
+    rightPosts,
+    foundationsVord,
+    foundationsRuck,
+    foundations,
+    foundationsRight,
+    wholeFences
+  );
 
   //end of scene
   return scene;

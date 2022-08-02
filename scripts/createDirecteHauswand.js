@@ -25,7 +25,13 @@ function createDirecteHauswand(
   setActivnesStyle,
   grauMat,
   braunMat,
-  sandMat
+  sandMat,
+  woodMaterials,
+  topBoards,
+  rankelements,
+  rightWoodPosts,
+  woodTopParts,
+  gardoFenceBoards
 ) {
   var directeHauswandMeshRight = BABYLON.MeshBuilder.CreateBox(
     "directeHauswandMeshRight",
@@ -75,14 +81,20 @@ function createDirecteHauswand(
             addFenceSings,
             grauMat,
             braunMat,
-            sandMat
+            sandMat,
+            woodMaterials,
+            topBoards,
+            rankelements,
+            rightWoodPosts,
+            woodTopParts,
+            gardoFenceBoards
           );
           directeHauswandMeshRight.material = selectedMat;
           sideAccesories.style.display = "block";
           deleteAccesorie[0].style.display = "block";
           addNewFenceToSide.style.display = "none";
           //set day when select sturmanker
-          setDayNight(0.6, 0, 0.7);
+          setDayNight(0.6, 0.8, 0.7);
           setLightColor(4);
           glow.intensity = 0;
           singsWar.forEach((elm) => {

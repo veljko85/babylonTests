@@ -102,7 +102,13 @@ var createMainPost = (
                 addFenceSings,
                 grauMat,
                 braunMat,
-                sandMat
+                sandMat,
+                woodMaterials,
+                topBoards,
+                rankelements,
+                rightWoodPosts,
+                woodTopParts,
+                gardoFenceBoards
               );
               leftPost.material = selectedMat;
               addFenceSings[0].isVisible = true;
@@ -117,7 +123,7 @@ var createMainPost = (
                 addFenceSings
               );
               //set day when select sturmanker
-              setDayNight(0.6, 0, 0.7);
+              setDayNight(0.6, 0.8, 0.7);
               setLightColor(4);
               glow.intensity = 0;
               singsWar.forEach((elm) => {

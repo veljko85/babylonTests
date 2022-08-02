@@ -326,7 +326,8 @@ video {
   background-color: red;
 }
 .slider-btns,
-.del-sing-btns {
+.del-sing-btns,
+.del-sing-btns-sing {
   border: 1px solid var(--main-style-color);
   width: 40px;
   height: 40px;
@@ -340,6 +341,9 @@ video {
   background-color: var(--main-style-light-color);
 }
 .del-sing-btns:hover {
+  background-color: var(--main-style-light-color);
+}
+.del-sing-btns-sing:hover {
   background-color: var(--main-style-light-color);
 }
 #set-part-fence-acc-del {
@@ -378,6 +382,7 @@ video {
 }
 .set-part-click-title,
 .set-part-click-title-single,
+.combined-fences-title,
 #changeAllFences {
   width: 90%;
   height: 50px;
@@ -412,7 +417,8 @@ video {
 }
 .active-text-color,
 .active-text-color-single,
-.active-text-color-single-pfosten {
+.active-text-color-single-pfosten,
+.active-text-color-gardo-change {
   color: var(--main-style-color);
 }
 .set-num {

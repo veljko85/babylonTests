@@ -14,7 +14,13 @@ function addDefaultMaterial(
   addFenceSings,
   grauMat,
   braunMat,
-  sandMat
+  sandMat,
+  woodMaterials,
+  topBoards,
+  rankelements,
+  rightWoodPosts,
+  woodTopParts,
+  gardoFenceBoards
 ) {
   //boards materials
   // fenceBoards.forEach((elm) => {
@@ -57,7 +63,6 @@ function addDefaultMaterial(
       });
     }
   }
-
   //small fence material
   for (let i = 0; i < smallBoardsArr.length; i++) {
     if (fencesArr[i].smBoaCol == "silber") {
@@ -68,5 +73,23 @@ function addDefaultMaterial(
   }
   addFenceSings.forEach((elm) => {
     elm.isVisible = false;
+  });
+  //gardo fence material
+  topBoards.forEach((elm) => {
+    elm.material = woodMaterials[0];
+  });
+  rankelements.forEach((elm) => {
+    elm.material = woodMaterials[0];
+  });
+  rightWoodPosts.forEach((elm) => {
+    elm.material = woodMaterials[0];
+  });
+  woodTopParts.forEach((elm) => {
+    elm.material = woodMaterials[0];
+  });
+  gardoFenceBoards.forEach((elm) => {
+    elm.forEach((element) => {
+      element.material = woodMaterials[0];
+    });
   });
 }
