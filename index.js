@@ -5109,13 +5109,7 @@ var createScene = function () {
   let numOfBords = document.getElementById("numOfBords");
   let numOfBordsVal = 8;
   delSingBut[0].onclick = () => {
-    if (
-      numOfBordsVal > 1 &&
-      (fencesArr[i].type == "easyFence" ||
-        fencesArr[i].type == "easyFenceInlaysAnth" ||
-        fencesArr[i].type == "easyFenceInlaysSilber" ||
-        fencesArr[i].type == "easyFenceHalf")
-    ) {
+    if (numOfBordsVal > 1) {
       numOfBordsVal -= 1;
       numOfBords.innerHTML = numOfBordsVal;
       for (let i = 0; i < fencesArr.length; i++) {
@@ -5159,21 +5153,18 @@ var createScene = function () {
   };
 
   delSingBut[1].onclick = () => {
-    if (
-      numOfBordsVal < 8 &&
-      (fencesArr[i].type == "easyFence" ||
-        fencesArr[i].type == "easyFenceInlaysAnth" ||
-        fencesArr[i].type == "easyFenceInlaysSilber" ||
-        fencesArr[i].type == "easyFenceHalf")
-    ) {
+    if (numOfBordsVal < 8) {
       for (let i = 0; i < fencesArr.length; i++) {
         if (
           (fencesArr[i].type == "easyFence" &&
-            fenceBoards[i][numOfBordsVal].isVisible == false) ||
+            fenceBoards[i][numOfBordsVal].isVisible == false &&
+            numOfBordsVal == fencesArr[i].numOfBoards) ||
           (fencesArr[i].type == "easyFenceInlaysAnth" &&
-            fenceBoards[i][numOfBordsVal].isVisible == false) ||
+            fenceBoards[i][numOfBordsVal].isVisible == false &&
+            numOfBordsVal == fencesArr[i].numOfBoards) ||
           (fencesArr[i].type == "easyFenceInlaysSilber" &&
-            fenceBoards[i][numOfBordsVal].isVisible == false)
+            fenceBoards[i][numOfBordsVal].isVisible == false &&
+            numOfBordsVal == fencesArr[i].numOfBoards)
         ) {
           fenceBoards[i][numOfBordsVal].isVisible = true;
           if (fencesArr[i].laisnes[numOfBordsVal - 1])
